@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Golden Carrot</string>
+    <string name="auth_organizer_user_type">Organizer</string>
+    <string name="auth_participant_user_type">Participant</string>
+    <string name="auth_admin_user_type">Admin</string>
+    <string name="next">Next</string>
 </resources>

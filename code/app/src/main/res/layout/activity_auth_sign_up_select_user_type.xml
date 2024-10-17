@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/auth_sign_up_select_user"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.SelectUserTypeActivity">
+
+    <LinearLayout
+        android:layout_width="262dp"
+        android:layout_height="247dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/select_user_type_welcome_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="select user type:" />
+
+        <Button
+            android:id="@+id/select_user_type_organizer_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_organizer_user_type" />
+
+        <Button
+            android:id="@+id/select_user_type_admin_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_admin_user_type" />
+
+        <Button
+            android:id="@+id/select_user_type_participant_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_participant_user_type" />
+
+        <Button
+            android:id="@+id/select_user_type_next_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/next" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
