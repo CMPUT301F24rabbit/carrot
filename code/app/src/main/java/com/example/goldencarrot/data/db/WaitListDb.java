@@ -24,8 +24,17 @@ public interface WaitListDb {
      * @param user    the user to update
      * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
      */
-    void updateWaitList(String docId, UserImpl user, String status);
 
+    void updateUserStatusInWaitList(String docId, UserImpl user, String status);
+
+    /**
+     * Adds a user to the waitlist if there is room.
+     *
+     * @param docId the document ID of the waitlist
+     * @param user the user to be added to the waitlist
+     * @param callback a callback that handles the result (true if added, false if the waitlist is full)
+     */
+    void addUserToWaitList(String docId, UserImpl user, WaitListRepository.FirestoreCallback callback);
     /**
      * Deletes a waitlist document from Firestore.
      *
