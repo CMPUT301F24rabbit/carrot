@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -14,10 +15,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.goldencarrot.authentication.AccountService;
+import com.example.goldencarrot.authentication.AccountServiceImpl;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.SelectUserTypeActivity;
+import com.example.goldencarrot.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Firebase;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() != null){
             FirebaseUser currentUser = mAuth.getCurrentUser();
             getCurrentUserData(currentUser);
-            navigateToHomeView(currentUserData.get(1));
+            //Intent intent = new Intent(MainActivity.this, AdminHomeActivity.class);
             //startActivity(intent);
         }
 
@@ -101,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void navigateToHomeView(String userType) {
+    public void navigateByUserType(String userType) {
         Intent intent;
         if (userType.equals("ADMIN")) {
             intent = new Intent(MainActivity.this, AdminHomeActivity.class);
