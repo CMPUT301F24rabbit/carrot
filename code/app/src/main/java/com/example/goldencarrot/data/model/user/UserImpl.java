@@ -9,7 +9,7 @@ public class UserImpl implements User{
     public UserImpl(){}
 
     public UserImpl(final String email, final String userType, final String username) throws Exception{
-        //validateUserType(userType);
+        validateUserType(userType);
         this.email = email;
         this.userType = userType;
         this.username = username;
