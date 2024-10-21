@@ -26,12 +26,18 @@
         android:layout_height="wrap_content"
         android:text="Events"
         app:layout_constraintBottom_toTopOf="@+id/adminAllUsersButton"
+        android:id="@+id/adminViewAllEvents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Events"
+        app:layout_constraintBottom_toTopOf="@+id/adminViewAllUsers"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adminHomeHeader" />
 
     <Button
         android:id="@+id/adminAllUsersButton"
+        android:id="@+id/adminViewAllUsers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="110dp"
@@ -43,6 +49,13 @@
 
     <Button
         android:id="@+id/adminAllImagesButton"
+        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adminViewAllEvents" />
+
+    <Button
+        android:id="@+id/adminViewAllImages"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="142dp"
@@ -51,4 +64,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton" />
+        app:layout_constraintTop_toBottomOf="@+id/adminViewAllUsers" />
 </androidx.constraintlayout.widget.ConstraintLayout>
