@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,28 +21,28 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/adminViewAllEvents"
+        android:id="@+id/adminAllEventsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Events"
-        app:layout_constraintBottom_toTopOf="@+id/adminViewAllUsers"
+        app:layout_constraintBottom_toTopOf="@+id/adminAllUsersButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adminHomeHeader" />
 
     <Button
-        android:id="@+id/adminViewAllUsers"
+        android:id="@+id/adminAllUsersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="110dp"
         android:text="Users"
-        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
+        app:layout_constraintBottom_toTopOf="@+id/adminAllImagesButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminViewAllEvents" />
+        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton" />
 
     <Button
-        android:id="@+id/adminViewAllImages"
+        android:id="@+id/adminAllImagesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="142dp"
@@ -49,5 +50,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminViewAllUsers" />
+        app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>
