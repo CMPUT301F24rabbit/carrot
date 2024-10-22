@@ -1,5 +1,6 @@
 package com.example.goldencarrot.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
 
+/**
+ * Displays admin home view
+ */
 public class AdminHomeActivity extends AppCompatActivity {
     private Button viewAllEventsButton, viewAllUsersButton, viewAllImagesButton;
     @Override
@@ -30,7 +34,9 @@ public class AdminHomeActivity extends AppCompatActivity {
         viewAllUsersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                // opens all users list
+                Intent intent = new Intent(AdminHomeActivity.this, AdminAllUsersView.class);
+                startActivity(intent);
             }
         });
 

@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() != null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             getCurrentUserData(currentUser);
-            navigateByUserType(currentUserData.get(1));
+            //navigateByUserType(currentUserData.get(1));
         }
 
         //  Login Button
