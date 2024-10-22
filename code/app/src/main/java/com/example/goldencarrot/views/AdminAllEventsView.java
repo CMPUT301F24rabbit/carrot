@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
 
+/**
+ * Displays full list of events
+ */
 public class AdminAllEventsView extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
