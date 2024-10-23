@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
 
 public class AdminHomeActivity extends AppCompatActivity {
+  
     private Button adminViewAllEventsButton;
 
     @Override
@@ -29,4 +30,5 @@ public class AdminHomeActivity extends AppCompatActivity {
             }
         });
     }
+
 }
