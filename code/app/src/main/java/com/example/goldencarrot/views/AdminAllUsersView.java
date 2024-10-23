@@ -47,9 +47,9 @@ public class AdminAllUsersView extends AppCompatActivity {
                                 UserImpl nUser;
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 try {
-                                    nUser = new UserImpl((String) document.getData().get("email"),
-                                            (String) document.getData().get("userType"),
-                                            (String) document.getData().get("username"));
+                                    nUser = new UserImpl(document.getString("email"),
+                                            document.getString("userType"),
+                                            document.getString("username"));
                                     dataUserList.add(nUser);
                                 } catch (Exception e) {
 
