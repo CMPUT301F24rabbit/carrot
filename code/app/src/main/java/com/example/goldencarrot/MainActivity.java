@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() != null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             getCurrentUserData(currentUser);
-            //navigateByUserType(currentUserData.get(1));
+            navigateByUserType("ADMIN");
         }
 
         //  Login Button
@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        currentUserData.add((String) document.getData().get("email"));
-                        currentUserData.add((String) document.getData().get("userType"));
-                        currentUserData.add((String) document.getData().get("username"));
+                        currentUserData.add(document.getData().get("email").toString());
+                        currentUserData.add(document.getData().get("userType").toString());
+                        currentUserData.add(document.getData().get("username").toString());
                     } else {
                         Log.d(TAG, "No such document");
                     }

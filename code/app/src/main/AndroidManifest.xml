@@ -24,6 +24,9 @@
 
         <activity android:name=".views.SignUpActivity" />
         <activity android:name=".views.SelectUserTypeActivity" />
+        <activity android:name=".views.AdminHomeActivity" />
+        <activity android:name=".views.AdminAllEventsView"/>
+        <activity android:name=".views.AdminAllUsersView"/>
     </application>
 
 </manifest>
