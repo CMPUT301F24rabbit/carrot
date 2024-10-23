@@ -1,3 +1,4 @@
+
 public class EntrantProfileView extends AppCompatActivity {
 
     private EditText nameInput, emailInput, phoneInput;
@@ -38,6 +39,10 @@ public class EntrantProfileView extends AppCompatActivity {
         });
     }
 
+    private boolean isValidEmail(String email) {
+        String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+        return email.matches(emailPattern);
+    }
     private boolean isValidPhoneNumber(String phone) {
         return phone.matches("\\d{10}");
     }
