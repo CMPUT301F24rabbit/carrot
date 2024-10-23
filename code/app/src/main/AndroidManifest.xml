@@ -24,6 +24,7 @@
 
         <activity android:name=".views.SignUpActivity" />
         <activity android:name=".views.SelectUserTypeActivity" />
+        <activity android:name=".views.BrowseEventsActivity"/>
     </application>
 
 </manifest>
