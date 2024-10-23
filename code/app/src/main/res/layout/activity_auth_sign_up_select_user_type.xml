@@ -8,8 +8,12 @@
     tools:context=".views.SelectUserTypeActivity">
 
     <LinearLayout
-        android:layout_width="262dp"
-        android:layout_height="247dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,29 +24,51 @@
             android:id="@+id/select_user_type_welcome_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="select user type:" />
+            android:text="Which account type would you like to create?"
+            android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="50dp"
+            android:adjustViewBounds="false"
+            tools:srcCompat="@tools:sample/avatars[1]" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="215dp"
+            android:layout_marginTop="-125dp"
+            android:adjustViewBounds="false"
+            tools:srcCompat="@tools:sample/avatars[2]" />
 
         <Button
             android:id="@+id/select_user_type_organizer_button"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
             android:text="@string/auth_organizer_user_type" />
 
         <Button
+            android:id="@+id/select_user_type_participant_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="215dp"
+            android:layout_marginTop="-45dp"
+            android:text="@string/auth_participant_user_type" />
+
+        <Button
             android:id="@+id/select_user_type_admin_button"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/auth_admin_user_type" />
 
         <Button
-            android:id="@+id/select_user_type_participant_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/auth_participant_user_type" />
-
-        <Button
             android:id="@+id/select_user_type_next_button"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/next" />
     </LinearLayout>
