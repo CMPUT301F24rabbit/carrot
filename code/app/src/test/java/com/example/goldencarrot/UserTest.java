@@ -1,0 +1,75 @@
+package com.example.goldencarrot;
+
+import static android.content.ContentValues.TAG;
+import static com.example.goldencarrot.data.model.user.UserUtils.ADMIN_TYPE;
+import static com.example.goldencarrot.data.model.user.UserUtils.ORGANIZER_TYPE;
+import static com.example.goldencarrot.data.model.user.UserUtils.PARTICIPANT_TYPE;
+import static com.example.goldencarrot.data.model.user.UserUtils.USER_TYPE;
+import static com.example.goldencarrot.data.model.user.UserUtils.invalidUserTypeException;
+
+import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.model.user.User;
+import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
+
+import java.util.List;
+
+public class UserTest {
+
+    private User newUser;
+    private String mockEmail() {
+        return "mock@gmail.com";
+    }
+    private String mockUsername() {
+        return "BugsBunny";
+    }
+    private FirebaseFirestore db;
+    private UserRepository userRepository;
+    private int userCollectionSize;
+    private User mockUser(String userType) {
+        try {
+            newUser = new UserImpl(mockEmail(), userType, mockUsername());
+        }
+        catch(Exception e){
+
+        }
+        return newUser;
+    }
+
+    @Test
+    void testCreateUserObj_HappyCase() {
+        User nUser;
+        // test if user is successfully created
+        nUser = mockUser(ADMIN_TYPE);
+        assertSame(nUser.getEmail(), mockEmail());
+        assertSame(nUser.getUserType(), ADMIN_TYPE);
+        assertSame(nUser.getUsername(), mockUsername());
+
+        nUser = mockUser(ORGANIZER_TYPE);
+        assertSame(nUser.getUserType(), ORGANIZER_TYPE);
+    }
+
+    @Test
+    void testCreateUserObj_InvalidUserType() {
+        // test if exception is thrown for invalid user type
+        assertThrows(Exception.class, () -> {
+            User nUser = new UserImpl(mockEmail(), "InvalidType", mockUsername());
+        });
+    }
+
+}
