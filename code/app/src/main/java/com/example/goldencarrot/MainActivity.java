@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
 
-        userRepository.getUserTypeFromFirestore(new UserRepository.FirestoreCallback() {
+        userRepository.getUserTypeFromFirestore(new UserRepository.FirestoreCallbackUserType() {
             @Override
             public void onSuccess(String userType) {
                 // Handle the retrieved user type
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.auth_login_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
             }
         });
 

@@ -17,9 +17,13 @@ import java.util.ArrayList;
 /**
  * Array adapter for users
  */
-public class UserArrayAdapter extends ArrayAdapter<UserImpl> {
-    public UserArrayAdapter(@NonNull Context context, ArrayList<UserImpl> users) {
+public class UserArrayAdapter extends ArrayAdapter<User> {
+    private ArrayList<User> users;
+    private Context context;
+    public UserArrayAdapter(@NonNull Context context, ArrayList<User> users) {
         super(context, 0, users);
+        this.users = users;
+        this.context = context;
     }
     @NonNull
     @Override
@@ -30,7 +34,7 @@ public class UserArrayAdapter extends ArrayAdapter<UserImpl> {
         } else {
             view = convertView;
         }
-        UserImpl user = getItem(position);
+        User user = getItem(position);
         TextView username = view.findViewById(R.id.userNameView);
         username.setText(user.getUsername());
         return view;
