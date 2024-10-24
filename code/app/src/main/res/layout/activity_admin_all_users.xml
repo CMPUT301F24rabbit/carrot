@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.AdminAllEventsView">
+    tools:context=".views.AdminAllUsersView">
 
     <ListView
-        android:id="@+id/allEventsList"
+        android:id="@+id/allUsersList"
         android:layout_width="414dp"
         android:layout_height="620dp"
         android:layout_marginBottom="16dp"
@@ -17,14 +17,14 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/allEventsTextView"
+        android:id="@+id/allUsersTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="All Events"
+        android:text="Users"
         android:textAlignment="center"
         android:textSize="34sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/allEventsList"
+        app:layout_constraintBottom_toTopOf="@+id/allUsersList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

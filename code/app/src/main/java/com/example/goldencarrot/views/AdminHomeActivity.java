@@ -10,25 +10,41 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
 
+/**
+ * Displays admin home view
+ */
 public class AdminHomeActivity extends AppCompatActivity {
-  
-    private Button adminViewAllEventsButton;
-
+    private Button viewAllEventsButton, viewAllUsersButton, viewAllImagesButton;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_home);
-        // View events button
-        adminViewAllEventsButton = findViewById(R.id.adminViewAllEvents);
 
-        adminViewAllEventsButton.setOnClickListener(new View.OnClickListener() {
+        viewAllEventsButton = findViewById(R.id.adminAllEventsButton);
+        viewAllUsersButton = findViewById(R.id.adminAllUsersButton);
+        viewAllImagesButton = findViewById(R.id.adminAllImagesButton);
+
+        viewAllEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // Open BrowseEventsActivity when the events button is clicked
-                Intent intent = new Intent(AdminHomeActivity.this, BrowseEventsActivity.class);
+            public void onClick(View view) {
+
+            }
+        });
+
+        viewAllUsersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // opens all users list
+                Intent intent = new Intent(AdminHomeActivity.this, AdminAllUsersView.class);
                 startActivity(intent);
             }
         });
-    }
 
+        viewAllImagesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
 }
