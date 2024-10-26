@@ -5,7 +5,7 @@
     android:id="@+id/auth_sign_up"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.SignUpActivity">
+    tools:context=".views.EntrantEditUserDetailsView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/text_username_title"
+            android:id="@+id/edit_user_details_username_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -26,7 +26,7 @@
             android:textSize="25dp" />
 
         <EditText
-            android:id="@+id/sign_up_name"
+            android:id="@+id/edit_user_details_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="145dp"
@@ -37,7 +37,7 @@
             android:text="UsernName" />
 
         <TextView
-            android:id="@+id/text_email_title"
+            android:id="@+id/edit_user_details_email_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -46,7 +46,7 @@
             android:textSize="25sp" />
 
         <EditText
-            android:id="@+id/sign_up_email_input"
+            android:id="@+id/edit_user_details_email_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="90dp"
@@ -57,7 +57,7 @@
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/text_phone_title"
+            android:id="@+id/edit_user_details_phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -66,7 +66,7 @@
             android:textSize="10sp" />
 
         <EditText
-            android:id="@+id/sign_up_phone_number"
+            android:id="@+id/edit_user_details_phone_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="130dp"
@@ -76,20 +76,11 @@
             android:inputType="number" />
 
         <Button
-            android:id="@+id/sign_up_create_account_button"
+            android:id="@+id/edit_user_details_save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:text="Create Account" />
-
-        <TextView
-            android:id="@+id/auth_welcome_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:text="TextView" />
-
+            android:text="Save" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

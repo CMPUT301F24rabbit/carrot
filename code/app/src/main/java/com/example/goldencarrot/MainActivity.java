@@ -1,7 +1,10 @@
 package com.example.goldencarrot;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,14 +17,11 @@ import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
 import com.example.goldencarrot.views.OrganizerHomeView;
-import com.example.goldencarrot.views.SelectUserTypeActivity;
-
+import com.example.goldencarrot.views.SignUpActivity;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
+    private String deviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,25 +31,23 @@ public class MainActivity extends AppCompatActivity {
 
         UserRepository userRepository = new UserRepository();
         FirebaseApp.initializeApp(this);
-        mAuth = FirebaseAuth.getInstance();
 
-        userRepository.getUserTypeFromFirestore(new UserRepository.FirestoreCallback() {
-            @Override
-            public void onSuccess(String userType) {
-                // Handle the retrieved user type
-                navigateByUserType(userType);
-            }
+        deviceId = getDeviceId(this);
 
+        // Check if the user exists in Firestore using the device ID and get the userType
+        userRepository.checkUserExistsAndGetUserType(deviceId, new UserRepository.UserTypeCallback() {
             @Override
-            public void onFailure(Exception e) {
-                // Handle any errors
-            }
-        });
-
-        //  Login Button
-        findViewById(R.id.auth_login_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public void onResult(boolean exists, String userType) {
+                if (exists) {
+                    // User exists, and we have the userType
+                    Log.d("MainActivity", "User exists. User Type: " + userType);
+                    navigateByUserType(userType);
+                } else {
+                    // User does not exist
+                    Log.d("MainActivity", "User does not exist in Firestore.");
+                    Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.auth_sign_up_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SelectUserTypeActivity.class);
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
             }
         });
@@ -85,5 +83,9 @@ public class MainActivity extends AppCompatActivity {
             intent = new Intent(MainActivity.this, EntrantHomeView.class);
             startActivity(intent);
         }
+    }
+
+    private String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }
