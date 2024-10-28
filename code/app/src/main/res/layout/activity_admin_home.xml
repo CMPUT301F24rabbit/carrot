@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".views.AdminHomeActivity">
+
 
     <TextView
         android:id="@+id/adminHomeHeader"
@@ -20,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/adminViewAllEvents"
+        android:id="@+id/adminAllEventsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -32,9 +35,20 @@
         app:layout_constraintTop_toBottomOf="@+id/adminHomeHeader" />
 
     <Button
-        android:id="@+id/adminViewAllImages"
+        android:id="@+id/adminAllUsersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Users"
+        app:layout_constraintBottom_toTopOf="@+id/admin_users_scroll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/divider" />
+
+    <Button
+        android:id="@+id/adminAllImagesButton"
+        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
+         android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Images"
         android:visibility="visible"
@@ -50,19 +64,7 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminViewAllEvents" />
-
-    <Button
-        android:id="@+id/adminViewAllUsers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Users"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton" />
 
     <View
         android:id="@+id/divider2"
@@ -86,7 +88,7 @@
         app:layout_constraintBottom_toTopOf="@+id/divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminViewAllEvents">
+        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -99,7 +101,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:visibility="visible"
@@ -107,8 +108,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminViewAllUsers"
-        app:layout_constraintVertical_bias="0.48000002">
+        app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton">
 
         <LinearLayout
             android:layout_width="match_parent"
