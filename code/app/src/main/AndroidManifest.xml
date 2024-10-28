@@ -31,7 +31,7 @@
         <activity android:name=".views.EntrantHomeView" />
         <activity android:name=".views.OrganizerHomeView"/>
         <activity android:name=".views.BrowseEventsActivity"/>
-
+        <activity android:name=".views.AdminUserView"/>
     </application>
 
 </manifest>
