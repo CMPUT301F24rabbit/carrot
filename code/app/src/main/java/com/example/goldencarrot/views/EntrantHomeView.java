@@ -49,8 +49,8 @@ public class EntrantHomeView extends AppCompatActivity {
         setContentView(R.layout.entrant_home_view);
 
         // Initialize the views from layout file
-        profileImageView = findViewById(R.id.profileImage);
-        usernameTextView = findViewById(R.id.username);
+        profileImageView = findViewById(R.id.entrant_home_view_image_view);
+        usernameTextView = findViewById(R.id.entrant_home_view_user_name);
         upcomingEventsRecycle = findViewById(R.id.upcoming_events);
         waitlistedEventsRecycle = findViewById(R.id.waitlisted_events);
         addEventButton = findViewById(R.id.button_scanQR);
