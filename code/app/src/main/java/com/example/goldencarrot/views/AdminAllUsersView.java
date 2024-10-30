@@ -52,7 +52,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 // cache list from firebase
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
-                getUsersFromFirestore(listOfUsers);
+                //getUsersFromFirestore(listOfUsers);
                 // set data list in adapter
                 userArrayAdapter = new UserArrayAdapter(AdminAllUsersView.this, dataUserList);
                 userList.setAdapter(userArrayAdapter);
@@ -74,21 +74,21 @@ public class AdminAllUsersView extends AppCompatActivity {
             }
         });
     }
-    public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
-        // convert all documents into users
-        for (int i = 0; i < listOfUsers.size(); i++) {
-            try {
-                DocumentSnapshot userFromDb = listOfUsers.get(i);
-                User newUser = new UserImpl(userFromDb.getString("email"),
-                        userFromDb.getString("userType"),
-                        userFromDb.getString("username"));
-                // add user to user data list
-                dataUserList.add(newUser);
-                Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
-            } catch (Exception e) {
-                Log.e(TAG, "Invalid user type, user not added");
-            }
-        }
-    }
+//    public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
+//        // convert all documents into users
+//        for (int i = 0; i < listOfUsers.size(); i++) {
+//            try {
+//                DocumentSnapshot userFromDb = listOfUsers.get(i);
+//                User newUser = new UserImpl(userFromDb.getString("email"),
+//                        userFromDb.getString("userType"),
+//                        userFromDb.getString("username"));
+//                // add user to user data list
+//                dataUserList.add(newUser);
+//                Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
+//            } catch (Exception e) {
+//                Log.e(TAG, "Invalid user type, user not added");
+//            }
+//        }
+//    }
 }
 

@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.example.goldencarrot.data.model.user.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -24,11 +23,13 @@ import java.util.Map;
  */
 public class UserRepository {
     private static final String TAG = "DB" ;
-    private final FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-
+    private FirebaseFirestore db;
     private CollectionReference userCollection;
     private List<DocumentSnapshot> listOfUsers;
+
+    public UserRepository(FirebaseFirestore firestore) {
+        this.db = firestore;
+    }
 
     public UserRepository() {
         db = FirebaseFirestore.getInstance();

@@ -3,6 +3,8 @@ package com.example.goldencarrot.data.model.event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 
+import java.util.Date;
+
 public interface EventConfigurator {
 
     /**
@@ -32,4 +34,60 @@ public interface EventConfigurator {
      * @param waitList the WaitList object to set for the event
      */
     void setWaitList(WaitList waitList);
+
+    /**
+     * Retrieves the name of the event.
+     *
+     * @return the name of the event
+     */
+    String getEventName();
+
+    /**
+     * Sets the name of the event.
+     *
+     * @param eventName the name to set for the event
+     */
+    void setEventName(String eventName);
+
+    /**
+     * Retrieves the details of the event.
+     *
+     * @return the details of the event
+     */
+    String getEventDetails();
+
+    /**
+     * Sets the details of the event.
+     *
+     * @param eventDetails the details to set for the event
+     */
+    void setEventDetails(String eventDetails);
+    /**
+     * Sets the location for the event.
+     *
+     * @param location The location of the event.
+     */
+    void setLocation(String location);
+
+    /**
+     * Retrieves the location of the event.
+     *
+     * @return The location of the event as a String.
+     */
+    String getLocation();
+
+    /**
+     * Sets the date for the event.
+     *
+     * @param date The date of the event.
+     */
+    void setDate(Date date);
+
+    /**
+     * Retrieves the date of the event.
+     *
+     * @return The date of the event as a Date object.
+     */
+    Date getDate();
+
 }
