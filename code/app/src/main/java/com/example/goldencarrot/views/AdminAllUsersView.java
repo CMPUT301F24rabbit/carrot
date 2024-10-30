@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -24,7 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import java.util.Optional;
+
 
 /**
  * displays full list of users
@@ -34,7 +37,11 @@ public class AdminAllUsersView extends AppCompatActivity {
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
     private FirebaseFirestore db;
+
     private Button backBtn;
+
+    //private CollectionReference userCollection;
+
     private UserRepository userRepository;
     private ArrayList<DocumentSnapshot> userListFromDb;
 
@@ -86,6 +93,11 @@ public class AdminAllUsersView extends AppCompatActivity {
                 finish();
             }
         });
+                DocumentSnapshot userToView = userListFromDb.get(position);
+                intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
+                startActivity(intent);
+            }
+        });
     }
     public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
         // convert all documents into users
@@ -97,7 +109,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                         userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
                 // add user to user data list
                 dataUserList.add(newUser);
-                Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
+                Log.i(TAG, "Successfully added " + userFromDb.getString("name"));
             } catch (Exception e) {
                 Log.e(TAG, "Invalid user type, user not added");
             }

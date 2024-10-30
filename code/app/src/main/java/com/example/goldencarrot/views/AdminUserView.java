@@ -18,6 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Optional;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * Displays admin view of user profile
  */

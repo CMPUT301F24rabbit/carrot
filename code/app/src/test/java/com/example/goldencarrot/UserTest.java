@@ -27,6 +27,7 @@ public class UserTest {
     private int userCollectionSize;
     private User mockUser(String userType) {
         try {
+
             newUser = new UserImpl(mockEmail(), userType, mockName(), null);
         }
         catch(Exception e){
@@ -42,7 +43,9 @@ public class UserTest {
         nUser = mockUser(ADMIN_TYPE);
         assertSame(nUser.getEmail(), mockEmail());
         assertSame(nUser.getUserType(), ADMIN_TYPE);
+
         assertSame(nUser.getName(), mockName());
+
 
         nUser = mockUser(ORGANIZER_TYPE);
         assertSame(nUser.getUserType(), ORGANIZER_TYPE);
@@ -53,6 +56,7 @@ public class UserTest {
         // test if exception is thrown for invalid user type
         assertThrows(Exception.class, () -> {
             User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null);
+           
         });
     }
 
