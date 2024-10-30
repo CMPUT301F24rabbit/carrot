@@ -25,9 +25,10 @@ public class AdminHomeActivity extends AppCompatActivity {
         viewAllImagesButton = findViewById(R.id.adminAllImagesButton);
 
         viewAllEventsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
+            public void onClick(View v) {
+                // Open BrowseEventsActivity when the events button is clicked
+                Intent intent = new Intent(AdminHomeActivity.this, BrowseEventsActivity.class);
+                startActivity(intent);
             }
         });
 
