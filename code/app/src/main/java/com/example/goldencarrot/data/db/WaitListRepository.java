@@ -7,13 +7,15 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * The {@code WaitListRepository} class provides methods to create, update, delete,
  * and query waitlist documents in Firestore. It interacts with Firestore to persist
- * waitlist data such as user usernames and their status.
+ * waitlist data such as user names and their status.
  */
 
 public class WaitListRepository implements WaitListDb{
@@ -103,6 +105,10 @@ public class WaitListRepository implements WaitListDb{
         Map<String, Object> updateData = new HashMap<>();
         updateData.put(user.getName(), status);
 
+        /**
+         * Todo make a private method to validate the status input
+         */
+
         // Update the user status in the waitlist document
         waitListRef.document(docId)
                 .update(updateData)
@@ -166,6 +172,51 @@ public class WaitListRepository implements WaitListDb{
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error fetching user status", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves a list of users with a specified status in the waitlist document.
+     *
+     * @param docId  the document ID of the waitlist
+     * @param status the status to filter users by (e.g., "waiting", "accepted")
+     * @param callback a callback that returns a list of rnames with the specified status
+     */
+    @Override
+    public void getUsersWithStatus(final String docId,
+                                   final String status,
+                                   final FirestoreCallback callback) {
+        /**
+         * Make a private method to validate the status input
+         */
+        waitListRef.document(docId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> usersWithStatus = new ArrayList<>();
+
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") &&
+                                        !entry.getKey().equals("limit")) {
+                                    // Check if the user has the specified status
+                                    if (entry.getValue().toString().equals(status)) {
+                                        usersWithStatus.add(entry.getKey());
+                                    }
+                                }
+                            }
+                        }
+
+                        callback.onSuccess(usersWithStatus);
+                    } else {
+                        callback.onSuccess(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching users with status " + status, e);
                     callback.onFailure(e);
                 });
     }

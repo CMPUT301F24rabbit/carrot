@@ -17,6 +17,10 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
+        android:id="@+id/allProfilesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profiles"
         android:id="@+id/allUsersTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,4 +32,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/admin_all_users_back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        app:layout_constraintBottom_toTopOf="@+id/allUsersList"
+        app:layout_constraintEnd_toStartOf="@+id/allProfilesText"
+        app:layout_constraintHorizontal_bias="0.216"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.468" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

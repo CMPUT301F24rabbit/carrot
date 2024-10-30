@@ -61,5 +61,4 @@ public interface WaitListConfigurator {
      * @return true if the user was added, false if the waitlist is full
      */
     boolean addUserToWaitList(UserImpl user);
-
 }
