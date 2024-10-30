@@ -2,6 +2,7 @@ package com.example.goldencarrot.views;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,9 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Source;
 
 import java.util.Optional;
 
@@ -27,6 +30,7 @@ public class AdminUserView extends AppCompatActivity {
 
     private Button backBtn, deleteBtn;
     private TextView nameText, emailText, userTypeText, phoneNumberText;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class AdminUserView extends AppCompatActivity {
         setContentView(R.layout.activity_admin_views_profile);
 
         db = FirebaseFirestore.getInstance();
+        userRepository = new UserRepository();
         // extract user id
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -84,7 +89,9 @@ public class AdminUserView extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                userRepository.deleteUser(userId);
+                Intent intent = new Intent(AdminUserView.this, AdminAllUsersView.class);
+                startActivity(intent);
             }
         });
     }

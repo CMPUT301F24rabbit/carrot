@@ -61,12 +61,6 @@
             android:text="@string/auth_participant_user_type" />
 
         <Button
-            android:id="@+id/select_user_type_admin_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/auth_admin_user_type" />
-
-        <Button
             android:id="@+id/select_user_type_next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

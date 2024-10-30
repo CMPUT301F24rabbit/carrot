@@ -79,7 +79,6 @@ public class UserRepository {
      */
     public void checkUserExistsAndGetUserType(String androidId, UserTypeCallback callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
-
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
