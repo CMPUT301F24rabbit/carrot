@@ -62,7 +62,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 Log.i(TAG, "got all users!");
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
-                getUsersFromFirestore(listOfUsers);
+                //getUsersFromFirestore(listOfUsers);
                 // set data list in adapter
                 userArrayAdapter = new UserArrayAdapter(AdminAllUsersView.this, dataUserList);
                 userList.setAdapter(userArrayAdapter);
@@ -99,6 +99,7 @@ public class AdminAllUsersView extends AppCompatActivity {
             }
         });
     }
+
     public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
         // convert all documents into users
         for (int i = 0; i < listOfUsers.size(); i++) {
