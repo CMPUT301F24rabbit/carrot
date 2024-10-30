@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * displays full list of users
@@ -51,6 +52,7 @@ public class AdminAllUsersView extends AppCompatActivity {
             @Override
             public void onSuccess(List<DocumentSnapshot> listOfUsers) {
                 // cache list from firebase
+                Log.i(TAG, "got all users!");
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
                 getUsersFromFirestore(listOfUsers);
@@ -92,7 +94,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 DocumentSnapshot userFromDb = listOfUsers.get(i);
                 User newUser = new UserImpl(userFromDb.getString("email"),
                         userFromDb.getString("userType"),
-                        userFromDb.getString("username"));
+                        userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
                 // add user to user data list
                 dataUserList.add(newUser);
                 Log.i(TAG, "Successfully added " + userFromDb.getString("username"));

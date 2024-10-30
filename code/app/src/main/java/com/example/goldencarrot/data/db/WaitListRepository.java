@@ -44,7 +44,7 @@ public class WaitListRepository implements WaitListDb{
 
         // Add users from the waitlist to Firestore
         for (UserImpl user : waitList.getUserArrayList()) {
-            waitListData.put(user.getUsername(), "waiting");  // Default status to "waiting"
+            waitListData.put(user.getName(), "waiting");  // Default status to "waiting"
         }
 
         // Add the waitlist document to Firestore
@@ -64,7 +64,7 @@ public class WaitListRepository implements WaitListDb{
 
                         if (currentSize != null && limit != null && currentSize < limit) {
                             Map<String, Object> updateData = new HashMap<>();
-                            updateData.put(user.getUsername(), "waiting");
+                            updateData.put(user.getName(), "waiting");
                             updateData.put("size", currentSize + 1);  // Increment size
 
                             // Add the user to the waitlist and update the size
@@ -90,7 +90,6 @@ public class WaitListRepository implements WaitListDb{
                 });
     }
 
-
     /**
      * Updates the status of a user in the waitlist document in Firestore.
      *
@@ -102,7 +101,7 @@ public class WaitListRepository implements WaitListDb{
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
         Map<String, Object> updateData = new HashMap<>();
-        updateData.put(user.getUsername(), status);
+        updateData.put(user.getName(), status);
 
         // Update the user status in the waitlist document
         waitListRef.document(docId)
@@ -135,7 +134,7 @@ public class WaitListRepository implements WaitListDb{
     public void isUserInWaitList(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getUsername())) {
+                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getName())) {
                         callback.onSuccess(true); // User found
                     } else {
                         callback.onSuccess(false); // User not found
@@ -158,8 +157,8 @@ public class WaitListRepository implements WaitListDb{
     public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getUsername())) {
-                        String status = documentSnapshot.getString(user.getUsername());
+                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getName())) {
+                        String status = documentSnapshot.getString(user.getName());
                         callback.onSuccess(status); // Return user's status
                     } else {
                         callback.onSuccess(null); // User not found or no status

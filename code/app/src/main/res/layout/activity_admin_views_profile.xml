@@ -8,11 +8,11 @@
 
 
     <TextView
-        android:id="@+id/profileUsernameText"
+        android:id="@+id/profileNameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Username"
+        android:text="Name"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/profileUserTypeText"
@@ -29,7 +29,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/deleteProfileBtn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileUsernameText"
+        app:layout_constraintTop_toBottomOf="@+id/profileNameText"
         app:layout_constraintVertical_bias="0.92" />
 
     <Button
@@ -41,7 +41,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/adminViewProfileBackBtn"
-        app:layout_constraintTop_toBottomOf="@+id/profileUsernameText"
+        app:layout_constraintTop_toBottomOf="@+id/profileNameText"
         app:layout_constraintVertical_bias="0.92" />
 
     <TextView
@@ -56,7 +56,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileUserTypeText"
-        app:layout_constraintVertical_bias="0.155" />
+        app:layout_constraintVertical_bias="0.254" />
 
     <TextView
         android:id="@+id/profileUserTypeText"
@@ -71,4 +71,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.376" />
+
+    <TextView
+        android:id="@+id/profilePhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileUserTypeText"
+        app:layout_constraintVertical_bias="0.465" />
 </androidx.constraintlayout.widget.ConstraintLayout>

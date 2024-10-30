@@ -2,7 +2,6 @@ package com.example.goldencarrot.views;
 
 import static android.content.ContentValues.TAG;
 
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +16,8 @@ import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Optional;
+
 /**
  * Displays admin view of user profile
  */
@@ -25,7 +26,7 @@ public class AdminUserView extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private Button backBtn, deleteBtn;
-    private TextView usernameText, emailText, userTypeText;
+    private TextView nameText, emailText, userTypeText, phoneNumberText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,9 +39,10 @@ public class AdminUserView extends AppCompatActivity {
         if (extras != null) {
             userId = extras.getString("currentUserId");
         }
-        usernameText = findViewById(R.id.profileUsernameText);
+        nameText = findViewById(R.id.profileNameText);
         emailText = findViewById(R.id.profileEmailText);
         userTypeText = findViewById(R.id.profileUserTypeText);
+        phoneNumberText = findViewById(R.id.profilePhoneNumber);
         // use id to find user on firestore
         db.collection("users")
                 .document(userId)
@@ -48,13 +50,15 @@ public class AdminUserView extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         try {
-                            Log.i(TAG, "clicked on user: " + documentSnapshot.getString("email"));
+                            Log.i(TAG, "clicked on user: " + documentSnapshot.getString("name"));
                             User currentUser = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
-                                    documentSnapshot.getString("username"));
-                            usernameText.setText(currentUser.getUsername());
+                                    documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")));
+                            nameText.setText(currentUser.getName());
                             emailText.setText(currentUser.getEmail());
                             userTypeText.setText(currentUser.getUserType());
+                            phoneNumberText.setText(currentUser.getPhoneNumber().get());
+
                         } catch (Exception e) {
 
                         }
