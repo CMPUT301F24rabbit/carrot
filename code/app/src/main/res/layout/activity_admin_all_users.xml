@@ -17,10 +17,10 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/allUsersTextView"
+        android:id="@+id/allProfilesText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Users"
+        android:text="Profiles"
         android:textAlignment="center"
         android:textSize="34sp"
         android:textStyle="bold"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:text="Back"
         app:layout_constraintBottom_toTopOf="@+id/allUsersList"
-        app:layout_constraintEnd_toStartOf="@+id/allUsersTextView"
+        app:layout_constraintEnd_toStartOf="@+id/allProfilesText"
         app:layout_constraintHorizontal_bias="0.216"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
