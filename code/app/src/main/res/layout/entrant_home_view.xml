@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Profile Image -->
     <ImageView
         android:id="@+id/entrant_home_view_image_view"
         android:layout_width="wrap_content"
@@ -13,70 +14,82 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars[5]" />
 
+    <!-- Username Title Text -->
     <TextView
         android:id="@+id/entrant_home_view_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Name"
+        android:text="Username Placeholder"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/entrant_home_view_image_view" />
 
-    <ScrollView
-        android:id="@+id/entrant_home_view_upcoming_events"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
+    <!-- Upcoming Events Title -->
+    <TextView
+        android:id="@+id/upcoming_events_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
+        android:text="Upcoming Events"
+        android:textColor="#333333"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/entrant_home_view_user_name" />
+
+    <!-- Upcoming Events RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/upcoming_events"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/entrant_home_view_user_name">
+        app:layout_constraintTop_toBottomOf="@id/upcoming_events_title"
+        tools:listitem="@layout/item_event" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <!-- Waitlisted Events Title -->
+    <TextView
+        android:id="@+id/waitlisted_events_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Waitlisted Events"
+        android:textColor="#333333"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/upcoming_events" />
 
-            <TextView
-                android:id="@+id/upcoming_events_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Upcoming Events"
-                android:textSize="25sp" />
-        </LinearLayout>
-    </ScrollView>
-
-    <ScrollView
+    <!-- Waitlisted Events Recycler -->
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/waitlisted_events"
         android:layout_width="0dp"
-        android:layout_height="211dp"
+        android:layout_height="150dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/entrant_home_view_upcoming_events">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/waitlisted_events_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Waitlisted Events"
-                android:textSize="25sp" />
-        </LinearLayout>
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@id/waitlisted_events_title"
+        tools:listitem="@layout/item_event" />
 
     <Button
         android:id="@+id/button_scanQR"

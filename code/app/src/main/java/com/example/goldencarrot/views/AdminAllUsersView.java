@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
+import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Optional;
+
+
 /**
  * displays full list of users
  */
@@ -33,7 +38,11 @@ public class AdminAllUsersView extends AppCompatActivity {
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
     private FirebaseFirestore db;
+
+    private Button backBtn;
+
     //private CollectionReference userCollection;
+
     private UserRepository userRepository;
     private ArrayList<DocumentSnapshot> userListFromDb;
 
@@ -51,9 +60,10 @@ public class AdminAllUsersView extends AppCompatActivity {
             @Override
             public void onSuccess(List<DocumentSnapshot> listOfUsers) {
                 // cache list from firebase
+                Log.i(TAG, "got all users!");
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
-                getUsersFromFirestore(listOfUsers);
+                //getUsersFromFirestore(listOfUsers);
                 // set data list in adapter
                 userArrayAdapter = new UserArrayAdapter(AdminAllUsersView.this, dataUserList);
                 userList.setAdapter(userArrayAdapter);
@@ -69,12 +79,28 @@ public class AdminAllUsersView extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent;
+                String userToViewId = userListFromDb.get(position).getId();
+                intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
+                Log.i(TAG, "clicked on " + userToViewId);
+                intent.putExtra("currentUserId", userToViewId);
+                startActivity(intent);
+            }
+        });
+        // back button navigates to admin home
+        backBtn = findViewById(R.id.admin_all_users_back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
                 DocumentSnapshot userToView = userListFromDb.get(position);
                 intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
                 startActivity(intent);
             }
         });
     }
+
     public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
         // convert all documents into users
         for (int i = 0; i < listOfUsers.size(); i++) {
@@ -84,9 +110,11 @@ public class AdminAllUsersView extends AppCompatActivity {
                         userFromDb.getString("userType"),
                         userFromDb.getString("username"),
                         Optional.ofNullable(userFromDb.getString("phoneNumber")));
+                        userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
+
                 // add user to user data list
                 dataUserList.add(newUser);
-                Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
+                Log.i(TAG, "Successfully added " + userFromDb.getString("name"));
             } catch (Exception e) {
                 Log.e(TAG, "Invalid user type, user not added");
             }
