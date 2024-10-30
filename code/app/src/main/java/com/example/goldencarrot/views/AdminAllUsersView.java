@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -27,9 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import java.util.Optional;
-
-
 /**
  * displays full list of users
  */
@@ -38,11 +34,7 @@ public class AdminAllUsersView extends AppCompatActivity {
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
     private FirebaseFirestore db;
-
     private Button backBtn;
-
-    //private CollectionReference userCollection;
-
     private UserRepository userRepository;
     private ArrayList<DocumentSnapshot> userListFromDb;
 
@@ -63,7 +55,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 Log.i(TAG, "got all users!");
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
-                //getUsersFromFirestore(listOfUsers);
+                getUsersFromFirestore(listOfUsers);
                 // set data list in adapter
                 userArrayAdapter = new UserArrayAdapter(AdminAllUsersView.this, dataUserList);
                 userList.setAdapter(userArrayAdapter);
@@ -94,13 +86,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 finish();
             }
         });
-                DocumentSnapshot userToView = userListFromDb.get(position);
-                intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
-                startActivity(intent);
-            }
-        });
     }
-
     public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {
         // convert all documents into users
         for (int i = 0; i < listOfUsers.size(); i++) {
@@ -108,17 +94,13 @@ public class AdminAllUsersView extends AppCompatActivity {
                 DocumentSnapshot userFromDb = listOfUsers.get(i);
                 User newUser = new UserImpl(userFromDb.getString("email"),
                         userFromDb.getString("userType"),
-                        userFromDb.getString("username"),
-                        Optional.ofNullable(userFromDb.getString("phoneNumber")));
                         userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
-
                 // add user to user data list
                 dataUserList.add(newUser);
-                Log.i(TAG, "Successfully added " + userFromDb.getString("name"));
+                Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
             } catch (Exception e) {
                 Log.e(TAG, "Invalid user type, user not added");
             }
         }
     }
 }
-
