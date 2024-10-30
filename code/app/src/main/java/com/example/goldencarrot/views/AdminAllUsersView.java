@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +34,7 @@ public class AdminAllUsersView extends AppCompatActivity {
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
     private FirebaseFirestore db;
-    //private CollectionReference userCollection;
+    private Button backBtn;
     private UserRepository userRepository;
     private ArrayList<DocumentSnapshot> userListFromDb;
 
@@ -51,6 +52,7 @@ public class AdminAllUsersView extends AppCompatActivity {
             @Override
             public void onSuccess(List<DocumentSnapshot> listOfUsers) {
                 // cache list from firebase
+                Log.i(TAG, "got all users!");
                 userListFromDb = new ArrayList<>(listOfUsers);
                 // add users from firebase to dataUserList
                 getUsersFromFirestore(listOfUsers);
@@ -69,9 +71,19 @@ public class AdminAllUsersView extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent;
-                DocumentSnapshot userToView = userListFromDb.get(position);
+                String userToViewId = userListFromDb.get(position).getId();
                 intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
+                Log.i(TAG, "clicked on " + userToViewId);
+                intent.putExtra("currentUserId", userToViewId);
                 startActivity(intent);
+            }
+        });
+        // back button navigates to admin home
+        backBtn = findViewById(R.id.admin_all_users_back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }
@@ -82,8 +94,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 DocumentSnapshot userFromDb = listOfUsers.get(i);
                 User newUser = new UserImpl(userFromDb.getString("email"),
                         userFromDb.getString("userType"),
-                        userFromDb.getString("username"),
-                        Optional.ofNullable(userFromDb.getString("phoneNumber")));
+                        userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
                 // add user to user data list
                 dataUserList.add(newUser);
                 Log.i(TAG, "Successfully added " + userFromDb.getString("username"));
@@ -93,4 +104,3 @@ public class AdminAllUsersView extends AppCompatActivity {
         }
     }
 }
-
