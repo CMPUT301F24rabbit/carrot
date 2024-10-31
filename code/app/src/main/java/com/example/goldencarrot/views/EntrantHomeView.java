@@ -1,10 +1,12 @@
 package com.example.goldencarrot.views;
 
+import android.content.Intent;
 import android.media.metrics.Event;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -24,8 +26,8 @@ public class EntrantHomeView extends AppCompatActivity {
     // Initialize variables
     private TextView usernameTextView;
     private ImageView profileImageView;
-    private RecyclerView upcomingEventsRecycle;
-    private RecyclerView waitlistedEventsRecycle;
+    private ScrollView upcomingEventsScroll;
+    private ScrollView waitlistedEventsScroll;
     private Button addEventButton;
 
     // Initialize Adapters for Recycler Views
@@ -51,12 +53,32 @@ public class EntrantHomeView extends AppCompatActivity {
         // Initialize the views from layout file
         profileImageView = findViewById(R.id.entrant_home_view_image_view);
         usernameTextView = findViewById(R.id.entrant_home_view_user_name);
-        upcomingEventsRecycle = findViewById(R.id.upcoming_events);
-        waitlistedEventsRecycle = findViewById(R.id.waitlisted_events);
-        addEventButton = findViewById(R.id.button_scanQR);
+        upcomingEventsScroll = findViewById(R.id.upcoming_events);
+        waitlistedEventsScroll = findViewById(R.id.waitlisted_events);
+        addEventButton = findViewById(R.id.button_explore_events);
 
         // Set user name THIS IS A PLACEHOLDER FOR RIGHT NOW!!!!!
         usernameTextView.setText("Billy the Goat");
+
+        // Load event data here
+        loadEventData();
+
+       /** upcomingEventsScroll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Display the upcoming events for a Entrant to do stuff
+                Intent intent = new Intent(EntrantHomeView.this, AcceptedListActivity.class);
+                startActivity(intent;);
+            }
+        });**/
+
+        waitlistedEventsScroll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(EntrantHomeView.this, WaitlistActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Add Event Button
         addEventButton.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +88,7 @@ public class EntrantHomeView extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
-                // When Button Clicked Do:
+                // When Button Clicked Do: Go to Events Exploration Activity
 
                 // Go to the add event
 
@@ -75,22 +97,7 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         });
 
-        // Load event data here
-        loadEventData();
-    }
 
-    /**
-     * Starting to think that this also goes into the controller
-     */
-    private void setupRecyclerViews(){
-        // We want to set the layout for recycle view
-        //upcomingEventsRecycle.setLayoutManager(new LinearLayoutManager(this));
-        //waitlistedEventsRecycle.setLayoutManager(new LinearLayoutManager(this));
-
-        // Now set the adapters to the recyclers
-        // Adapters bind data
-        // upcomingEventsRecycle.setAdapter(upcomingEventsAdapter);
-        // waitlistedEventsRecycle.setAdapter(waitlistedEventsAdapter);
     }
 
     /**
