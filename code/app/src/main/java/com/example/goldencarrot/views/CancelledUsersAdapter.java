@@ -12,7 +12,8 @@ import com.example.goldencarrot.data.model.user.User;
 
 import java.util.ArrayList;
 
-public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAdapter.CancelledUsersViewHolder> {
+public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAdapter.
+                                                                CancelledUsersViewHolder> {
 
     private ArrayList<User> cancelledUsersList;
 
@@ -23,14 +24,15 @@ public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAd
     @NonNull
     @Override
     public CancelledUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cancelled_user_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cancelled_user_item,
+                parent, false);
         return new CancelledUsersViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CancelledUsersViewHolder holder, int position) {
         User user = cancelledUsersList.get(position);
-        holder.usernameTextView.setText(user.getUsername());
+        holder.usernameTextView.setText(user.getName());
         holder.emailTextView.setText(user.getEmail());
     }
 

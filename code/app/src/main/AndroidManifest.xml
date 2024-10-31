@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +25,16 @@
 
         <activity android:name=".views.SignUpActivity" />
         <activity android:name=".views.SelectUserTypeActivity" />
+        <activity android:name=".views.AdminHomeActivity" />
+        <activity android:name=".views.AdminAllEventsView"/>
+        <activity android:name=".views.AdminAllUsersView"/>
+        <activity android:name=".views.EntrantHomeView" />
+        <activity android:name=".views.OrganizerHomeView"/>
+        <activity android:name=".views.BrowseEventsActivity"/>
+        <activity android:name=".views.OrganizerCancelledView" />
+        <activity android:name=".views.EntrantEditUserDetailsView" />
+        <activity android:name=".views.OrganizerManageProfileActivity"/>
+        <activity android:name=".views.AdminUserView"/>
     </application>
 
 </manifest>
