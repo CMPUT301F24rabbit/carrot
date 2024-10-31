@@ -198,4 +198,6 @@ public class UserRepository {
     public interface UserTypeCallback {
         void onResult(boolean exists, String userType);
     }
+
+    
 }

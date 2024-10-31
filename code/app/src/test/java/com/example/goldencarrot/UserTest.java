@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 public class UserTest {
 
     private User newUser;
@@ -58,6 +60,23 @@ public class UserTest {
             User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null);
            
         });
+    }
+
+    @Test
+    void testUpdateUserDetails_Success() throws Exception {
+        // Create an initial user
+        User user = mockUser(ADMIN_TYPE);
+
+        // Simulate updating user details
+        user = new UserImpl("newemail@gmail.com", ADMIN_TYPE, "NewName", Optional.of("0987654321"));
+
+        // Here you'd typically call the update method on UserRepository
+        userRepository.updateUser(user, "mock_android_id"); // Assuming "mock_android_id" is your device ID
+
+        // Assert updated values
+        assertEquals("newemail@gmail.com", user.getEmail());
+        assertEquals("NewName", user.getName());
+        assertEquals("0987654321", user.getPhoneNumber().orElse(null));
     }
 
 }
