@@ -60,7 +60,7 @@ public class UserTest {
 
     @Test
     void testUpdateUserDetails_Success() throws Exception {
-        // Create an initial user
+        // Create an initial user and userRepository
         User user = mockUser(ADMIN_TYPE);
 
         // Simulate updating user details

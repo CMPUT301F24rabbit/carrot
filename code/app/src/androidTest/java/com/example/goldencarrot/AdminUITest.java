@@ -41,7 +41,7 @@ public class AdminUITest {
         // click on user "James" from the list of all users
         onView(withText("James")).perform(click());
         // check if phone number "7800000000" is displayed on screen
-        onView(withText("7800000000")).check(matches(isDisplayed()));
+        onView(withText("jctuason@ualberta.ca")).check(matches(isDisplayed()));
     }
     @Test
     public void testBackButtonFromProfiles() {

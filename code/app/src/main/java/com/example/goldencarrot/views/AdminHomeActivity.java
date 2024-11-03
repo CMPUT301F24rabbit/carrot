@@ -27,7 +27,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         viewAllEventsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Open BrowseEventsActivity when the events button is clicked
-                Intent intent = new Intent(AdminHomeActivity.this, BrowseEventsActivity.class);
+                Intent intent = new Intent(AdminHomeActivity.this, AdminAllEventsView.class);
                 startActivity(intent);
             }
         });
