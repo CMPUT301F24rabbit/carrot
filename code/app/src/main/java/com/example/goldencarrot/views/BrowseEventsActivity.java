@@ -1,5 +1,6 @@
 package com.example.goldencarrot.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -28,14 +30,17 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private ListView eventsListView;
     private ArrayAdapter<String> eventsAdapter;
     private ArrayList<String> eventsList;
+    private ArrayList<DocumentSnapshot> eventDocuments;
+
     private Button backButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_events);
 
-        // Initialize Firestore
+        // Initialize Firestore and Collections
         firestore = FirebaseFirestore.getInstance();
         eventsCollection = firestore.collection("events");
 
@@ -45,8 +50,23 @@ public class BrowseEventsActivity extends AppCompatActivity {
         eventsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, eventsList);
         eventsListView.setAdapter(eventsAdapter);
 
+        // Initialize list for event documents
+        eventDocuments = new ArrayList<>();
+
         // Fetch events from Firestore
         loadEventsFromFirestore();
+
+        // Set an item click listener to open EventDetailsActivity
+        eventsListView.setOnItemClickListener((parent, view, position, id) -> {
+            // Get the selected event document
+            DocumentSnapshot selectedDocument = eventDocuments.get(position);
+            String documentId = selectedDocument.getId();
+
+            // Start EventDetailsActivity and pass document ID as an extra
+            Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+            intent.putExtra("documentId", documentId);
+            startActivity(intent);
+
         backButton = findViewById(R.id.browseEventsBackBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +87,15 @@ public class BrowseEventsActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 // Assuming each document has a "name" field for event name
                                 String eventName = document.getString("eventName");
+                                String eventId = document.getId(); // Get the document ID
                                 eventsList.add(eventName);
+
+                                // Add a click listener to the ListView item to navigate to EventDetailsActivity
+                                eventsListView.setOnItemClickListener((parent, view, position, id) -> {
+                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+                                    intent.putExtra("eventId", eventId); // Pass the event ID
+                                    startActivity(intent);
+                                });
                             }
                             eventsAdapter.notifyDataSetChanged();
                         } else {
@@ -79,4 +107,5 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     }
                 });
     }
+
 }
