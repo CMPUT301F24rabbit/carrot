@@ -41,7 +41,7 @@ public class AdminUITest {
         // click on user "James" from the list of all users
         onView(withText("James")).perform(click());
         // check if phone number "7800000000" is displayed on screen
-        onView(withText("7800000000")).check(matches(isDisplayed()));
+        onView(withText("jctuason@ualberta.ca")).check(matches(isDisplayed()));
     }
     @Test
     public void testBackButtonFromProfiles() {
@@ -55,6 +55,21 @@ public class AdminUITest {
         onView(withId(R.id.admin_all_users_back_btn)).perform(click());
         // check if we're back on Admin Home
         onView(withText("Admin Home")).check(matches(isDisplayed()));
-
+    }
+    @Test
+    public void testViewAllEvents() {
+        // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        // Check if text "Browse Events" is matched with any text opn screen
+        onView(withText("Browse Events")).check(matches(isDisplayed()));
+    }
+    @Test
+    public void testBackButtonFromEvents(){
+        // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        // Click on back button from browse events page
+        onView(withId(R.id.browseEventsBackBtn)).perform(click());
+        // Check if back on admin home page
+        onView(withText("Admin Home")).check(matches(isDisplayed()));
     }
 }

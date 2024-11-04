@@ -1,107 +1,151 @@
 package com.example.goldencarrot.views;
 
-import android.media.metrics.Event;
+import static android.content.ContentValues.TAG;
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.model.event.Event;
+import com.example.goldencarrot.data.model.event.EventArrayAdapter;
+
+import com.example.goldencarrot.data.model.user.User;
+import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 /**
- * This is a class that handles all entrant app features
+ * This is a class that handles all entrant app features.
  */
 public class EntrantHomeView extends AppCompatActivity {
 
-    // Initialize variables
+    // Initialize UI
     private TextView usernameTextView;
+    private TextView waitlistedEventsTitle;
     private ImageView profileImageView;
-    private RecyclerView upcomingEventsRecycle;
-    private RecyclerView waitlistedEventsRecycle;
+    private ListView upcomingEventsListView;
+    private ListView waitlistedEventsListView;
     private Button addEventButton;
+    private Button goToWaitlistButton;
 
-    // Initialize Adapters for Recycler Views
-    //private EventAdapter upcomingEventsAdapter;
-    //private EventAdapter waitlistedEventsAdapter;
+   // Firestore
+    private FirebaseFirestore firestore;
+    private EventArrayAdapter upcomingEventsAdapter;
+    private EventArrayAdapter waitlistedEventsAdapter;
+    private ArrayList<Event> upcomingEventsList;
+    private ArrayList<Event> waitlistedEventsList;
 
-    private List<Event> upcomingEventsList = new ArrayList<>();
-    private List<Event> waitlistedEventsList = new ArrayList<>();
-
-    /**
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
-     *
-     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.entrant_home_view);
 
         // Initialize the views from layout file
         profileImageView = findViewById(R.id.entrant_home_view_image_view);
         usernameTextView = findViewById(R.id.entrant_home_view_user_name);
-        upcomingEventsRecycle = findViewById(R.id.upcoming_events);
-        waitlistedEventsRecycle = findViewById(R.id.waitlisted_events);
-        addEventButton = findViewById(R.id.button_scanQR);
+        upcomingEventsListView = findViewById(R.id.upcoming_events);
+        waitlistedEventsListView = findViewById(R.id.waitlisted_events);
+        addEventButton = findViewById(R.id.button_explore_events);
+        waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
 
-        // Set user name THIS IS A PLACEHOLDER FOR RIGHT NOW!!!!!
+        // Set user name as a placeholder
         usernameTextView.setText("Billy the Goat");
 
-        // Add Event Button
+        // Initialize Firestore
+        firestore = FirebaseFirestore.getInstance();
+
+        // Event lists and adapter Inititalization
+        upcomingEventsList =new ArrayList<>();
+        waitlistedEventsList =  new ArrayList<>();
+        upcomingEventsAdapter = new EventArrayAdapter(this, upcomingEventsList);
+        waitlistedEventsAdapter = new EventArrayAdapter(this, waitlistedEventsList);
+
+        // Set adapters to listview
+        upcomingEventsListView.setAdapter(upcomingEventsAdapter);
+        waitlistedEventsListView.setAdapter(waitlistedEventsAdapter);
+
+        // Open WaitlistActivity
+        setListenersForWaitlistActivity(waitlistedEventsListView, waitlistedEventsTitle, WaitlistActivity.class);
+
+        // Do the same thing for upcoming events when we get that far
+
+        // Set the click listener for the "Explore Events" button (add event functionality)
         addEventButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * This button takes the user to the QR scanner.
-             * @param v The view that was clicked.
-             */
             @Override
             public void onClick(View v) {
-                // When Button Clicked Do:
-
-                // Go to the add event
-
-                //Intent intent = new Intent(EntrantHomeView.this, AddEventActivity.class);
-                //startActivity(intent);
+                // Go to Events Exploration Activity
+                // Intent intent = new Intent(EntrantHomeView.this, AddEventActivity.class);
+                // startActivity(intent);
             }
         });
 
-        // Load event data here
+        // Load event data
         loadEventData();
     }
 
-    /**
-     * Starting to think that this also goes into the controller
-     */
-    private void setupRecyclerViews(){
-        // We want to set the layout for recycle view
-        //upcomingEventsRecycle.setLayoutManager(new LinearLayoutManager(this));
-        //waitlistedEventsRecycle.setLayoutManager(new LinearLayoutManager(this));
+    private void setListenersForWaitlistActivity(ListView listView, TextView titleView, Class<?> activityClass){
+        // Open when title is clicked
+        titleView.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantHomeView.this, activityClass);
+            startActivity(intent);
+        });
 
-        // Now set the adapters to the recyclers
-        // Adapters bind data
-        // upcomingEventsRecycle.setAdapter(upcomingEventsAdapter);
-        // waitlistedEventsRecycle.setAdapter(waitlistedEventsAdapter);
+        // Open when List view is long clicked
+        listView.setOnItemLongClickListener((parent, view, position, id) ->{
+            Intent intent = new Intent(EntrantHomeView.this, activityClass);
+            startActivity(intent);
+            return true;
+        });
     }
 
-    /**
-     * Starting to think this goes in the controller?
-     */
-    private void loadEventData(){
-        // I want to populate the Entrants upcoming events
+    // Placeholder method to load event data
+    private void loadEventData() {
+        // Load the first 4 waitlisted events from firestore
+        CollectionReference waitlistRef = firestore.collection("waitlist");
+        waitlistRef.limit(4).get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                waitlistedEventsList.clear(); // clear the current data
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        // Get Event Data
+                        String eventName = document.getString("eventName");
+                        String location = document.getString("location");
+                        String details = document.getString("details");
+                        Date eventDate = document.getDate("date");
+                        UserImpl organizer = document.toObject(UserImpl.class);
 
-        // I want to populate the Entrants waitlisted events
+                        Log.d("EntrantHomeView", "Processing event: " + document.getId());
 
-        // Notify the adapters that a change has occurred
+                        if(eventName != null){
+                            Log.d("EntrantHOmeview", "Adding event:" + eventName);
+                            Event event = new Event(organizer);
+                            event.setEventName(eventName);
+                            event.setLocation(location);
+                            event.setEventDetails(details);
+                            event.setDate(eventDate);
 
+                            waitlistedEventsList.add(event);
+                        }
+
+                    }
+                    // Notify adapter if changes
+                    waitlistedEventsAdapter.notifyDataSetChanged();
+            }
+            else {
+                // error stuff
+                Log.e("EntrantHomeView",  "Error loading waitlisted events", task.getException());
+            }
+
+        });
     }
 }

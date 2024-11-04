@@ -36,7 +36,7 @@ public class AdminHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // opens all users list
-                Intent intent = new Intent(AdminHomeActivity.this, AdminAllUsersView.class);
+                Intent intent = new Intent(AdminHomeActivity.this, AdminAllProfilesView.class);
                 startActivity(intent);
             }
         });

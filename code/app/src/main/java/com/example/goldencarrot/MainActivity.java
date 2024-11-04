@@ -17,6 +17,7 @@ import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
 import com.example.goldencarrot.views.OrganizerHomeView;
+import com.example.goldencarrot.views.SelectUserTypeActivity;
 import com.example.goldencarrot.views.SignUpActivity;
 import com.google.firebase.FirebaseApp;
 
@@ -51,12 +52,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Sign-Up Button
+        // Sign-Up Button - We don't need this!
         findViewById(R.id.auth_sign_up_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
+
             }
         });
 

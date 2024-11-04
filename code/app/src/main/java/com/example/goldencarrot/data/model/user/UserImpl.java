@@ -7,6 +7,7 @@ public class UserImpl implements User{
     private  String userType;
     private String name;
     private Optional<String> phoneNumber;
+    private String uId;
 
     public UserImpl(){}
 
@@ -46,9 +47,20 @@ public class UserImpl implements User{
         return this.phoneNumber;
     }
 
+    @Override
+    public void setUserId(String uId) {
+        this.uId = uId;
+    }
+
+    @Override
+    public String getUserId() {
+        return this.uId;
+    }
+
     private void validateUserType(String userType) throws Exception {
         if (!UserUtils.validUserTypes.contains(userType)){
             throw UserUtils.invalidUserTypeException;
         }
     }
+
 }

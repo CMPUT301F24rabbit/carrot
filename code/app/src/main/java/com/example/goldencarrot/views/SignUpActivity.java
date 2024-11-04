@@ -1,7 +1,9 @@
 package com.example.goldencarrot.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -56,6 +58,8 @@ public class SignUpActivity extends AppCompatActivity {
                         Optional.of(
                                 phoneNumber.getText().toString()
                         ));
+                Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
+                startActivity(intent);
             }
         });
     }
