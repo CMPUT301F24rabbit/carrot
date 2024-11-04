@@ -36,6 +36,7 @@
         <activity android:name=".views.OrganizerManageProfileActivity"/>
         <activity android:name=".views.AdminUserView"/>
         <activity android:name=".views.WaitlistActivity" />
+        <activity android:name=".views.EventDetailsActivity" />
 
     </application>
 
