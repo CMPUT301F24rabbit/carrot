@@ -64,26 +64,35 @@ public class BrowseEventsActivity extends AppCompatActivity {
     }
 
     private void loadEventsFromFirestore() {
-        eventsCollection.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                eventsList.clear();
-                eventDocuments.clear();
-                QuerySnapshot querySnapshot = task.getResult();
+        eventsCollection.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        eventsList.clear();
+                        QuerySnapshot querySnapshot = task.getResult();
 
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    for (QueryDocumentSnapshot document : querySnapshot) {
-                        String eventName = document.getString("eventName");
-                        eventsList.add(eventName);
-                        eventDocuments.add(document);  // Add the document for later retrieval
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            for (QueryDocumentSnapshot document : querySnapshot) {
+                                // Assuming each document has a "name" field for event name
+                                String eventName = document.getString("eventName");
+                                String eventId = document.getId(); // Get the document ID
+                                eventsList.add(eventName);
+
+                                // Add a click listener to the ListView item to navigate to EventDetailsActivity
+                                eventsListView.setOnItemClickListener((parent, view, position, id) -> {
+                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+                                    intent.putExtra("eventId", eventId); // Pass the event ID
+                                    startActivity(intent);
+                                });
+                            }
+                            eventsAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
+                        Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
                     }
-                    eventsAdapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Log.e(TAG, "Error getting documents: ", task.getException());
-                Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
+
 }
