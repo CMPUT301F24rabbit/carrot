@@ -27,7 +27,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         viewAllEventsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Open BrowseEventsActivity when the events button is clicked
-                Intent intent = new Intent(AdminHomeActivity.this, AdminAllEventsView.class);
+                Intent intent = new Intent(AdminHomeActivity.this, BrowseEventsActivity.class);
                 startActivity(intent);
             }
         });
@@ -36,7 +36,7 @@ public class AdminHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // opens all users list
-                Intent intent = new Intent(AdminHomeActivity.this, AdminAllUsersView.class);
+                Intent intent = new Intent(AdminHomeActivity.this, AdminAllProfilesView.class);
                 startActivity(intent);
             }
         });

@@ -17,14 +17,13 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
 
 import java.util.Optional;
 
 /**
  * Displays admin view of user profile
  */
-public class AdminUserView extends AppCompatActivity {
+public class AdminProfileView extends AppCompatActivity {
     private String userId;
     private FirebaseFirestore db;
 
@@ -90,7 +89,7 @@ public class AdminUserView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 userRepository.deleteUser(userId);
-                Intent intent = new Intent(AdminUserView.this, AdminAllUsersView.class);
+                Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
                 startActivity(intent);
             }
         });

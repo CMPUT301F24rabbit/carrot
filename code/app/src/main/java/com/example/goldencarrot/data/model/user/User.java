@@ -11,5 +11,9 @@ public interface User {
 
     Optional<String> getPhoneNumber();
 
+    String getUserId();
+
+    void setUserId(String uId);
+
     void setPhoneNumber(Optional<String> phoneNumber);
 }

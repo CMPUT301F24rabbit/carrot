@@ -26,4 +26,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <Button
+        android:id="@+id/browseEventsBackBtn"
+        android:layout_width="96dp"
+        android:layout_height="39dp"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="@+id/browse_events_title"
+        app:layout_constraintEnd_toStartOf="@+id/browse_events_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
