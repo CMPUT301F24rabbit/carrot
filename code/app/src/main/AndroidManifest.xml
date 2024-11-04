@@ -27,6 +27,7 @@
         <activity android:name=".views.SelectUserTypeActivity" />
         <activity android:name=".views.AdminHomeActivity" />
         <activity android:name=".views.AdminAllProfilesView"/>
+        <activity android:name=".views.OrganizerCreateEvent" />
         <activity android:name=".views.EntrantHomeView" />
         <activity android:name=".views.OrganizerHomeView"/>
         <activity android:name=".views.BrowseEventsActivity"/>

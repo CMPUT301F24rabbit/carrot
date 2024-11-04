@@ -56,6 +56,7 @@ public class EventRepository {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event created successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating event", e));
     }
+
     /**
      * deletes event from Firestore
      * @param eventId is the event to delete
