@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Sign-Up Button - We don't need this!
         /**
          * Todo, add a loading circle bar
          */
