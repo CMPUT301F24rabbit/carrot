@@ -23,6 +23,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ./code/gradlew
 
+    - name: Copy dummy google-services.json
+      run: cp ./code/dummy-google-services.json ./code/app/src/debug/google-services.json
+
     - name: Build with Gradle
       working-directory: ./code
       run: ./gradlew build
