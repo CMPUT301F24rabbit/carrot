@@ -2,7 +2,9 @@ package com.example.goldencarrot.views;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private ListView eventsListView;
     private ArrayAdapter<String> eventsAdapter;
     private ArrayList<String> eventsList;
+    private Button backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,13 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
         // Fetch events from Firestore
         loadEventsFromFirestore();
+        backButton = findViewById(R.id.browseEventsBackBtn);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     private void loadEventsFromFirestore() {

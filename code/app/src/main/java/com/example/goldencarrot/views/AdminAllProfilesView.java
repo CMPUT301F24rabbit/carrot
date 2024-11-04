@@ -22,14 +22,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * displays full list of users
  */
-public class AdminAllUsersView extends AppCompatActivity {
+public class AdminAllProfilesView extends AppCompatActivity {
     private ArrayList<User> dataUserList;
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
@@ -57,7 +56,7 @@ public class AdminAllUsersView extends AppCompatActivity {
                 // add users from firebase to dataUserList
                 getUsersFromFirestore(listOfUsers);
                 // set data list in adapter
-                userArrayAdapter = new UserArrayAdapter(AdminAllUsersView.this, dataUserList);
+                userArrayAdapter = new UserArrayAdapter(AdminAllProfilesView.this, dataUserList);
                 userList.setAdapter(userArrayAdapter);
             }
             @Override
@@ -72,7 +71,7 @@ public class AdminAllUsersView extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent;
                 String userToViewId = userListFromDb.get(position).getId();
-                intent = new Intent(AdminAllUsersView.this, AdminUserView.class);
+                intent = new Intent(AdminAllProfilesView.this, AdminProfileView.class);
                 Log.i(TAG, "clicked on " + userToViewId);
                 intent.putExtra("currentUserId", userToViewId);
                 startActivity(intent);
