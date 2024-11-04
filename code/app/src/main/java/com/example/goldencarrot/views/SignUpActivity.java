@@ -77,4 +77,11 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
     }
+
+    private void verifyInputs(final String email,
+                              final String phoneNumber,
+                              final String name) throws Exception{
+
+
+    }
 }
