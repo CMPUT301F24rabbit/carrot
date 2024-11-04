@@ -57,6 +57,5 @@ public class UserTest {
             User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null);
         });
     }
-//CURRENTLY FAILING 
 
 }
