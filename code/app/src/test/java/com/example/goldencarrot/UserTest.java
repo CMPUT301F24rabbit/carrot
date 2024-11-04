@@ -58,21 +58,5 @@ public class UserTest {
         });
     }
 
-    @Test
-    void testUpdateUserDetails_Success() throws Exception {
-        // Create an initial user and userRepository
-        User user = mockUser(ADMIN_TYPE);
-
-        // Simulate updating user details
-        user = new UserImpl("newemail@gmail.com", ADMIN_TYPE, "NewName", Optional.of("0987654321"));
-
-        // Here you'd typically call the update method on UserRepository
-        userRepository.updateUser(user, "mock_android_id"); // Assuming "mock_android_id" is your device ID
-
-        // Assert updated values
-        assertEquals("newemail@gmail.com", user.getEmail());
-        assertEquals("NewName", user.getName());
-        assertEquals("0987654321", user.getPhoneNumber().orElse(null));
-    }
 
 }

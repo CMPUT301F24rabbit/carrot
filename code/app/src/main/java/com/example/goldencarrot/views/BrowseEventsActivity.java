@@ -60,7 +60,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     DocumentSnapshot selectedDocument = eventDocuments.get(position);
                     String documentId = selectedDocument.getId();
 
-                    // Start EventDetailsActivity and pass document ID as an extra
+                    // Start EventDetailsAdminActivity and pass document ID as an extra
                     Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
                     intent.putExtra("documentId", documentId);
                     startActivity(intent);
