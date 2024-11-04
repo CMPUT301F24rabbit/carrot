@@ -58,10 +58,10 @@ public class EventRepository {
     }
     /**
      * deletes event from Firestore
-     * @param event is the event to delete
+     * @param eventId is the event to delete
      */
-    public void deleteEvent(Event event) {
-        eventsCollection.document(event.getEventName())
+    public void deleteEvent(String eventId) {
+        eventsCollection.document(eventId)
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event deleted successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));

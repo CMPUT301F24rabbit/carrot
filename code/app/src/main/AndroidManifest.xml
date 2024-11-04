@@ -26,7 +26,6 @@
         <activity android:name=".views.SignUpActivity" />
         <activity android:name=".views.SelectUserTypeActivity" />
         <activity android:name=".views.AdminHomeActivity" />
-        <activity android:name=".views.AdminAllEventsView"/>
         <activity android:name=".views.AdminAllProfilesView"/>
         <activity android:name=".views.EntrantHomeView" />
         <activity android:name=".views.OrganizerHomeView"/>
@@ -36,7 +35,7 @@
         <activity android:name=".views.OrganizerManageProfileActivity"/>
         <activity android:name=".views.AdminProfileView"/>
         <activity android:name=".views.WaitlistActivity" />
-        <activity android:name=".views.EventDetailsActivity" />
+        <activity android:name=".views.EventDetailsAdminActivity" />
 
     </application>
 

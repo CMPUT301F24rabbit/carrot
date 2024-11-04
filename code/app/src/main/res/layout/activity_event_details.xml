@@ -24,4 +24,14 @@
         android:padding="10dp"
         android:layout_margin="16dp"/>
 
+    <Button
+        android:id="@+id/deleteEventBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Delete Event" />
+
 </RelativeLayout>

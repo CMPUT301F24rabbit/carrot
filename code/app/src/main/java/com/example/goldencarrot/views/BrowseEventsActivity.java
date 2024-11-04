@@ -6,11 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
@@ -63,7 +61,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     String documentId = selectedDocument.getId();
 
                     // Start EventDetailsActivity and pass document ID as an extra
-                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
                     intent.putExtra("documentId", documentId);
                     startActivity(intent);
                 });
@@ -93,7 +91,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
                                 // Add a click listener to the ListView item to navigate to EventDetailsActivity
                                 eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
                                     intent.putExtra("eventId", eventId); // Pass the event ID
                                     startActivity(intent);
                                 });

@@ -1,33 +1,38 @@
 package com.example.goldencarrot.views;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.EventRepository;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.DocumentSnapshot;
 
-public class EventDetailsActivity extends AppCompatActivity {
+/**
+ * Admin view of an event's details, with functionality to delete event.
+ */
+public class EventDetailsAdminActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     private ListenerRegistration listenerRegistration;
     private TextView eventDetailsTextView;
+    private EventRepository eventRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
 
-        // Initialize Firestore
+        // Initialize Firestore and EventRepository
         firestore = FirebaseFirestore.getInstance();
+        eventRepository = new EventRepository();
 
         // Set up back button
         Button backButton = findViewById(R.id.backButton);
@@ -43,6 +48,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
+        // Set up delete event button
+        findViewById(R.id.deleteEventBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventRepository.deleteEvent(eventId);
+                Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void loadEventDetails(String eventId) {
