@@ -1,5 +1,7 @@
 package com.example.goldencarrot.views;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
+
+import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -107,40 +112,40 @@ public class EntrantHomeView extends AppCompatActivity {
     // Placeholder method to load event data
     private void loadEventData() {
         // Load the first 4 waitlisted events from firestore
-        firestore.collection("waitlistedEvents")
-                .orderBy("date")
-                .limit(4) // We only want the first 4 to show up
-                .get()
-                        .addOnCompleteListener(task -> {
-                            if(task.isSuccessful()) {
-                                waitlistedEventsList.clear(); // clear the current data
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    // Get Event Data
-                                    String eventName = document.getString("eventName");
-                                    String location = document.getString("location");
-                                    String details = document.getString("details");
-                                    Date eventDate = document.getDate("date");
-                                    UserImpl organizer = document.toObject(UserImpl.class);
+        CollectionReference waitlistRef = firestore.collection("waitlist");
+        waitlistRef.limit(4).get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                waitlistedEventsList.clear(); // clear the current data
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        // Get Event Data
+                        String eventName = document.getString("eventName");
+                        String location = document.getString("location");
+                        String details = document.getString("details");
+                        Date eventDate = document.getDate("date");
+                        UserImpl organizer = document.toObject(UserImpl.class);
 
-                                    // Make the Event  Object and set  details
-                                    Event event = new Event(organizer);
-                                    event.setOrganizer(organizer);
-                                    event.setEventName(eventName);
-                                    event.setLocation(location);
-                                    event.setEventDetails(details);
-                                    event.setDate(eventDate);
+                        Log.d("EntrantHomeView", "Processing event: " + document.getId());
 
-                                    // Now addevent to thelist
-                                    waitlistedEventsList.add(event);
-                                }
-                                // Notify adapter if changes
-                                waitlistedEventsAdapter.notifyDataSetChanged();
-                            }
-                            else {
-                                // error stuff
-                                Log.e("EntrantHomeView",  "Error loading waitlisted events", task.getException());
-                            }
+                        if(eventName != null){
+                            Log.d("EntrantHOmeview", "Adding event:" + eventName);
+                            Event event = new Event(organizer);
+                            event.setEventName(eventName);
+                            event.setLocation(location);
+                            event.setEventDetails(details);
+                            event.setDate(eventDate);
 
-                        });
+                            waitlistedEventsList.add(event);
+                        }
+
+                    }
+                    // Notify adapter if changes
+                    waitlistedEventsAdapter.notifyDataSetChanged();
+            }
+            else {
+                // error stuff
+                Log.e("EntrantHomeView",  "Error loading waitlisted events", task.getException());
+            }
+
+        });
     }
 }
