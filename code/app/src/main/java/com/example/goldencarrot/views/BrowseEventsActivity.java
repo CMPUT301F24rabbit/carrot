@@ -58,14 +58,15 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
         // Set an item click listener to open EventDetailsActivity
         eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-            // Get the selected event document
-            DocumentSnapshot selectedDocument = eventDocuments.get(position);
-            String documentId = selectedDocument.getId();
+                    // Get the selected event document
+                    DocumentSnapshot selectedDocument = eventDocuments.get(position);
+                    String documentId = selectedDocument.getId();
 
-            // Start EventDetailsActivity and pass document ID as an extra
-            Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
-            intent.putExtra("documentId", documentId);
-            startActivity(intent);
+                    // Start EventDetailsActivity and pass document ID as an extra
+                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
+                    intent.putExtra("documentId", documentId);
+                    startActivity(intent);
+                });
 
         backButton = findViewById(R.id.browseEventsBackBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
