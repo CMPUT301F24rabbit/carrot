@@ -41,6 +41,12 @@ public class WaitlistActivity extends AppCompatActivity {
         // Initialize the waitlist ArrayList
         waitlist = new ArrayList<>();
 
+        // Initialize back button and set a click listener
+        Button backButton = findViewById(R.id.button_back_to_previous_activity);
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
+
         // Set up the custom adapter with ArrayAdapter using the custom view
         adapter = new ArrayAdapter<String>(this, R.layout.entrant_waitlist_item, R.id.EventNameTextView, waitlist) {
             @Override
