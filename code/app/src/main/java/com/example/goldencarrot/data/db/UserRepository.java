@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.goldencarrot.data.model.user.User;
+import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -60,7 +61,10 @@ public class UserRepository {
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
                     // Successfully added the user
+                    // set user's firebase id
+                    user.setUserId(androidId);
                     System.out.println("User added to Firestore");
+
                 })
                 .addOnFailureListener(e -> {
                     // Handle the error
@@ -79,7 +83,6 @@ public class UserRepository {
      */
     public void checkUserExistsAndGetUserType(String androidId, UserTypeCallback callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
-
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {

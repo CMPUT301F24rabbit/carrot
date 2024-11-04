@@ -3,6 +3,9 @@ package com.example.goldencarrot.views;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -28,6 +31,9 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private ArrayAdapter<String> eventsAdapter;
     private ArrayList<String> eventsList;
     private ArrayList<DocumentSnapshot> eventDocuments;
+
+    private Button backButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,13 @@ public class BrowseEventsActivity extends AppCompatActivity {
             Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsActivity.class);
             intent.putExtra("documentId", documentId);
             startActivity(intent);
+
+        backButton = findViewById(R.id.browseEventsBackBtn);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
         });
     }
 

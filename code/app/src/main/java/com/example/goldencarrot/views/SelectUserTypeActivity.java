@@ -27,15 +27,6 @@ public class SelectUserTypeActivity extends AppCompatActivity {
             }
         });
 
-        // Admin Button
-        findViewById(R.id.select_user_type_admin_button).
-                setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                userType = UserUtils.ADMIN_TYPE;
-            }
-        });
-
         // Participant Button
         findViewById(R.id.select_user_type_participant_button).
                 setOnClickListener(new View.OnClickListener() {
