@@ -28,6 +28,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         setContentView(R.layout.organizer_create_event);
 
         // Initialize EventRepository
+        //needs testing
         eventRepository = new EventRepository();
 
         // Set up UI components

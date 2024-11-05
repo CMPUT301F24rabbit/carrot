@@ -74,7 +74,7 @@ public class WaitList implements WaitListConfigurator{
         }
     }
 
-    boolean isFull(){
+    public boolean isFull(){
         return this.userArrayList.size() == this.limitNumber;
     }
 

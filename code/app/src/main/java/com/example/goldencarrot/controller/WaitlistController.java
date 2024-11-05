@@ -1,17 +1,18 @@
-package com.example.goldencarrot.data.model.waitlist;
+package com.example.goldencarrot.controller;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class LotterySystem {
+public class WaitlistController {
     private final WaitList waitList;
     private final WaitListRepository waitListRepository;
     private final Random random;
 
-    public LotterySystem(WaitList waitList, WaitListRepository waitListRepository) {
+    public WaitlistController(WaitList waitList, WaitListRepository waitListRepository) {
         this.waitList = waitList;
         this.waitListRepository = waitListRepository;
         this.random = new Random();

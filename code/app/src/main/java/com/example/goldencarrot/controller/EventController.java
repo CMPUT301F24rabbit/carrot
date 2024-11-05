@@ -152,4 +152,5 @@ public class EventController {
         event.setEventDetails(null);
         System.out.println("Event reset.");
     }
+
 }
