@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
         Event event = getItem(position);
 
         // Populate views with event data
+        ImageView eventImage = view.findViewById(R.id.eventImageView);
         TextView eventName = view.findViewById(R.id.eventNameView);
         TextView eventLocation = view.findViewById(R.id.eventLocationView);
         TextView eventDate = view.findViewById(R.id.eventDateView);
@@ -60,6 +62,9 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
             eventDate.setText(formattedDate);
 
             eventDetails.setText(event.getEventDetails());
+
+            // Static image for DEMO PURPOSESSSSSS
+            eventImage.setImageResource(R.drawable.movie);
         }
 
         return view;

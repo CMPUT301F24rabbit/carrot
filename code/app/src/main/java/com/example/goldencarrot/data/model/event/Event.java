@@ -20,9 +20,19 @@ public class Event implements EventConfigurator {
     private String location;
     private String eventDetails;
     private Date date;
+    private  int imageResId;
 
     public Event(final UserImpl organizer){
         this.organizer = organizer;
+    }
+
+    public Event(UserImpl organizer, String eventName, String location, Date date, String eventDetails, int imageResId) {
+        this.organizer = organizer;
+        this.eventName = eventName;
+        this.location = location;
+        this.date = date;
+        this.eventDetails = eventDetails;
+        this.imageResId = imageResId;
     }
 
     @Override
@@ -83,5 +93,13 @@ public class Event implements EventConfigurator {
     @Override
     public WaitList getWaitList() {
         return waitList;
+    }
+
+    public int getImageResId() {
+        return imageResId;
+    }
+
+    public void setImageResId(int imageResId) {
+        this.imageResId = imageResId;
     }
 }
