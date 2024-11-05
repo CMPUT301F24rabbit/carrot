@@ -18,12 +18,18 @@ import java.util.Locale;
 
 public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecyclerArrayAdapter.EventViewHolder> {
 
+    public interface OnEventLongClickListener{
+        void onEventLongClick(Event event);
+    }
+
     private final Context context;
     private final List<Event> eventList;
+    private final OnEventLongClickListener longClickListener;
 
-    public EventRecyclerArrayAdapter(Context context, List<Event> eventList) {
+    public EventRecyclerArrayAdapter(Context context, List<Event> eventList, OnEventLongClickListener longClickListener) {
         this.context = context;
         this.eventList = eventList;
+        this.longClickListener = longClickListener;
     }
 
     @NonNull
@@ -38,18 +44,12 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         Event event = eventList.get(position);
         holder.eventName.setText(event.getEventName());
         holder.eventLocation.setText(event.getLocation());
+        holder.eventImageView.setImageResource(event.getImageResId());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        String formattedDate = event.getDate() != null ? dateFormat.format(event.getDate()) : "Date not set";
-        holder.eventDate.setText(formattedDate);
-        holder.eventDetails.setText(event.getEventDetails());
-
-        // Set image resource if Event class has an image field
-        if (event.getImageResId() != 0) {
-            holder.eventImageView.setImageResource(event.getImageResId());
-        } else {
-            holder.eventImageView.setImageResource(R.drawable.movie); // Default image placeholder
-        }
+        holder.itemView.setOnLongClickListener(v -> {
+            longClickListener.onEventLongClick(event);
+            return true;
+        });
     }
 
     @Override
@@ -59,16 +59,15 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
 
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         ImageView eventImageView;
-        TextView eventName, eventLocation, eventDate, eventDetails;
+        TextView eventName;
+        TextView eventLocation;
 
-        public EventViewHolder(@NonNull View itemView) {
-            super(itemView);
-            eventImageView = itemView.findViewById(R.id.eventImageView);
-            eventName = itemView.findViewById(R.id.eventNameView);
-            eventLocation = itemView.findViewById(R.id.eventLocationView);
-            eventDate = itemView.findViewById(R.id.eventDateView);
-            eventDetails = itemView.findViewById(R.id.eventDetailsView);
-        }
+        public EventViewHolder(@NonNull View itemView){
+        super(itemView);
+        eventImageView = itemView.findViewById(R.id.eventImageView);
+        eventName = itemView.findViewById(R.id.eventNameView);
+        eventLocation = itemView.findViewById(R.id.eventLocationView);
+    }
     }
 }
 

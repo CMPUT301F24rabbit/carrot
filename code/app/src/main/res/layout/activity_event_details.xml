@@ -5,33 +5,117 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/event_DetailPosterView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp"
+        />
+
     <TextView
-        android:id="@+id/eventDetailsTextView"
+        android:id="@+id/event_DetailNameTitleView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Event Details"
-        android:textSize="18sp"
-        android:paddingTop="16dp"/>
-
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        android:textColor="@android:color/white"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:padding="10dp"
-        android:layout_margin="16dp"/>
-
-    <Button
-        android:id="@+id/deleteEventBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
+        android:text="Event Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/event_DetailPosterView"
         android:layout_marginBottom="16dp"
-        android:text="Delete Event" />
+        />
+
+    <!-- Scroll View Start now -->
+    <ScrollView
+        android:id="@+id/scrollViewContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/event_DetailNameTitleView"
+        android:layout_above="@+id/button_DetailContainer"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Event Date -->
+            <TextView
+                android:id="@+id/event_DetailDateView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date:"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                />
+
+            <!-- Event Location -->
+            <TextView
+                android:id="@+id/event_DetailLocationView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                />
+
+            <!-- Event Time -->
+            <TextView
+                android:id="@+id/event_DetailTimeView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                />
+
+            <!-- Event Details -->
+            <TextView
+                android:id="@+id/event_DetailDetailsView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Details:"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                />
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Buttons at the bottom -->
+    <LinearLayout
+        android:id="@+id/button_DetailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="16dp">
+
+        <!-- Back Button -->
+        <Button
+            android:id="@+id/back_DetailButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:layout_margin="8dp"/>
+
+        <!-- Delete Button -->
+        <Button
+            android:id="@+id/delete_DetailEventBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Delete Event" />
+
+        <!-- Entrants Button -->
+        <Button
+            android:id="@+id/button_DetailViewEventLists"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lists"
+            android:layout_margin="8dp"/>
+
+        </LinearLayout>
 
 </RelativeLayout>

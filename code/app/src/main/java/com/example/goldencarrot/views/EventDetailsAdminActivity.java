@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,11 +36,16 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         eventRepository = new EventRepository();
 
         // Set up back button
-        Button backButton = findViewById(R.id.backButton);
+        Button backButton = findViewById(R.id.back_DetailButton);
         backButton.setOnClickListener(v -> finish());
 
         // Initialize TextView
-        eventDetailsTextView = findViewById(R.id.eventDetailsTextView);
+        ImageView eventPosterView = findViewById(R.id.event_DetailPosterView);
+        TextView eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
+        TextView eventDateView = findViewById(R.id.event_DetailDateView);
+        TextView eventLocationView = findViewById(R.id.event_DetailLocationView);
+        TextView eventTimeView = findViewById(R.id.event_DetailTimeView);
+        TextView eventDetailsView = findViewById(R.id.event_DetailDetailsView);
 
         // Get the event ID from the Intent
         String eventId = getIntent().getStringExtra("eventId");
@@ -49,7 +55,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
         // Set up delete event button
-        findViewById(R.id.deleteEventBtn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.delete_DetailEventBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 eventRepository.deleteEvent(eventId);
