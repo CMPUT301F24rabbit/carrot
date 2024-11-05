@@ -13,9 +13,11 @@ import androidx.test.filters.LargeTest;
 
 import com.example.goldencarrot.views.AdminHomeActivity;
 
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -39,16 +41,16 @@ public class AdminUITest {
         // Click on Users button
         onView(withId(R.id.adminAllUsersButton)).perform(click());
         // click on user "James" from the list of all users
-        onView(withText("James")).perform(click());
-        // check if phone number "7800000000" is displayed on screen
-        onView(withText("jctuason@ualberta.ca")).check(matches(isDisplayed()));
+        onView(withText("JamesEntrant")).perform(click());
+        // check if delete button is displayed on screen
+        onView(withId(R.id.deleteProfileBtn)).check(matches(isDisplayed()));
     }
     @Test
     public void testBackButtonFromProfiles() {
         // Click on Users button
         onView(withId(R.id.adminAllUsersButton)).perform(click());
         // click on user "James" from the list of all users
-        onView(withText("James")).perform(click());
+        onView(withText("JamesEntrant")).perform(click());
         // Click on back button on profile page
         onView(withId(R.id.adminViewProfileBackBtn)).perform(click());
         // Click on back button on all profiles page
@@ -57,19 +59,42 @@ public class AdminUITest {
         onView(withText("Admin Home")).check(matches(isDisplayed()));
     }
     @Test
-    public void testViewAllEvents() {
+    public void testAllEventsView() {
         // Click on Events button
         onView(withId(R.id.adminAllEventsButton)).perform(click());
         // Check if text "Browse Events" is matched with any text opn screen
         onView(withText("Browse Events")).check(matches(isDisplayed()));
     }
-    @Test
+    //@Test
     public void testBackButtonFromEvents(){
         // Click on Events button
         onView(withId(R.id.adminAllEventsButton)).perform(click());
         // Click on back button from browse events page
         onView(withId(R.id.browseEventsBackBtn)).perform(click());
         // Check if back on admin home page
+        onView(withText("Admin Home")).check(matches(isDisplayed()));
+    }
+    @Test
+    public void testViewSpecificEvent() {
+        // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        onView(withText("Browse Events")).check(matches(isDisplayed()));
+        // Click on event Sample Event to view event details
+        onView(withText("Halloween Party")).perform(click());
+        // check if "delete event" button is displayed
+        onView(withId(R.id.deleteEventBtn)).check(matches(isDisplayed()));
+    }
+    @Test
+    public void testBackButtonFromEvent() {
+        // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        onView(withText("Browse Events")).check(matches(isDisplayed()));
+        // Click on event Sample Event to view event details
+        onView(withText("Halloween Party")).perform(click());
+        // click on back button from event page, and browse events page
+        onView(withId(R.id.backButton)).perform(click());
+        onView(withId(R.id.browseEventsBackBtn)).perform(click());
+        // check if back at admin home
         onView(withText("Admin Home")).check(matches(isDisplayed()));
     }
 }
