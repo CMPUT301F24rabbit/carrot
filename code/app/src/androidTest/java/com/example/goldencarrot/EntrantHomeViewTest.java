@@ -1,5 +1,6 @@
 package com.example.goldencarrot;
 
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Rule;
@@ -10,10 +11,12 @@ import com.example.goldencarrot.views.EntrantHomeView;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
+import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
 /**
@@ -82,5 +85,37 @@ public class EntrantHomeViewTest {
         onView(withId(R.id.entrant_home_view_user_name))
                 .check(matches(not(withText("Error: Username not found"))));
     }
+    /**
+     * testEditAndSaveProfileInformation verifies that profile information can be edited and saved,
+     * and that the changes appear in EntrantHomeView.
+     */
+    /**
+     * testEditUserDetailsAndReturn verifies that the user can edit their profile information,
+     * save it, and see the updated information in EntrantHomeView.
+     */
+    @Test
+    public void testEditUserDetailsAndReturn() {
+        // Step 1: Navigate to EditUserDetailsView
+        onView(withId(R.id.entrant_home_view_image_view)).perform(longClick());
+
+        // Step 2: Enter new profile information
+        onView(withId(R.id.edit_user_details_name)).perform(typeText("Updated Name"));
+        onView(withId(R.id.edit_user_details_email_input)).perform(typeText("updatedemail@example.com"));
+        onView(withId(R.id.edit_user_details_phone_number)).perform(typeText("1234567890"));
+
+        // Close the keyboard
+        onView(withId(R.id.edit_user_details_phone_number)).perform(ViewActions.closeSoftKeyboard());
+
+        // Step 3: Click the save button
+        onView(withId(R.id.edit_user_details_save_button)).perform(click());
+
+        // Step 4: Verify that we are back on EntrantHomeView by checking for a unique view
+        onView(withId(R.id.entrant_home_view_user_name)).check(matches(isDisplayed()));
+
+        // Step 5: Check if the TextView contains "Updated Name" rather than an exact match
+        onView(withId(R.id.entrant_home_view_user_name)).check(matches(withText(containsString("Updated Name"))));
+    }
+
+
 }
 

@@ -23,6 +23,7 @@ public class WaitList implements WaitListConfigurator{
 
         // Initialize Array List
         this.userArrayList = new ArrayList<UserImpl>();
+
     }
 
     public WaitList(final int limitNumber,
@@ -41,15 +42,6 @@ public class WaitList implements WaitListConfigurator{
         return userArrayList;
     }
 
-//    @Override
-//    public Event getEvent() {
-//        return event;
-//    }
-//
-//    @Override
-//    public void setEvent(Event event) {
-//        this.event = event;
-//    }
 
     @Override
     public void setUserArrayList(ArrayList<UserImpl> userArrayList) {
@@ -73,6 +65,7 @@ public class WaitList implements WaitListConfigurator{
 
     @Override
     public String getEventId(){ return this.eventId; }
+
 
     /**
      * Returns True if User was added, False if waitList is Full.
@@ -99,7 +92,11 @@ public class WaitList implements WaitListConfigurator{
         this.waitListId = waitListId;
     }
 
-    private boolean isFull(){
+    public boolean isFull(){
         return this.userArrayList.size() == this.limitNumber;
+    }
+
+    public void removeUserFromWaitList(UserImpl user){
+        this.userArrayList.remove(user);
     }
 }

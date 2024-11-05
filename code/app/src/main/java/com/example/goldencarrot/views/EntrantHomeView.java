@@ -67,7 +67,7 @@ public class EntrantHomeView extends AppCompatActivity {
         waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
 
         // Set user name
-       loadUserData();
+        loadUserData();
 
         // Event lists and adapter Inititalization
         upcomingEventsList =new ArrayList<>();
