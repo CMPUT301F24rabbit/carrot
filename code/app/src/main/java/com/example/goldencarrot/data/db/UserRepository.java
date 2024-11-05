@@ -140,7 +140,7 @@ public class UserRepository {
     /**
      * Deletes a user from Firestore using the Android ID as the document ID.
      *
-     * @param androidId The Android ID used as the document ID.
+     * @param androidId The Android device ID used as the document ID.
      */
     public void deleteUser(final String androidId) {
         // Reference to the user document
@@ -160,15 +160,8 @@ public class UserRepository {
     }
 
     /**
-     * Callback interface to handle Firestore query results for userType.
-     */
-    public interface FirestoreCallbackUserType {
-        void onSuccess(String userType);
-        void onFailure(Exception e);
-    }
-    /**
      * Retrieves all users from the Firestore user collection
-     * @param callback a callback to handle the result
+     * @param callback handles the result of the query
      */
     public void getAllUsersFromFirestore(FirestoreCallbackAllUsers callback) {
         userCollection = db.collection("users");
@@ -187,12 +180,44 @@ public class UserRepository {
                     }
                 });
     }
+
+    /**
+     * Queries a user from Firestore by their Android ID.
+     *
+     * @param androidId the device Id of the user, assumed to be unique
+     * @param callback handles the result of the query
+     */
+    public void getSingleUser(String androidId, FirestoreCallbackSingleUser callback) {
+        DocumentReference userRef = db.collection("users").document(androidId);
+
+        userRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        UserImpl user = documentSnapshot.toObject(UserImpl.class);
+                        callback.onSuccess(user); // Pass the user object to the callback
+                    } else {
+                        callback.onFailure(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.onFailure(e);
+                    Log.e(TAG, "Error fetching user: " + e.getMessage(), e);
+                });
+    }
+
+    /**
+     * Callback interface for querying for a single user.
+     */
+    public interface FirestoreCallbackSingleUser {
+        void onSuccess(UserImpl user);
+        void onFailure(Exception e);
+    }
+
     /**
      * Callback interface to handle Firestore query results for users collection
      */
     public interface FirestoreCallbackAllUsers {
         void onSuccess(List<DocumentSnapshot> listOfUsers);
-
         void onFailure(Exception e);
     }
     /**
@@ -201,6 +226,4 @@ public class UserRepository {
     public interface UserTypeCallback {
         void onResult(boolean exists, String userType);
     }
-
-    
 }

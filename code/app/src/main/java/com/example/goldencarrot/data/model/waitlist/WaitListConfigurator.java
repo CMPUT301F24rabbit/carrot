@@ -24,28 +24,14 @@ public interface WaitListConfigurator {
      *
      * @param userArrayList the new list of users on the waitlist
      */
-    void setUserArrayList(ArrayList<UserImpl> userArrayList);
-
-    /**
-     * Retrieves the event associated with the waitlist.
-     *
-     * @return the event associated with the waitlist
-     */
-    Event getEvent();
-
-    /**
-     * Sets the event associated with the waitlist.
-     *
-     * @param event the new event associated with the waitlist
-     */
-    void setEvent(Event event);
+    void setUserArrayList(final ArrayList<UserImpl> userArrayList);
 
     /**
      * Sets the limit number for the waitlist.
      *
      * @param limitNumber the maximum number of users allowed on the waitlist
      */
-    void setLimitNumber(int limitNumber);
+    void setLimitNumber(final int limitNumber);
 
     /**
      * Gets the limit number for the waitlist.
@@ -55,10 +41,41 @@ public interface WaitListConfigurator {
     int getLimitNumber();
 
     /**
-     * Adds a user to the waitlist if it is not full.
+     * Adds a user to the waitlist if it is not full
      *
      * @param user the user to be added to the waitlist
      * @return true if the user was added, false if the waitlist is full
      */
-    boolean addUserToWaitList(UserImpl user);
+    boolean addUserToWaitList(final UserImpl user);
+
+    /**
+     * Gets the Event id related to this waitlist
+     * Event id matches an event record in events DB
+     *
+     * @return Event id
+     */
+    String getEventId();
+
+    /**
+     * Sets event id related to an event record in events DB.
+     *
+     * @param eventId related to an event record in events Db
+     */
+    void setEventId(final String eventId);
+
+    /**
+     * Gets the waitlist ID.
+     *
+     * @return the waitlist ID
+     */
+    String getWaitListId();
+
+    /**
+     * Sets the waitlist ID.
+     *
+     * @param waitListId the waitlist ID to set
+     */
+    void setWaitListId(String waitListId);
+
+
 }

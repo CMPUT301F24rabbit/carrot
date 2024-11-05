@@ -90,4 +90,32 @@ public interface EventConfigurator {
      */
     Date getDate();
 
+    /**
+     * Gets the waitlist ID associated with the event.
+     *
+     * @return the waitlist ID
+     */
+    String getWaitListId();
+
+    /**
+     * Sets the waitlist ID for the event.
+     *
+     * @param waitListId the waitlist ID to set
+     */
+    void setWaitListId(String waitListId);
+
+    /**
+     * Gets the organizer ID associated with the event.
+     *
+     * @return the organizer ID
+     */
+    String getOrganizerId();
+
+    /**
+     * Sets the organizer ID for the event.
+     *
+     * @param organizerId the organizer ID to set
+     */
+    void setOrganizerId(String organizerId);
+
 }
