@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,10 +22,15 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventRecyclerArrayAdapter;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class OrganizerHomeView extends AppCompatActivity {
@@ -36,6 +42,8 @@ public class OrganizerHomeView extends AppCompatActivity {
 
     // Firestore
     private FirebaseFirestore firestore;
+    private String deviceId;
+    private List<Event> eventList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +54,28 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "Firestore initialized");
+        deviceId = getDeviceId(this);
 
         // Initialize the views from layout file
         manageProfileButton = findViewById(R.id.button_manage_profile);
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
-
-        // Set user name
-        loadUserData();
 
         // Event lists and adapter Inititalization
         recyclerView = findViewById(R.id.recycler_view_events);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Set adapters to listview
+        eventAdapter = new EventRecyclerArrayAdapter(this, eventList, event -> {
+            // Long click to open details
+            Intent intent = new Intent(OrganizerHomeView.this, OrganizerEventDetailsActivity.class);
+            intent.putExtra("eventId", event.getEventName());
+            startActivity(intent);
+        });
+
+        recyclerView.setAdapter(eventAdapter);
+
+        // Set user name
+        loadUserData();
 
         // Placeholder for event recycler for images
         // Create a list of Event objects for the RecyclerView
@@ -76,7 +93,7 @@ public class OrganizerHomeView extends AppCompatActivity {
 
     // Load user Data
     private void loadUserData() {
-        String deviceId = getDeviceId(OrganizerHomeView.this);
+        //String deviceId = getDeviceId(OrganizerHomeView.this);
 
         firestore.collection("users").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -96,20 +113,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());
-
-                                // LOADING DUMMY EVENTS
-                                List<Event> eventList = Arrays.asList(
-                                        new Event(user,"Movie Night", "Cinema", new Date(), "Join us for a night of fun movies!", R.drawable.movie),
-                                        new Event(user, "Food Festival", "Downtown", new Date(), "Enjoy delicious cuisines from around the world.", R.drawable.dimsum),
-                                        new Event(user, "Live Concert", "Stadium", new Date(), "Experience live music with popular bands.", R.drawable.profilepic1),
-                                        new Event(user, "Art Exhibition", "Art Gallery", new Date(), "Explore the latest art pieces by renowned artists.", R.drawable.movie)
-                                );
-                                // Initialize adaptr with createdeventlist
-                                eventAdapter = new EventRecyclerArrayAdapter(OrganizerHomeView.this, eventList);
-                                recyclerView.setAdapter(eventAdapter);
-
-
-
+                                loadEventsForOrganizer(user);
                             } else {
                                 Log.w(TAG, "Username field is missing in the document");
                                 usernameTextView.setText("Error: Username not found");
@@ -129,6 +133,47 @@ public class OrganizerHomeView extends AppCompatActivity {
 
                 });
 
+    }
+
+    private void loadEventsForOrganizer(UserImpl organizer){
+        firestore.collection("events").whereEqualTo("organizerId", deviceId)
+                .get().addOnSuccessListener(querySnapshot -> {
+                    eventList.clear();
+
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        String eventId = document.getId();
+                        String eventName = document.getString("eventName");
+                        String location = document.getString("location");
+                        String eventDetails = document.getString("eventDetails");
+                        String dateString = document.getString("date");
+                        int imageResId = document.contains("imageResId") ? document.getLong("imageResId").intValue() : R.drawable.default_poster;
+
+                        // turning date into Date
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        try{
+                            Date eventDate = dateFormat.parse(dateString);
+                            Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
+
+                            eventList.add(event);
+
+                            eventAdapter = new EventRecyclerArrayAdapter(this, eventList, clickedEvent -> {
+                                Intent intent = new Intent(OrganizerHomeView.this, OrganizerEventDetailsActivity.class);
+                                intent.putExtra("eventId", eventId);
+                                startActivity(intent);
+                            });
+                        } catch (ParseException e) {
+                            Log.e("OrganizerHomeview", "Date parsing error: " + e.getMessage(), e);
+                        }
+                    }
+
+                    eventAdapter.notifyDataSetChanged();
+                    recyclerView.setAdapter(eventAdapter);
+
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading events for organizer", e);
+                    Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**
