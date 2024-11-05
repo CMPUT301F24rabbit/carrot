@@ -22,6 +22,7 @@ public class Event implements EventConfigurator {
     private String organizerId;
     private String waitListId;
     private Date date;
+    private  int imageResId;
 
     public Event(){}
 
@@ -29,9 +30,16 @@ public class Event implements EventConfigurator {
         this.organizer = organizer;
     }
 
-    /**
-     * @return returns Organizer Object
-     */
+
+    public Event(UserImpl organizer, String eventName, String location, Date date, String eventDetails, int imageResId) {
+        this.organizer = organizer;
+        this.eventName = eventName;
+        this.location = location;
+        this.date = date;
+        this.eventDetails = eventDetails;
+        this.imageResId = imageResId;
+    }
+
     @Override
     public UserImpl getOrganizer() {
         return organizer;
@@ -144,5 +152,13 @@ public class Event implements EventConfigurator {
     @Override
     public WaitList getWaitList() {
         return waitList;
+    }
+
+    public int getImageResId() {
+        return imageResId;
+    }
+
+    public void setImageResId(int imageResId) {
+        this.imageResId = imageResId;
     }
 }
