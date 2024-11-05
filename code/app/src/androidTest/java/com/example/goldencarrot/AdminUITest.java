@@ -82,7 +82,7 @@ public class AdminUITest {
         // Click on event Sample Event to view event details
         onView(withText("Halloween Party")).perform(click());
         // check if "delete event" button is displayed
-        onView(withId(R.id.deleteEventBtn)).check(matches(isDisplayed()));
+        onView(withId(R.id.delete_DetailEventBtn)).check(matches(isDisplayed()));
     }
     @Test
     public void testBackButtonFromEvent() {
@@ -92,7 +92,7 @@ public class AdminUITest {
         // Click on event Sample Event to view event details
         onView(withText("Halloween Party")).perform(click());
         // click on back button from event page, and browse events page
-        onView(withId(R.id.backButton)).perform(click());
+        onView(withId(R.id.back_DetailButton)).perform(click());
         onView(withId(R.id.browseEventsBackBtn)).perform(click());
         // check if back at admin home
         onView(withText("Admin Home")).check(matches(isDisplayed()));

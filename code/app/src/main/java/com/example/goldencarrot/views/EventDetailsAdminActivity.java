@@ -25,6 +25,12 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
     private ListenerRegistration listenerRegistration;
     private TextView eventDetailsTextView;
     private EventRepository eventRepository;
+    private ImageView eventPosterView;
+    private TextView eventNameTitleView;
+    private TextView eventDateView;
+    private TextView eventLocationView;
+    private TextView eventTimeView;
+    private TextView eventDetailsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,15 +43,21 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
 
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Initialize TextView
-        ImageView eventPosterView = findViewById(R.id.event_DetailPosterView);
-        TextView eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
-        TextView eventDateView = findViewById(R.id.event_DetailDateView);
-        TextView eventLocationView = findViewById(R.id.event_DetailLocationView);
-        TextView eventTimeView = findViewById(R.id.event_DetailTimeView);
-        TextView eventDetailsView = findViewById(R.id.event_DetailDetailsView);
+        eventPosterView = findViewById(R.id.event_DetailPosterView);
+        eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
+        eventDateView = findViewById(R.id.event_DetailDateView);
+        eventLocationView = findViewById(R.id.event_DetailLocationView);
+        eventTimeView = findViewById(R.id.event_DetailTimeView);
+        eventDetailsView = findViewById(R.id.event_DetailDetailsView);
 
         // Get the event ID from the Intent
         String eventId = getIntent().getStringExtra("eventId");
@@ -71,9 +83,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             if (e != null) {
                 Toast.makeText(this, "Error fetching event details", Toast.LENGTH_SHORT).show();
                 return;
-            }
-
-            if (snapshot != null && snapshot.exists()) {
+            } else if (snapshot != null && snapshot.exists()) {
                 // Retrieve event details from Firestore
                 String eventName = snapshot.getString("eventName");
                 String eventDetails = snapshot.getString("eventDetails");
@@ -83,6 +93,11 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 // Display event details
                 eventDetailsTextView.setText(String.format("Event Name: %s\nEvent Details: %s\nLocation: %s\nDate: %s",
                         eventName, eventDetails, location, date));
+                eventNameTitleView.setText(eventName);
+                eventDateView.setText(date);
+                eventLocationView.setText(location);
+                eventDetailsView.setText(eventDetails);
+
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
             }
