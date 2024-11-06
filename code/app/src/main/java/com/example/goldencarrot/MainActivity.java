@@ -1,27 +1,28 @@
 package com.example.goldencarrot;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.goldencarrot.authentication.AccountService;
-import com.example.goldencarrot.authentication.AccountServiceImpl;
+import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.model.user.UserUtils;
+import com.example.goldencarrot.views.AdminHomeActivity;
+import com.example.goldencarrot.views.EntrantHomeView;
+import com.example.goldencarrot.views.OrganizerHomeView;
 import com.example.goldencarrot.views.SelectUserTypeActivity;
 import com.example.goldencarrot.views.SignUpActivity;
-import com.google.firebase.Firebase;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
+    private String deviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,29 +30,37 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        UserRepository userRepository = new UserRepository();
         FirebaseApp.initializeApp(this);
-        mAuth = FirebaseAuth.getInstance();
 
-        /** Todo
-         *  send user to their user type welcome page if logged in
-         */
-        if (mAuth.getCurrentUser() != null){
+        deviceId = getDeviceId(this);
 
-        }
-
-        //  Login Button
-        findViewById(R.id.auth_login_button).setOnClickListener(new View.OnClickListener() {
+        // Check if the user exists in Firestore using the device ID and get the userType
+        userRepository.checkUserExistsAndGetUserType(deviceId, new UserRepository.UserTypeCallback() {
             @Override
-            public void onClick(View view) {
+            public void onResult(boolean exists, String userType) {
+                if (exists) {
+                    // User exists, and we have the userType
+                    Log.d("MainActivity", "User exists. User Type: " + userType);
+                    navigateByUserType(userType);
+                } else {
+                    // User does not exist
+                    Log.d("MainActivity", "User does not exist in Firestore.");
+                    Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
-        // Sign-Up Button
+        /**
+         * Todo, add a loading circle bar
+         */
         findViewById(R.id.auth_sign_up_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SelectUserTypeActivity.class);
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
+
             }
         });
 
@@ -62,5 +71,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void navigateByUserType(String userType) {
+        Intent intent;
+        if (userType.equals(UserUtils.ADMIN_TYPE)) {
+            intent = new Intent(MainActivity.this, AdminHomeActivity.class);
+            startActivity(intent);
+        }
 
+        if (userType.equals(UserUtils.ORGANIZER_TYPE)) {
+            intent = new Intent(MainActivity.this, OrganizerHomeView.class);
+            startActivity(intent);
+        }
+
+        if (userType.equals(UserUtils.PARTICIPANT_TYPE)) {
+            intent = new Intent(MainActivity.this, EntrantHomeView.class);
+            startActivity(intent);
+        }
+    }
+
+    private String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
 }

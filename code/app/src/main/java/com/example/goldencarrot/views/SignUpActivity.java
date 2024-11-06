@@ -2,10 +2,11 @@ package com.example.goldencarrot.views;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,7 +18,8 @@ import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Optional;
 
 public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -31,70 +33,75 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_auth_sign_up);
 
         mAuth = FirebaseAuth.getInstance();
-        accountService = new AccountServiceImpl(SignUpActivity.this);  // Pass context to AccountServiceImpl
-        userDb = new UserRepository();  // Initialize UserRepository
+        accountService = new AccountServiceImpl(SignUpActivity.this);
+        userDb = new UserRepository();
 
-        Intent data = getIntent();
-        userType = data.getStringExtra(UserUtils.USER_TYPE);
+        // Default participant type
+        userType = UserUtils.PARTICIPANT_TYPE;
 
-        // Attempts to create account
         findViewById(R.id.sign_up_create_account_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText email = findViewById(R.id.sign_up_email_input);
-                EditText password = findViewById(R.id.sign_up_password_input);
-                EditText username = findViewById(R.id.sign_up_username);
+                EditText phoneNumber = findViewById(R.id.sign_up_phone_number);
+                EditText name = findViewById(R.id.sign_up_name);
 
-                // Pass the correct context using SignUpActivity.this
-                accountService.signUp(email.getText().toString(),
-                        password.getText().toString(),
-                        new AccountService.AuthCallback() {
-                            @Override
-                            public void onAuthSuccess(FirebaseUser user) {
-                                // After successful sign up, add the user to Firestore
-                                addUserToFirestore(user, username.toString());
-                                updateUI(user);
-                            }
+                String deviceId = Settings.Secure.getString(
+                        SignUpActivity.this.getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
 
-                            @Override
-                            public void onAuthFailure() {
-                                updateUI(null);
-                            }
-                        });
+                try {
+                    verifyInputs(
+                            email.getText().toString(),
+                            phoneNumber.getText().toString(),
+                            name.getText().toString()
+                    );
+
+                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()));
+                    Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
+                    startActivity(intent);
+
+                } catch (Exception e) {
+                    ValidationErrorDialog.show(SignUpActivity.this, "Validation Error", e.getMessage());
+                }
             }
         });
+    }
 
-        if (mAuth.getCurrentUser() != null) {
-            TextView welcomeTextView = findViewById(R.id.auth_welcome_message);
-            welcomeTextView.setText(mAuth.getCurrentUser().getEmail());
+    /**
+     * Todo add this logic to a UserController
+     *
+     */
+
+    private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber) {
+        try {
+            User newUser = new UserImpl(email, userType, name, phoneNumber);
+            userDb.addUser(newUser, deviceId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ValidationErrorDialog.show(SignUpActivity.this, "Error", "Invalid user type");
         }
     }
 
-    private void addUserToFirestore(FirebaseUser firebaseUser, String username) {
-        if (firebaseUser != null) {
-            String uid = firebaseUser.getUid();
-            String email = firebaseUser.getEmail();
+    private void verifyInputs(final String email, final String phoneNumber, final String name) throws Exception {
+        if (TextUtils.isEmpty(email) || !isValidEmail(email)) {
+            throw new Exception("Invalid email format");
+        }
 
-            // Create UserImpl object with the user email and userType
-            try {
-                User newUser = new UserImpl(email, userType, username);
-                // Add user to Firestore using UserRepository
-                userDb.addUser(newUser, uid);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(SignUpActivity.this, "Error: Invalid user type", Toast.LENGTH_SHORT).show();
-            }
+        if (TextUtils.isEmpty(phoneNumber) || !phoneNumber.matches("\\d{10}")) {
+            throw new Exception("Phone number must contain exactly 10 digits");
+        }
+
+        if (TextUtils.isEmpty(name)) {
+            throw new Exception("Name cannot be empty");
         }
     }
 
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            // The user is signed in
-            String userEmail = user.getEmail();
-            Toast.makeText(SignUpActivity.this, "Logged in as: " + userEmail, Toast.LENGTH_LONG).show();
-        } else {
-            // The user is signed out or something went wrong
-            Toast.makeText(SignUpActivity.this, "Not logged in", Toast.LENGTH_LONG).show();
-        }
+    // Reference:
+    // "android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();" – Pratik Butani,
+    // Stack Overflow, Dec 16, 2013
+    // Retrieved from https://stackoverflow.com/questions/12947620/email-address-validation-in-android-on-edittext
+    private boolean isValidEmail(String email) {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }

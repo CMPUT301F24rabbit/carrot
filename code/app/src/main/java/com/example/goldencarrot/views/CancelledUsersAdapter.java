@@ -6,10 +6,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.goldencarrot.R;
-
 import com.example.goldencarrot.data.model.user.User;
-
 import java.util.ArrayList;
 
 public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAdapter.CancelledUsersViewHolder> {
@@ -30,7 +29,7 @@ public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAd
     @Override
     public void onBindViewHolder(@NonNull CancelledUsersViewHolder holder, int position) {
         User user = cancelledUsersList.get(position);
-        holder.usernameTextView.setText(user.getUsername());
+        holder.usernameTextView.setText(user.getName());
         holder.emailTextView.setText(user.getEmail());
     }
 
