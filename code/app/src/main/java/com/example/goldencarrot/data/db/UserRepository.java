@@ -189,7 +189,6 @@ public class UserRepository {
      */
     public void getSingleUser(String androidId, FirestoreCallbackSingleUser callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
-
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {

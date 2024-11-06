@@ -35,7 +35,7 @@ public class EventRepository {
         Map<String, Object> eventData = new HashMap<>();
 
         // add event attributes to firestore
-        eventData.put("organizerId", event.getOrganizer().getUserId());
+        eventData.put("organizerId", event.getOrganizerId());
         eventData.put("eventDetails", event.getEventDetails());
         eventData.put("waitlistId", waitListDocId);
         eventData.put("location", event.getLocation());
