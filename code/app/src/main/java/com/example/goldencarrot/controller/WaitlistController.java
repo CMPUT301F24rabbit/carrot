@@ -12,153 +12,77 @@ import java.util.List;
 import java.util.Random;
 
 public class WaitlistController {
-    private final WaitList waitList;
-    private final WaitListRepository waitListRepository;
-    private final Random random;
+        private final WaitList waitList;
+        private final WaitListRepository waitListRepository;
+        private final Random random;
 
-    public WaitlistController(WaitList waitList, WaitListRepository waitListRepository) {
-        this.waitList = waitList;
-        this.waitListRepository = waitListRepository;
-        this.random = new Random();
-    }
+        // Number of attendees to register for the event (to be set by the organizer)
+        private int sampleSize = 0;
 
-    /**
-     * Adds a user to the waitlist if there is space.
-     *
-     * @param user the user to add
-     * @return true if the user was added successfully, false if the waitlist is full
-     */
-    public boolean addUserToLottery(UserImpl user) {
-        boolean added = waitList.addUserToWaitList(user);
-        if (waitList.isFull()) {
-            System.out.println("Waitlist is full. Cannot add more users.");
-            return false;
+        public WaitlistController(WaitList waitList, WaitListRepository waitListRepository) {
+            this.waitList = waitList;
+            this.waitListRepository = waitListRepository;
+            this.random = new Random();
         }
-        if (added) {
-            // Save the updated waitlist to the database
-            waitListRepository.addUserToWaitList(waitList.getEvent().getEventName(), user, new WaitListRepository.FirestoreCallback() {
-                @Override
-                public void onSuccess(Object result) {
-                    System.out.println("User added to waitlist successfully in Firestore.");
-                }
 
-                @Override
-                public void onFailure(Exception e) {
-                    System.err.println("Failed to add user to waitlist in Firestore: " + e.getMessage());
-                }
-            });
+        // Method to set the sample size (number of users to register)
+        public void setSampleSize(int sampleSize) {
+            this.sampleSize = sampleSize;
+            System.out.println("Sample size for attendees set to " + sampleSize);
         }
-        return added;
-    }
 
-    /**
-     * Invites a limited number of random users and handles their responses.
-     * If a user declines, another user is randomly selected until the quota is filled or the waitlist is exhausted.
-     *
-     * @param count the number of users to invite
-     */
-    public void inviteUsersToLottery(int count) {
-        List<UserImpl> selectedUsers = selectRandomWinners(count);
 
-        for (UserImpl user : selectedUsers) {
-            boolean accepted = inviteUser(user);
-            if (accepted) {
-                System.out.println(user.getName() + " accepted the invite.");
-            } else {
-                System.out.println(user.getName() + " declined the invite. Selecting another user...");
-                inviteReplacementUser();
+
+        // Register the user and move them from waitlist to registered list
+
+        // Helper method to randomly select winners (i.e., users to be registered)
+        public List<UserImpl> selectRandomWinners(int count) {
+            ArrayList<UserImpl> userArrayList = waitList.getUserArrayList();
+            List<UserImpl> winners = new ArrayList<>();
+
+            if (userArrayList.isEmpty()) {
+                System.out.println("Waitlist is empty. No users to select.");
+                return winners;
             }
-        }
-    }
 
-    /**
-     * Helper method to invite a single user and simulate response.
-     *
-     * @param user the user to invite
-     * @return true if the user accepts the invite, false if declined
-     */
-    private boolean inviteUser(UserImpl user) {
-        sendNotification(user, "You have been invited to participate!");
-        // Simulate user response with a random outcome
-        boolean accepted = random.nextBoolean(); // Or use an actual response mechanism
-        if (accepted) {
-            waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), user, "accepted");
-        } else {
-            waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), user, "declined");
-        }
-        return accepted;
-    }
+            while (winners.size() < count && !userArrayList.isEmpty()) {
+                int winnerIndex = random.nextInt(userArrayList.size());
+                UserImpl winner = userArrayList.remove(winnerIndex);
+                winners.add(winner);
 
-    /**
-     * Re-selects a user from the waitlist if a previously invited user declines.
-     */
-    private void inviteReplacementUser() {
-        if (waitList.getUserArrayList().isEmpty()) {
-            System.out.println("No more users available in waitlist.");
-            return;
-        }
-        UserImpl replacement = waitList.getUserArrayList().remove(random.nextInt(waitList.getUserArrayList().size()));
-        boolean accepted = inviteUser(replacement);
-        if (!accepted) {
-            inviteReplacementUser(); // Repeat if declined
-        }
-    }
+                waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), winner, "pending");
+            }
 
-    /**
-     * Selects a random user from the waitlist and updates their status to "accepted."
-     *
-     * @return the selected user, or null if the waitlist is empty
-     */
-    public List<UserImpl> selectRandomWinners(int count) {
-        ArrayList<UserImpl> userArrayList = waitList.getUserArrayList();
-        List<UserImpl> winners = new ArrayList<>();
-
-        if (userArrayList.isEmpty()) {
-            System.out.println("Waitlist is empty. No users to select.");
             return winners;
         }
 
-        while (winners.size() < count && !userArrayList.isEmpty()) {
-            int winnerIndex = random.nextInt(userArrayList.size());
-            UserImpl winner = userArrayList.remove(winnerIndex);
-            winners.add(winner);
-
-            waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), winner, "pending");
+        // Helper method to simulate sending a notification to users
+        private void sendNotification(UserImpl user, String message) {
+            System.out.println("Notification to " + user.getName() + ": " + message);
         }
 
-        return winners;
-    }
-
-    /**
-     * Placeholder method to simulate sending a notification.
-     *
-     * @param user the user to notify
-     * @param message the notification message
-     */
-    private void sendNotification(UserImpl user, String message) {
-        System.out.println("Notification to " + user.getName() + ": " + message);
-        // Actual notification logic to be added later
-    }
-
-    /**
-     * Retrieves and displays the list of entrants who joined the waiting list for the event.
-     */
-    public void viewEntrantsInWaitlist() {
-        // Fetch the list of users in the waitlist from Firestore
-        waitListRepository.getUsersWithStatus(waitList.getEvent().getEventName(), "waiting", new WaitListRepository.FirestoreCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                List<String> entrants = (List<String>) result;
-                System.out.println("Entrants in the waiting list:");
-                for (String entrant : entrants) {
-                    System.out.println(entrant);
-                }
+        // Simulate user accepting or declining the invite (randomly for now)
+        private boolean inviteUser(UserImpl user) {
+            sendNotification(user, "You have been invited to participate!");
+            boolean accepted = random.nextBoolean(); // Simulate random acceptance
+            if (accepted) {
+                waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), user, "accepted");
+            } else {
+                waitListRepository.updateUserStatusInWaitList(waitList.getEvent().getEventName(), user, "declined");
             }
+            return accepted;
+        }
 
-            @Override
-            public void onFailure(Exception e) {
-                System.err.println("Error fetching entrants in the waitlist: " + e.getMessage());
+        // Helper method to invite a replacement user if someone declines
+        private void inviteReplacementUser() {
+            if (waitList.getUserArrayList().isEmpty()) {
+                System.out.println("No more users available in waitlist.");
+                return;
             }
-        });
+            UserImpl replacement = waitList.getUserArrayList().remove(random.nextInt(waitList.getUserArrayList().size()));
+            boolean accepted = inviteUser(replacement);
+            if (!accepted) {
+                inviteReplacementUser(); // Repeat if declined
+            }
+        }
     }
-}

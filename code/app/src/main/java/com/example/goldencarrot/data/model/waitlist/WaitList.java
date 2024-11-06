@@ -4,6 +4,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@code WaitList} class represents a waiting list for an event.
@@ -81,6 +82,4 @@ public class WaitList implements WaitListConfigurator{
     public void removeUserFromWaitList(UserImpl user){
         this.userArrayList.remove(user);
     }
-
-
 }

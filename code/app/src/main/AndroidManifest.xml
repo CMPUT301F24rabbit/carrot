@@ -28,10 +28,12 @@
         <activity android:name=".views.AdminHomeActivity" />
         <activity android:name=".views.AdminAllProfilesView"/>
         <activity android:name=".views.OrganizerCreateEvent" />
+        <activity android:name=".views.OrganizerApprovedView"/>
+        <activity android:name=".views.OrganizerCancelledView"/>
+
         <activity android:name=".views.EntrantHomeView" />
         <activity android:name=".views.OrganizerHomeView"/>
         <activity android:name=".views.BrowseEventsActivity"/>
-        <activity android:name=".views.OrganizerCancelledView" />
         <activity android:name=".views.EntrantEditUserDetailsView" />
         <activity android:name=".views.OrganizerManageProfileActivity"/>
         <activity android:name=".views.AdminProfileView"/>
