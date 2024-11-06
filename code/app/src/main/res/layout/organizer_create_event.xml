@@ -27,7 +27,7 @@
         android:id="@+id/eventDateEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Date (e.g., YYYY-MM-DD)" />
+        android:hint="Date (e.g., DD-MM-YYYY)" />
 
     <Button
         android:id="@+id/createEventButton"

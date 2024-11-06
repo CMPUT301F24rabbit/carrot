@@ -55,12 +55,33 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                     UserRepository userRepository = new UserRepository();
                     userRepository.updateUser(user, deviceId);
 
+                    // After updating the Firestore data, fetch the updated user details and update the UI
+                    userRepository.getSingleUser(deviceId, new UserRepository.FirestoreCallbackSingleUser() {
+                        @Override
+                        public void onSuccess(UserImpl updatedUser) {
+                            // Update the UI with the new user data
+                            nameInput.setText(updatedUser.getName());
+                            emailInput.setText(updatedUser.getEmail());
+                            if (updatedUser.getPhoneNumber().isPresent()) {
+                                phoneInput.setText(updatedUser.getPhoneNumber().get());
+                            } else {
+                                phoneInput.setText(""); // If no phone number is available
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "Error fetching updated user details: " + e.getMessage());
+                        }
+                    });
+
                     // Show success message in dialog
                     ValidationErrorDialog.show(EntrantEditUserDetailsView.this, "Success", "User details updated successfully!");
 
-                    // Navigate to the home view
+                    // Navigate to the home view (or any other view as required)
                     Intent intent = new Intent(EntrantEditUserDetailsView.this, EntrantHomeView.class);
                     startActivity(intent);
+                    finish();  // Finish this activity to ensure it doesn't stay in the background
                 } catch (Exception e) {
                     Log.e(TAG, "Error: " + e.getMessage());
                     ValidationErrorDialog.show(EntrantEditUserDetailsView.this, "Validation Error", e.getMessage());
@@ -68,11 +89,13 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             }
         });
 
+        // Set click listener for the back button to return to the home view
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantEditUserDetailsView.this, EntrantHomeView.class);
                 startActivity(intent);
+                finish(); // Finish this activity to avoid navigating back to it
             }
         });
     }

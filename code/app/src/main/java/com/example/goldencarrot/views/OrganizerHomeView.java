@@ -35,7 +35,7 @@ import java.util.Optional;
 
 public class OrganizerHomeView extends AppCompatActivity {
 
-    private Button manageProfileButton;
+    private Button manageProfileButton, createEventButton;
     private TextView usernameTextView;
     private RecyclerView recyclerView;
     private EventRecyclerArrayAdapter eventAdapter;
@@ -58,6 +58,7 @@ public class OrganizerHomeView extends AppCompatActivity {
 
         // Initialize the views from layout file
         manageProfileButton = findViewById(R.id.button_manage_profile);
+        createEventButton = findViewById(R.id.button_create_event);
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
 
         // Event lists and adapter Inititalization
@@ -86,6 +87,15 @@ public class OrganizerHomeView extends AppCompatActivity {
             public void onClick(View v) {
                 // Start ManageProfileActivity
                 Intent intent = new Intent(OrganizerHomeView.this, OrganizerManageProfileActivity.class);
+                intent.putExtra("userId", deviceId);
+                startActivity(intent);
+            }
+        });
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
+                intent.putExtra("userId", deviceId);
                 startActivity(intent);
             }
         });
@@ -130,7 +140,6 @@ public class OrganizerHomeView extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching user data", e);
                     usernameTextView.setText("Error fetching user data");
-
                 });
 
     }
@@ -149,7 +158,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                         int imageResId = document.contains("imageResId") ? document.getLong("imageResId").intValue() : R.drawable.default_poster;
 
                         // turning date into Date
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                         try{
                             Date eventDate = dateFormat.parse(dateString);
                             Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
