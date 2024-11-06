@@ -24,7 +24,7 @@ public class OrganizerCancelledView extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CancelledUsersAdapter adapter;
     private ArrayList<User> cancelledUsersList = new ArrayList<>();
-    private FirebaseFirestore db;
+    public FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

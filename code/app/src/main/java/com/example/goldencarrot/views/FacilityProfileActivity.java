@@ -4,15 +4,21 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
-import com.example.goldencarrot.data.model.user.UserFacility;
+import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class FacilityProfileActivity extends AppCompatActivity {
     private static final String TAG = "FacilityProfileActivity";
@@ -21,18 +27,13 @@ public class FacilityProfileActivity extends AppCompatActivity {
     private ImageView facilityImageView;
     private Button saveButton;
 
-    private FirebaseFirestore db;
-    private FirebaseAuth auth;
+    private FacilityRepository facilityRepository;
     private String facilityID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facility_profile);
-
-        // Initialize Firebase instances
-        db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
 
         // Initialize views
         nameEditText = findViewById(R.id.nameEditText);
@@ -41,6 +42,9 @@ public class FacilityProfileActivity extends AppCompatActivity {
         contactInfoEditText = findViewById(R.id.contactInfoEditText);
         facilityImageView = findViewById(R.id.facilityImageView);
         saveButton = findViewById(R.id.saveButton);
+
+        // Initialize FacilityRepository
+        facilityRepository = new FacilityRepository();
 
         // Check if facilityID was passed in, if so load the profile for editing
         facilityID = getIntent().getStringExtra("facilityID");
@@ -52,38 +56,42 @@ public class FacilityProfileActivity extends AppCompatActivity {
     }
 
     private void loadFacilityProfile() {
-        DocumentReference docRef = db.collection("facilities").document(facilityID);
-        docRef.get().addOnSuccessListener(documentSnapshot -> {
-            UserFacility profile = documentSnapshot.toObject(UserFacility.class);
-            if (profile != null) {
-                nameEditText.setText(profile.getName());
-                locationEditText.setText(profile.getLocation());
-                descriptionEditText.setText(profile.getDescription());
-                contactInfoEditText.setText(profile.getContactInfo());
-                Picasso.get().load(profile.getImageURL()).into(facilityImageView);
+        facilityRepository.loadFacilityProfile(facilityID, task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                UserImpl profile = task.getResult().toObject(UserImpl.class);
+                if (profile != null) {
+                    nameEditText.setText(profile.getName());
+                    locationEditText.setText(profile.getLocation().orElse(""));
+                    descriptionEditText.setText(profile.getLocation().orElse(""));
+                    contactInfoEditText.setText(profile.getPhoneNumber().orElse(""));
+                    Picasso.get().load(profile.getImageURL().orElse("")).into(facilityImageView);
+                }
+            } else {
+                Log.e(TAG, "Error loading facility profile", task.getException());
             }
-        }).addOnFailureListener(e -> Log.e(TAG, "Error loading facility profile", e));
+        });
     }
 
     private void saveFacilityProfile() {
-        String name = nameEditText.getText().toString().trim();
+        // Retrieve facility-specific details from UI
+        String facilityName = nameEditText.getText().toString().trim();
         String location = locationEditText.getText().toString().trim();
-        String description = descriptionEditText.getText().toString().trim();
-        String contactInfo = contactInfoEditText.getText().toString().trim();
-        String imageURL = ""; // Add logic to get URL from an uploaded image
+        String imageURL = ""; // Add logic to get the image URL if needed
 
-        if (facilityID == null) {
-            // Generate a new ID for a new facility
-            facilityID = db.collection("facilities").document().getId();
-        }
+        // Prepare a map of fields to update
+        Map<String, Object> facilityData = new HashMap<>();
+        facilityData.put("facilityName", facilityName);
+        facilityData.put("location", location);
+        facilityData.put("imageURL", imageURL);
 
-        String organizerID = auth.getCurrentUser().getUid();
-        UserFacility profile = new UserFacility(facilityID, organizerID, name, location, description, contactInfo, imageURL);
+        // Get the current user's document reference (assuming user ID is stored in uId)
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DocumentReference userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId);
 
-        // Save profile in Firestore
-        db.collection("facilities").document(facilityID)
-                .set(profile)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Facility profile saved successfully"))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving facility profile", e));
+        // Update the facility fields in the user's document
+        userDocRef.update(facilityData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Facility profile updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Error updating facility profile", e));
     }
 }
