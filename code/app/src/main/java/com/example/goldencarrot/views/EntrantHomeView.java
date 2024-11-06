@@ -18,7 +18,6 @@ import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
-import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,7 +38,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ImageView profileImageView;
     private ListView upcomingEventsListView;
     private ListView waitlistedEventsListView;
-    private Button addEventButton;
+    private Button exploreEventsButton;
     private Button goToWaitlistButton;
 
    // Firestore
@@ -63,7 +62,7 @@ public class EntrantHomeView extends AppCompatActivity {
         usernameTextView = findViewById(R.id.entrant_home_view_user_name);
         upcomingEventsListView = findViewById(R.id.upcoming_events);
         waitlistedEventsListView = findViewById(R.id.waitlisted_events);
-        addEventButton = findViewById(R.id.button_explore_events);
+        exploreEventsButton = findViewById(R.id.button_explore_events);
         waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
 
         // Set user name
@@ -96,7 +95,7 @@ public class EntrantHomeView extends AppCompatActivity {
         });
 
         // Set the click listener for the "Explore Events" button (add event functionality)
-        addEventButton.setOnClickListener(new View.OnClickListener() {
+        exploreEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Go to Events Exploration Activity
