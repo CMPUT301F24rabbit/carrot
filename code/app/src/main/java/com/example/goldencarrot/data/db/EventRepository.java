@@ -6,6 +6,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class EventRepository {
         eventData.put("eventName", event.getEventName());
         eventData.put("waitlistId", waitListDocId);
         eventData.put("location", event.getLocation());
-        eventData.put("date", event.getDate().toString());
+        eventData.put("date", new SimpleDateFormat("dd-mm-yyyy").format(event.getDate()));
 
         // add event document into events collection
         // note: collection.add(data) generates a random firebase id!
