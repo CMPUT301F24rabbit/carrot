@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class WaitlistController {
+public class WaitListController {
     private final WaitList waitList;
     private final WaitListRepository waitListRepository;
     private final Random random;
 
-    public WaitlistController(WaitList waitList, WaitListRepository waitListRepository) {
+    public WaitListController(WaitList waitList, WaitListRepository waitListRepository) {
         this.waitList = waitList;
         this.waitListRepository = waitListRepository;
         this.random = new Random();
