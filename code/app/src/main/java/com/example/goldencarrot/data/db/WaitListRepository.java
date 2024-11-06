@@ -39,9 +39,10 @@ public class WaitListRepository implements WaitListDb {
      * @param docId    the document ID for this waitlist in Firestore
      */
     @Override
-    public void createWaitList(WaitList waitList, String docId) {
+    public void createWaitList(WaitList waitList, String docId, String eventName) {
         Map<String, Object> waitListData = new HashMap<>();
         waitListData.put("eventId", waitList.getEventId());
+        waitListData.put("eventName", eventName);
         waitListData.put("limit", waitList.getLimitNumber());
         waitListData.put("size", waitList.getUserArrayList().size());
 

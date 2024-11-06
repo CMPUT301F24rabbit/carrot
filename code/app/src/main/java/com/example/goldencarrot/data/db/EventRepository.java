@@ -37,13 +37,14 @@ public class EventRepository {
         // add event attributes to firestore
         eventData.put("organizerId", event.getOrganizerId());
         eventData.put("eventDetails", event.getEventDetails());
+        eventData.put("eventName", event.getEventName());
         eventData.put("waitlistId", waitListDocId);
         eventData.put("location", event.getLocation());
-        eventData.put("date", event.getDate());
+        eventData.put("date", event.getDate().toString());
 
         // add event document into events collection
-        eventsCollection.document(event.getEventName())
-                .set(eventData)
+        // note: collection.add(data) generates a random firebase id!
+        eventsCollection.add(eventData)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event created successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating event", e));
     }

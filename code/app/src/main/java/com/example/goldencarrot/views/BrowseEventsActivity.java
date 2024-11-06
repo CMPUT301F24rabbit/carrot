@@ -1,5 +1,7 @@
 package com.example.goldencarrot.views;
 
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -83,15 +85,16 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     // Get the selected event document
                     DocumentSnapshot selectedDocument = eventDocuments.get(position);
                     String documentId = selectedDocument.getId();
+                    Log.d("BrowseEventsActivity", "document id: " + documentId);
 
                     // Start EventDetailsAdminActivity and pass document ID as an extra
                     if (currentUserType.equals("ADMIN")) {
                         Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                        intent.putExtra("documentId", documentId);
+                        intent.putExtra("eventId", documentId);
                         startActivity(intent);
                     } else if (currentUserType.equals("PARTICIPANT")) {
-                        Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                        intent.putExtra("documentId", documentId);
+                        Intent intent = new Intent(BrowseEventsActivity.this, EntrantEventDetailsActivity.class);
+                        intent.putExtra("eventId", documentId);
                         startActivity(intent);
                     }
                 });
@@ -127,14 +130,19 @@ public class BrowseEventsActivity extends AppCompatActivity {
                                 String eventName = document.getString("eventName");
                                 String eventId = document.getId(); // Get the document ID
                                 eventsList.add(eventName);
+                                eventDocuments.add(document);
 
                                 // Add a click listener to the ListView item to navigate to EventDetailsActivity
+                                /*
                                 eventsListView.setOnItemClickListener((parent, view, position, id) -> {
+                                    
                                     Intent intent = new Intent(BrowseEventsActivity.this,
                                             EntrantEventDetailsActivity.class);
                                     intent.putExtra("eventId", eventId); // Pass the event ID
                                     startActivity(intent);
                                 });
+
+                                 */
                             }
                             eventsAdapter.notifyDataSetChanged();
                         } else {
