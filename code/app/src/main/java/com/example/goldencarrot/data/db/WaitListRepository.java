@@ -228,4 +228,41 @@ public class WaitListRepository implements WaitListDb{
         void onSuccess(Object result);
         void onFailure(Exception e);
     }
+    /**
+     * Retrieves the list of users who are on the waiting list for the given event.
+     *
+     * @param docId the document ID of the waitlist
+     * @param callback the callback that returns the list of user names
+     */
+    public void getWaitlistForEvent(String docId, FirestoreCallback callback) {
+        waitListRef.document(docId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> waitlistUsers = new ArrayList<>();
+
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") && !entry.getKey().equals("limit")) {
+                                    // Add the user to the waitlist list
+                                    waitlistUsers.add(entry.getKey());
+                                }
+                            }
+                        }
+
+                        // Return the list of users in the waitlist
+                        callback.onSuccess(waitlistUsers);
+                    } else {
+                        // Return an empty list if the waitlist document doesn't exist
+                        callback.onSuccess(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching waitlist for event", e);
+                    callback.onFailure(e);
+                });
+    }
+
 }
