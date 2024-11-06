@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+
+    <!-- Waitlisted Entrants Button -->
+    <Button
+        android:id="@+id/button_EventDetailWaitlistedEntrants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waitlisted Participants"
+        android:layout_marginBottom="8dp"
+        />
+
+    <!-- Accepted Entrants Button -->
+    <Button
+        android:id="@+id/button_EventDetailAcceptedEntrants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accepted Participants"
+        android:layout_marginBottom="8dp"
+        />
+
+    <!-- Rejected Entrants Button -->
+    <Button
+        android:id="@+id/button_EventDetailRejectedEntrants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Declined Participants"
+        android:layout_marginBottom="8dp"
+        />
+
+</LinearLayout>
