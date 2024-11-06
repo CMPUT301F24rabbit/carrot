@@ -111,6 +111,9 @@ public class BrowseEventsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Todo add this method to EventRepository
+     */
     private void loadEventsFromFirestore() {
         eventsCollection.get()
                 .addOnCompleteListener(task -> {
@@ -127,7 +130,8 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
                                 // Add a click listener to the ListView item to navigate to EventDetailsActivity
                                 eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
+                                    Intent intent = new Intent(BrowseEventsActivity.this,
+                                            EntrantEventDetailsActivity.class);
                                     intent.putExtra("eventId", eventId); // Pass the event ID
                                     startActivity(intent);
                                 });

@@ -65,7 +65,6 @@ public class SignUpActivityUITest {
         onView(withId(R.id.sign_up_name)).perform(replaceText("")); // Empty name
         onView(withId(R.id.sign_up_create_account_button)).perform(click());
 
-        // Check if the validation error dialog is displayed with the correct message
         onView(withText("Validation Error")).check(matches(isDisplayed()));
         onView(withText("Name cannot be empty")).check(matches(isDisplayed()));
         onView(withText("OK")).perform(click());
@@ -81,7 +80,6 @@ public class SignUpActivityUITest {
         onView(withId(R.id.sign_up_name)).perform(replaceText("John Doe"));
         onView(withId(R.id.sign_up_create_account_button)).perform(click());
 
-        // Check if the EntrantHomeView is displayed (assuming it has a text or element specific to that view)
         onView(withText("Waitlisted Events")).check(matches(isDisplayed()));
     }
 }

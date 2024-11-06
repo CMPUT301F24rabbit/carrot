@@ -3,6 +3,8 @@ package com.example.goldencarrot.data.model.waitlist;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.ArrayList;
 
 /**
@@ -11,19 +13,27 @@ import java.util.ArrayList;
  * who are on the waitlist.
  */
 public class WaitList implements WaitListConfigurator{
-    private Event event;
-    private ArrayList<UserImpl> userArrayList;
+    private String waitListId;
+    private String eventId;
     private int limitNumber;
+    private ArrayList<UserImpl> userArrayList;
 
-    /**
-     * Constructs a new {@code WaitList} object with the specified event and user list.
-     *
-     * @param event the event associated with the waitlist
-     *
-     */
-    public WaitList(Event event) {
-        this.event = event;
+
+    public WaitList(){
+
+        // Initialize Array List
         this.userArrayList = new ArrayList<UserImpl>();
+
+    }
+
+    public WaitList(final int limitNumber,
+                    final String waitListId,
+                    final String eventId,
+                    final ArrayList<UserImpl> userArrayList) {
+        this.limitNumber = limitNumber;
+        this.waitListId = waitListId;
+        this.eventId = eventId;
+        this.userArrayList = userArrayList;
     }
 
 
@@ -32,15 +42,6 @@ public class WaitList implements WaitListConfigurator{
         return userArrayList;
     }
 
-    @Override
-    public Event getEvent() {
-        return event;
-    }
-
-    @Override
-    public void setEvent(Event event) {
-        this.event = event;
-    }
 
     @Override
     public void setUserArrayList(ArrayList<UserImpl> userArrayList) {
@@ -57,6 +58,15 @@ public class WaitList implements WaitListConfigurator{
         return limitNumber;
     }
 
+    @Override
+    public void setEventId(final String eventId){
+        this.eventId = eventId;
+    }
+
+    @Override
+    public String getEventId(){ return this.eventId; }
+
+
     /**
      * Returns True if User was added, False if waitList is Full.
      * @param user to add to the list
@@ -72,7 +82,21 @@ public class WaitList implements WaitListConfigurator{
         }
     }
 
-    private boolean isFull(){
+    @Override
+    public String getWaitListId() {
+        return waitListId;
+    }
+
+    @Override
+    public void setWaitListId(String waitListId) {
+        this.waitListId = waitListId;
+    }
+
+    public boolean isFull(){
         return this.userArrayList.size() == this.limitNumber;
+    }
+
+    public void removeUserFromWaitList(UserImpl user){
+        this.userArrayList.remove(user);
     }
 }

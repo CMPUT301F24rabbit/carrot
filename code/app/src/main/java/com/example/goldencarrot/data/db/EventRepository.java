@@ -2,21 +2,12 @@ package com.example.goldencarrot.data.db;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.example.goldencarrot.data.model.event.Event;
-import com.example.goldencarrot.data.model.user.UserImpl;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Queries Event DB. Provides methods for getting an event's waitlist,
@@ -37,16 +28,16 @@ public class EventRepository {
         userCollection = db.collection("users");
     }
     /**
-     * creates a new event document in Firestore
+     * Creates a new event document in Firestore
      * @param event is the event to be added
      */
-    public void addEvent(Event event) {
+    public void addEvent(Event event, String waitListDocId) {
         Map<String, Object> eventData = new HashMap<>();
 
         // add event attributes to firestore
-        eventData.put("organizer", event.getOrganizer().getUserId());
-        eventData.put("waitlist", event.getWaitList());
-        eventData.put("event details", event.getEventDetails());
+        eventData.put("organizerId", event.getOrganizer().getUserId());
+        eventData.put("eventDetails", event.getEventDetails());
+        eventData.put("waitlistId", waitListDocId);
         eventData.put("location", event.getLocation());
         eventData.put("date", event.getDate());
 
@@ -56,6 +47,7 @@ public class EventRepository {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event created successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating event", e));
     }
+
     /**
      * deletes event from Firestore
      * @param eventId is the event to delete
@@ -66,5 +58,43 @@ public class EventRepository {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event deleted successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));
     }
-    
+
+    /**
+     * Retrieves an event document from Firestore by its ID and returns a
+     *  simplified Event
+     * object with essential attributes only.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @param callback A callback to handle the Event data or error.
+     */
+    public void getBasicEventById(String eventId, EventCallback callback) {
+        eventsCollection.document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Event event = new Event();
+                        event.setEventName(documentSnapshot.getId());
+                        event.setEventDetails(documentSnapshot.getString("eventDetails"));
+                        event.setLocation(documentSnapshot.getString("location"));
+                        event.setWaitListId(documentSnapshot.getString("waitlistId"));
+                        event.setOrganizerId(documentSnapshot.getString("organizerId"));
+                        callback.onSuccess(event);
+                    } else {
+                        Log.w(TAG, "No event found with ID: " + eventId);
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching event", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Callback interface for Firestore event retrieval.
+     */
+    public interface EventCallback {
+        void onSuccess(Event event);
+        void onFailure(Exception e);
+    }
 }
