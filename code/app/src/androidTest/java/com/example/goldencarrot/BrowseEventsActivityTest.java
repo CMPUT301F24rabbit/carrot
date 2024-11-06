@@ -110,18 +110,18 @@ public class BrowseEventsActivityTest {
      * Test clicking on an event item in the ListView.
      */
     @Test
-    public void testEventItemClick() {
+    public void testEventItemClick() throws InterruptedException {
         // Launch the activity
         Intent intent = new Intent();
         intent.putExtra("userType", "ADMIN");  // Set user type as ADMIN
         activityRule.launchActivity(intent);
-
+        Thread.sleep(1000);
         // Simulate loading mock event data into the ListView
         simulateLoadEventData();
-
+        Thread.sleep(1000);
         // Perform a click on the first event item in the ListView
         Espresso.onView(ViewMatchers.withText("Mock Event 1")).perform(ViewActions.click());
-
+        Thread.sleep(1000);
         // Verify that the correct Activity is started (EventDetailsAdminActivity in this case)
         // You can check if a view from EventDetailsAdminActivity is displayed
         Espresso.onView(ViewMatchers.withId(R.id.event_DetailNameTitleView)).check(ViewAssertions.matches(isDisplayed()));
