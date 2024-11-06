@@ -1,7 +1,5 @@
 package com.example.goldencarrot.views;
 
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -82,22 +80,21 @@ public class BrowseEventsActivity extends AppCompatActivity {
 
         // Set an item click listener to open EventDetailsActivity
         eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                    // Get the selected event document
-                    DocumentSnapshot selectedDocument = eventDocuments.get(position);
-                    String documentId = selectedDocument.getId();
-                    Log.d("BrowseEventsActivity", "document id: " + documentId);
+            // Get the selected event document
+            DocumentSnapshot selectedDocument = eventDocuments.get(position);
+            String documentId = selectedDocument.getId();
 
-                    // Start EventDetailsAdminActivity and pass document ID as an extra
-                    if (currentUserType.equals("ADMIN")) {
-                        Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                        intent.putExtra("eventId", documentId);
-                        startActivity(intent);
-                    } else if (currentUserType.equals("PARTICIPANT")) {
-                        Intent intent = new Intent(BrowseEventsActivity.this, EntrantEventDetailsActivity.class);
-                        intent.putExtra("eventId", documentId);
-                        startActivity(intent);
-                    }
-                });
+            // Start EventDetailsAdminActivity and pass document ID as an extra
+            if (currentUserType.equals("ADMIN")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
+                intent.putExtra("documentId", documentId);
+                startActivity(intent);
+            } else if (currentUserType.equals("PARTICIPANT")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, EntrantEventDetailsActivity.class);
+                intent.putExtra("documentId", documentId);
+                startActivity(intent);
+            }
+        });
 
         backButton = findViewById(R.id.browseEventsBackBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -122,27 +119,15 @@ public class BrowseEventsActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         eventsList.clear();
+                        eventDocuments.clear(); // Clear previous documents in case of refresh
                         QuerySnapshot querySnapshot = task.getResult();
 
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 // Assuming each document has a "name" field for event name
                                 String eventName = document.getString("eventName");
-                                String eventId = document.getId(); // Get the document ID
                                 eventsList.add(eventName);
-                                eventDocuments.add(document);
-
-                                // Add a click listener to the ListView item to navigate to EventDetailsActivity
-                                /*
-                                eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                                    
-                                    Intent intent = new Intent(BrowseEventsActivity.this,
-                                            EntrantEventDetailsActivity.class);
-                                    intent.putExtra("eventId", eventId); // Pass the event ID
-                                    startActivity(intent);
-                                });
-
-                                 */
+                                eventDocuments.add(document); // Store the document snapshot for later access
                             }
                             eventsAdapter.notifyDataSetChanged();
                         } else {
@@ -154,6 +139,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     }
                 });
     }
+
     private String getDeviceId(Context context){
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
