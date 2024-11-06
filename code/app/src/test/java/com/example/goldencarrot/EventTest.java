@@ -3,6 +3,7 @@ package com.example.goldencarrot;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.goldencarrot.data.model.event.Event;
+import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 
 import org.junit.jupiter.api.Test;

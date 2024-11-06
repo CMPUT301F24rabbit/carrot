@@ -42,7 +42,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.espresso.intents)
     testImplementation(libs.junit)
     testImplementation(libs.ext.junit)
     testImplementation(libs.core)

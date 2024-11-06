@@ -79,8 +79,7 @@ public class AdminProfileView extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
-                startActivity(intent);
+                finish();
             }
         });
 

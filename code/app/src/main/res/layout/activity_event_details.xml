@@ -116,6 +116,6 @@
             android:text="Lists"
             android:layout_margin="8dp"/>
 
-        </LinearLayout>
+    </LinearLayout>
 
 </RelativeLayout>

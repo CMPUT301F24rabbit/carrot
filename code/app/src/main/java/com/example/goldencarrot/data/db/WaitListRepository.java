@@ -2,11 +2,9 @@ package com.example.goldencarrot.data.db;
 
 import android.util.Log;
 
-import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -19,7 +17,8 @@ import java.util.Map;
  * and query waitlist documents in Firestore. It interacts with Firestore to persist
  * waitlist data such as user names and their status.
  */
-public class WaitListRepository implements WaitListDb {
+
+public class WaitListRepository implements WaitListDb{
     private static final String TAG = "WaitListRepository";
     private final FirebaseFirestore db;
     private final CollectionReference waitListRef;
@@ -29,7 +28,7 @@ public class WaitListRepository implements WaitListDb {
      */
     public WaitListRepository() {
         db = FirebaseFirestore.getInstance();
-        waitListRef = db.collection("waitlist");
+        waitListRef = db.collection("waitlists");  // Firestore collection named "waitlists"
     }
 
     /**
@@ -39,19 +38,16 @@ public class WaitListRepository implements WaitListDb {
      * @param docId    the document ID for this waitlist in Firestore
      */
     @Override
-    public void createWaitList(WaitList waitList, String docId, String eventName) {
+    public void createWaitList(WaitList waitList, String docId) {
         Map<String, Object> waitListData = new HashMap<>();
-        waitListData.put("eventId", waitList.getEventId());
-        waitListData.put("eventName", eventName);
-        waitListData.put("limit", waitList.getLimitNumber());
-        waitListData.put("size", waitList.getUserArrayList().size());
 
-        // Create a "users" sub-map to store user statuses
-        Map<String, String> usersMap = new HashMap<>();
+        waitListData.put("size", waitList.getUserArrayList().size());
+        waitListData.put("limit", waitList.getLimitNumber());
+
+        // Add users from the waitlist to Firestore
         for (UserImpl user : waitList.getUserArrayList()) {
-            usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
+            waitListData.put(user.getName(), "waiting");  // Default status to "waiting"
         }
-        waitListData.put("users", usersMap);  // Add users map to the main document
 
         // Add the waitlist document to Firestore
         waitListRef.document(docId)
@@ -61,29 +57,19 @@ public class WaitListRepository implements WaitListDb {
     }
 
     @Override
-    public void addUserToWaitList(String docId, User user, FirestoreCallback callback) {
+    public void addUserToWaitList(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Long currentSize = documentSnapshot.getLong("size");
-                        Long limit = documentSnapshot.getLong("limit");
+                        Long currentSize = documentSnapshot.getLong("size");  // Get current size
+                        Long limit = documentSnapshot.getLong("limit");  // Get limit
 
                         if (currentSize != null && limit != null && currentSize < limit) {
                             Map<String, Object> updateData = new HashMap<>();
-                            updateData.put("size", currentSize + 1);
+                            updateData.put(user.getName(), "waiting");
+                            updateData.put("size", currentSize + 1);  // Increment size
 
-                            // Check if the "users" field exists
-                            if (!documentSnapshot.contains("users")) {
-                                // Initialize the "users" map if it doesn't exist
-                                Map<String, String> usersMap = new HashMap<>();
-                                usersMap.put(user.getUserId(), "waiting");
-                                updateData.put("users", usersMap);  // Add the new user in the new map
-                            } else {
-                                // Add the user to the existing "users" map
-                                updateData.put("users." + user.getUserId(), "waiting");
-                            }
-
-                            // Update Firestore document
+                            // Add the user to the waitlist and update the size
                             waitListRef.document(docId)
                                     .update(updateData)
                                     .addOnSuccessListener(aVoid -> {
@@ -96,7 +82,7 @@ public class WaitListRepository implements WaitListDb {
                                     });
                         } else {
                             Log.d(TAG, "Waitlist is full");
-                            callback.onSuccess(false);
+                            callback.onSuccess(false);  // Waitlist is full
                         }
                     }
                 })
@@ -106,11 +92,22 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Updates the status of a user in the waitlist document in Firestore.
+     *
+     * @param docId   the document ID of the waitlist
+     * @param user    the user to update
+     * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
+     */
 
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
         Map<String, Object> updateData = new HashMap<>();
-        updateData.put("users." + user.getUserId(), status);  // Update the status in the users map
+        updateData.put(user.getName(), status);
+
+        /**
+         * Todo make a private method to validate the status input
+         */
 
         // Update the user status in the waitlist document
         waitListRef.document(docId)
@@ -119,6 +116,11 @@ public class WaitListRepository implements WaitListDb {
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating user status", e));
     }
 
+    /**
+     * Deletes a waitlist document from Firestore.
+     *
+     * @param docId the document ID of the waitlist to delete
+     */
     @Override
     public void deleteWaitList(String docId) {
         waitListRef.document(docId)
@@ -128,59 +130,17 @@ public class WaitListRepository implements WaitListDb {
     }
 
     /**
-     * Returns Waitlist object with the same eventId if found
-     * @param eventId  The ID of the event for which the waitlist is queried.
-     * @param callback A callback to handle the result (a WaitList object or an error).
+     * Checks if a user is in the waitlist.
+     *
+     * @param docId the document ID of the waitlist
+     * @param user  the user to check
+     * @param callback a callback that handles the result
      */
     @Override
-    public void getWaitListByEventId(String eventId, WaitListCallback callback) {
-        waitListRef.whereEqualTo("eventId", eventId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
-
-                        // Retrieve the users map and populate userArrayList with the user IDs
-                        ArrayList<UserImpl> userArrayList = new ArrayList<>();
-                        Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
-                        if (usersMap != null) {
-                            for (String userId : usersMap.keySet()) {
-                                UserImpl user = new UserImpl();
-                                user.setUserId(userId);
-                                userArrayList.add(user);
-                            }
-                        }
-
-                        WaitList waitList = new WaitList(
-                                // Waitlist limit
-                                document.getLong("limit").intValue(),
-                                // Waitlist document Id
-                                document.getId(),
-                                // Event Id
-                                eventId,
-                                // User Array List
-                                userArrayList
-                        );
-
-                        Log.d(TAG, "Waitlist found for eventId: " + eventId);
-                        callback.onSuccess(waitList);
-                    } else {
-                        Log.w(TAG, "No waitlist found for eventId: " + eventId);
-                        callback.onFailure(new Exception("No waitlist document found with the provided eventId."));
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to retrieve waitlist for eventId: " + eventId, e);
-                    callback.onFailure(e);
-                });
-    }
-
-    @Override
-    public void isUserInWaitList(String docId, User user, FirestoreCallback callback) {
+    public void isUserInWaitList(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && documentSnapshot.contains("users." + user.getUserId())) {
+                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getName())) {
                         callback.onSuccess(true); // User found
                     } else {
                         callback.onSuccess(false); // User not found
@@ -192,12 +152,19 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Checks the status of a user in the waitlist.
+     *
+     * @param docId the document ID of the waitlist
+     * @param user  the user to check
+     * @param callback a callback that handles the result
+     */
     @Override
     public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && documentSnapshot.contains("users." + user.getUserId())) {
-                        String status = documentSnapshot.getString("users." + user.getUserId());
+                    if (documentSnapshot.exists() && documentSnapshot.contains(user.getName())) {
+                        String status = documentSnapshot.getString(user.getName());
                         callback.onSuccess(status); // Return user's status
                     } else {
                         callback.onSuccess(null); // User not found or no status
@@ -209,19 +176,36 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Retrieves a list of users with a specified status in the waitlist document.
+     *
+     * @param docId  the document ID of the waitlist
+     * @param status the status to filter users by (e.g., "waiting", "accepted")
+     * @param callback a callback that returns a list of rnames with the specified status
+     */
     @Override
-    public void getUsersWithStatus(final String docId, final String status, final FirestoreCallback callback) {
+    public void getUsersWithStatus(final String docId,
+                                   final String status,
+                                   final FirestoreCallback callback) {
+        /**
+         * Make a private method to validate the status input
+         */
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         List<String> usersWithStatus = new ArrayList<>();
 
-                        // get users document
-                        Map<String, Object> usersData = (Map<String, Object>) documentSnapshot.get("users");
-                        if (usersData != null) {
-                            for (Map.Entry<String, Object> entry : usersData.entrySet()) {
-                                if (entry.getValue().toString().equals(status)) {
-                                    usersWithStatus.add(entry.getKey());
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") &&
+                                        !entry.getKey().equals("limit")) {
+                                    // Check if the user has the specified status
+                                    if (entry.getValue().toString().equals(status)) {
+                                        usersWithStatus.add(entry.getKey());
+                                    }
                                 }
                             }
                         }
@@ -237,13 +221,48 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
-    public interface WaitListCallback {
-        void onSuccess(WaitList waitList);
-        void onFailure(Exception e);
-    }
-
+    /**
+     * A callback interface for Firestore queries.
+     */
     public interface FirestoreCallback {
         void onSuccess(Object result);
         void onFailure(Exception e);
     }
+    /**
+     * Retrieves the list of users who are on the waiting list for the given event.
+     *
+     * @param docId the document ID of the waitlist
+     * @param callback the callback that returns the list of user names
+     */
+    public void getWaitlistForEvent(String docId, FirestoreCallback callback) {
+        waitListRef.document(docId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> waitlistUsers = new ArrayList<>();
+
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") && !entry.getKey().equals("limit")) {
+                                    // Add the user to the waitlist list
+                                    waitlistUsers.add(entry.getKey());
+                                }
+                            }
+                        }
+
+                        // Return the list of users in the waitlist
+                        callback.onSuccess(waitlistUsers);
+                    } else {
+                        // Return an empty list if the waitlist document doesn't exist
+                        callback.onSuccess(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching waitlist for event", e);
+                    callback.onFailure(e);
+                });
+    }
+
 }
