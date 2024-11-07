@@ -122,4 +122,18 @@ public interface EventConfigurator {
 
     String getEventId();
 
+    /**
+     * Retrieves the waitlist limit for the event, if any.
+     *
+     * @return the waitlist limit as an Integer, or null if no limit is set
+     */
+    Integer getWaitlistLimit();
+
+    /**
+     * Sets an optional limit for the number of entrants on the waitlist.
+     *
+     * @param waitlistLimit the maximum number of entrants allowed on the waitlist, or null for unlimited
+     */
+    void setWaitlistLimit(Integer waitlistLimit);
+
 }

@@ -18,28 +18,28 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 /**
- * Displays the list of users chosen by lottery from a waitlist.
+ * Displays the list of users who have cancelled from a waitlist.
  */
-public class OrganizerChosenView extends AppCompatActivity {
+public class OrganizerCancelledView extends AppCompatActivity {
     private ArrayList<String> userIdList;
-    private RecyclerView chosenUserListView;
+    private RecyclerView cancelledUserListView;
     private WaitlistedUsersRecyclerAdapter userArrayAdapter;
     private FirebaseFirestore db;
     private Button backBtn;
     private WaitListRepository waitListRepository;
     private UserRepository userRepository;
-    private ArrayList<User> chosenUserList;
+    private ArrayList<User> cancelledUserList;
     private WaitList eventWaitlist;
     private String waitlistId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chosen_users_list);
+        setContentView(R.layout.activity_cancelled_user_list);
 
         // Initialize the lists
         userIdList = new ArrayList<>();
-        chosenUserList = new ArrayList<>();
+        cancelledUserList = new ArrayList<>();
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -47,34 +47,34 @@ public class OrganizerChosenView extends AppCompatActivity {
         userRepository = new UserRepository();
 
         // Initialize layout views
-        chosenUserListView = findViewById(R.id.chosenUsersRecyclerView);
+        cancelledUserListView = findViewById(R.id.cancelledUsersRecyclerView);
 
         // Get the waitlist of the event
         waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
             @Override
             public void onSuccess(WaitList waitList) {
                 eventWaitlist = waitList;
-                Log.d("OrganizerChosenView", "Got waitlist!");
+                Log.d("OrganizerCancelledView", "Got waitlist!");
                 waitlistId = eventWaitlist.getWaitListId();
 
-                // Fetch users with "chosen" status after getting waitlistId
-                fetchChosenUsers();
+                // Fetch users with "cancelled" status after getting waitlistId
+                fetchCancelledUsers();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Log.d("OrganizerChosenView", "Failed to get waitlist");
+                Log.d("OrganizerCancelledView", "Failed to get waitlist");
             }
         });
     }
 
-    private void fetchChosenUsers() {
-        // Get user IDs with "chosen" status from the waitlist
-        waitListRepository.getUsersWithStatus(waitlistId, "chosen", new WaitListRepository.FirestoreCallback() {
+    private void fetchCancelledUsers() {
+        // Get user IDs with "cancelled" status from the waitlist
+        waitListRepository.getUsersWithStatus(waitlistId, "cancelled", new WaitListRepository.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
                 userIdList = (ArrayList<String>) result;
-                Log.d("OrganizerChosenView", "Chosen user IDs retrieved.");
+                Log.d("OrganizerCancelledView", "Cancelled user IDs retrieved.");
 
                 // Fetch User details for each ID
                 fetchUserDetails();
@@ -82,7 +82,7 @@ public class OrganizerChosenView extends AppCompatActivity {
 
             @Override
             public void onFailure(Exception e) {
-                Log.d("OrganizerChosenView", "Failed to get chosen user list");
+                Log.d("OrganizerCancelledView", "Failed to get cancelled user list");
             }
         });
     }
@@ -92,8 +92,8 @@ public class OrganizerChosenView extends AppCompatActivity {
             userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
                 @Override
                 public void onSuccess(UserImpl user) {
-                    chosenUserList.add(user);
-                    Log.d("OrganizerChosenView", "Added user to list: " + user.getName());
+                    cancelledUserList.add(user);
+                    Log.d("OrganizerCancelledView", "Added user to list: " + user.getName());
 
                     // Notify the adapter that data has changed after each addition
                     userArrayAdapter.notifyDataSetChanged();
@@ -101,13 +101,13 @@ public class OrganizerChosenView extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Exception e) {
-                    Log.d("OrganizerChosenView", "Failed to get user from Firestore");
+                    Log.d("OrganizerCancelledView", "Failed to get user from Firestore");
                 }
             });
         }
 
         // Set up the adapter once and attach it to the RecyclerView
-        userArrayAdapter = new WaitlistedUsersRecyclerAdapter(chosenUserList);
-        chosenUserListView.setAdapter(userArrayAdapter);
+        userArrayAdapter = new WaitlistedUsersRecyclerAdapter(cancelledUserList);
+        cancelledUserListView.setAdapter(userArrayAdapter);
     }
 }
