@@ -3,6 +3,7 @@ package com.example.goldencarrot.views;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,6 +35,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private UserRepository userRepository;
     private WaitListRepository waitListRepository;
     private UserImpl organizer;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventRepository = new EventRepository();
         userRepository = new UserRepository();
         waitListRepository = new WaitListRepository();
+        db = FirebaseFirestore.getInstance();
 
         // Set up UI components
         eventNameEditText = findViewById(R.id.eventNameEditText);
@@ -53,7 +57,14 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         Button createEventButton = findViewById(R.id.createEventButton);
 
         // Set onClickListener for the Create Event button
-        createEventButton.setOnClickListener(view -> createEvent());
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createEvent();
+                Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void createEvent() {
@@ -69,7 +80,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
         Date date;
         try {
-            date = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+            date = new SimpleDateFormat("dd-mm-yyyy").parse(dateString);
         } catch (ParseException e) {
             Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
             return;
@@ -102,10 +113,13 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.getEventName() + "Waitlist",
                 event.getEventName(),
                 new ArrayList<UserImpl>());
+        // generate a waitlist id
+        waitList.setWaitListId(db.collection("waitlist").document().getId());
 
         // Add waitlist and event to Firestore
-        waitListRepository.createWaitList(waitList, waitList.getWaitListId());
         eventRepository.addEvent(event, waitList.getWaitListId());
+        Log.d("OrganizerCreateEvent", "create waitlist");
+        waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 
 
         Toast.makeText(this, "Event created successfully", Toast.LENGTH_SHORT).show();

@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Queries User DB
@@ -192,8 +193,16 @@ public class UserRepository {
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        UserImpl user = documentSnapshot.toObject(UserImpl.class);
-                        callback.onSuccess(user); // Pass the user object to the callback
+                        documentSnapshot.getString("name");
+                        try {
+                            UserImpl user = new UserImpl(documentSnapshot.getString("email"),
+                                    documentSnapshot.getString("userType"),
+                                    documentSnapshot.getString("name"),
+                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")));
+                            callback.onSuccess(user); // Pass the user object to the callback
+                        } catch (Exception e) {
+
+                        }
                     } else {
                         callback.onFailure(new Exception("User not found"));
                     }

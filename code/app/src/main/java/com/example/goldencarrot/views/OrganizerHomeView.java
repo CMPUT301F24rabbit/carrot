@@ -158,7 +158,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                         int imageResId = document.contains("imageResId") ? document.getLong("imageResId").intValue() : R.drawable.default_poster;
 
                         // turning date into Date
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                         try{
                             Date eventDate = dateFormat.parse(dateString);
                             Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
