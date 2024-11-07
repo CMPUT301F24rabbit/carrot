@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.OrganizerCancelledView">
+    tools:context=".views.OrganizerWaitlistView">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cancelledUsersRecyclerView"
+        android:id="@+id/waitlistedUsersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
@@ -15,10 +15,10 @@
         tools:layout_editor_absoluteY="108dp"/>
 
     <TextView
-        android:id="@+id/cancelledEntrantsListTitle"
+        android:id="@+id/waitlistedEntrantsListTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancelled Participants"
+        android:text="Waitlist"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

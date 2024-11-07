@@ -12,6 +12,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.EventRepository;
+import com.example.goldencarrot.data.db.WaitListRepository;
+import com.example.goldencarrot.data.model.event.Event;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -20,10 +23,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 public class EventDetailsAdminActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
+    private EventRepository eventRepository;
+    private WaitListRepository waitListRepository;
     private ListenerRegistration listenerRegistration;
     private TextView eventNameTitleView, eventDateView, eventLocationView, eventTimeView, eventDetailsView;
     private ImageView eventPosterView;
     private Button backButton, deleteEventButton;
+    private String waitlistId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
 
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
+        eventRepository = new EventRepository();
+        waitListRepository = new WaitListRepository();
 
         // Initialize Views
         eventPosterView = findViewById(R.id.event_DetailPosterView);
@@ -44,7 +52,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         deleteEventButton = findViewById(R.id.delete_DetailEventBtn);
 
         // Get the event ID from the Intent
-        String eventId = getIntent().getStringExtra("documentId");
+        String eventId = getIntent().getStringExtra("eventId");
 
         if (eventId != null) {
             // Load event details from Firestore using the event ID
@@ -57,7 +65,6 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         backButton.setOnClickListener(view -> {
             Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
             startActivity(intent);
-            finish();
         });
 
         // Set up delete event button
@@ -95,6 +102,20 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
 
     private void deleteEvent(String eventId) {
         if (eventId != null) {
+            // delete waitlist of the event
+            eventRepository.getBasicEventById(eventId, new EventRepository.EventCallback() {
+                @Override
+                public void onSuccess(Event event) {
+                    waitlistId = event.getWaitListId();
+                    waitListRepository.deleteWaitList(waitlistId);
+                    Log.d("EventDetailsAdminActivity", "waitlist id: " + waitlistId);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("EventDetailAdminActivity", "failed to get event");
+                }
+            });
             firestore.collection("events").document(eventId)
                     .delete()
                     .addOnSuccessListener(aVoid -> {
@@ -103,6 +124,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                         finish();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete event", Toast.LENGTH_SHORT).show());
+            Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
+            startActivity(intent);
         }
     }
 

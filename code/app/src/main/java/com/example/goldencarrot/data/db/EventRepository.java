@@ -32,14 +32,14 @@ public class EventRepository {
      * Creates a new event document in Firestore
      * @param event is the event to be added
      */
-    public void addEvent(Event event, String waitListDocId) {
+    public void addEvent(Event event) {
         Map<String, Object> eventData = new HashMap<>();
 
         // add event attributes to firestore
         eventData.put("organizerId", event.getOrganizerId());
         eventData.put("eventDetails", event.getEventDetails());
         eventData.put("eventName", event.getEventName());
-        eventData.put("waitlistId", waitListDocId);
+        eventData.put("waitlistId", event.getWaitListId());
         eventData.put("location", event.getLocation());
         eventData.put("date", new SimpleDateFormat("dd-mm-yyyy").format(event.getDate()));
 

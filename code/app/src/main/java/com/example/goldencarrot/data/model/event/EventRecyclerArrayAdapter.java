@@ -1,6 +1,7 @@
 package com.example.goldencarrot.data.model.event;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,7 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
+        Log.d("EventRecyclerArrayAdapter", "clicked on: " + event.getEventName());
         holder.eventName.setText(event.getEventName());
         holder.eventLocation.setText(event.getLocation());
         holder.eventImageView.setImageResource(event.getImageResId());

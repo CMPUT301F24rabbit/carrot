@@ -53,7 +53,8 @@ public class WaitListRepository implements WaitListDb {
         // Create a "users" sub-map to store user statuses
         Map<String, String> usersMap = new HashMap<>();
         for (UserImpl user : waitList.getUserArrayList()) {
-            usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
+            // usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
+            usersMap.put(user.getUserId(), "joined");
         }
         Log.d("WaitListRepository", "putting map");
         waitListData.put("users", usersMap);  // Add users map to the main document
@@ -81,11 +82,13 @@ public class WaitListRepository implements WaitListDb {
                             if (!documentSnapshot.contains("users")) {
                                 // Initialize the "users" map if it doesn't exist
                                 Map<String, String> usersMap = new HashMap<>();
-                                usersMap.put(user.getUserId(), "waiting");
+                                // usersMap.put(user.getUserId(), "waiting");
+                                usersMap.put(user.getUserId(), "joined");
                                 updateData.put("users", usersMap);  // Add the new user in the new map
                             } else {
                                 // Add the user to the existing "users" map
-                                updateData.put("users." + user.getUserId(), "waiting");
+                                // updateData.put("users." + user.getUserId(), "waiting");
+                                updateData.put("users." + user.getUserId(), "joined");
                             }
 
                             // Update Firestore document
@@ -124,6 +127,10 @@ public class WaitListRepository implements WaitListDb {
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating user status", e));
     }
 
+    /**
+     * Deletes waitlist from firestore
+     * @param docId the document ID of the waitlist to delete
+     */
     @Override
     public void deleteWaitList(String docId) {
         waitListRef.document(docId)
@@ -214,6 +221,12 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined"
+     * @param docId    the document ID of the waitlist
+     * @param status   the status to filter users by (e.g., "waiting", "accepted")
+     * @param callback a callback that returns a list of names with the specified status
+     */
     @Override
     public void getUsersWithStatus(final String docId, final String status, final FirestoreCallback callback) {
         waitListRef.document(docId).get()

@@ -110,14 +110,16 @@ public class OrganizerCreateEvent extends AppCompatActivity {
          * let organizer fill out field for waitlist size limit
          */
         WaitList waitList = new WaitList(30,
-                event.getEventName() + "Waitlist",
+                db.collection("waitlist").document().getId(),
                 event.getEventName(),
                 new ArrayList<UserImpl>());
         // generate a waitlist id
         waitList.setWaitListId(db.collection("waitlist").document().getId());
-
+        event.setEventId(db.collection("events").document().getId());
+        event.setWaitListId(waitList.getWaitListId());
         // Add waitlist and event to Firestore
-        eventRepository.addEvent(event, waitList.getWaitListId());
+        eventRepository.addEvent(event);
+        waitList.setEventId(event.getEventId());
         Log.d("OrganizerCreateEvent", "create waitlist");
         waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 

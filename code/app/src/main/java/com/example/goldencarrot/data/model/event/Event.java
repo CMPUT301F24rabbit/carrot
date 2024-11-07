@@ -18,6 +18,7 @@ public class Event implements EventConfigurator {
     private WaitList waitList;
     private String eventName;
     private String location;
+    private String eventId;
     private String eventDetails;
     private String organizerId;
     private String waitListId;
@@ -115,10 +116,21 @@ public class Event implements EventConfigurator {
         return date;
     }
 
+    @Override
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    @Override
+    public String getEventId() {
+        return eventId;
+    }
+
     /**
      * Gets Event's location
      * @return location
      */
+
     @Override
     public String getLocation() {
         return location;

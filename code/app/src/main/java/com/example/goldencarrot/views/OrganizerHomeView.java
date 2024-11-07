@@ -69,7 +69,8 @@ public class OrganizerHomeView extends AppCompatActivity {
         eventAdapter = new EventRecyclerArrayAdapter(this, eventList, event -> {
             // Long click to open details
             Intent intent = new Intent(OrganizerHomeView.this, OrganizerEventDetailsActivity.class);
-            intent.putExtra("eventId", event.getEventName());
+            Log.d("OrganizerHomeView", "opening event: " + event.getEventName());
+            intent.putExtra("eventId", event.getEventId());
             startActivity(intent);
         });
 
@@ -147,7 +148,7 @@ public class OrganizerHomeView extends AppCompatActivity {
     private void loadEventsForOrganizer(UserImpl organizer){
         firestore.collection("events").whereEqualTo("organizerId", deviceId)
                 .get().addOnSuccessListener(querySnapshot -> {
-                    eventList.clear();
+                    //eventList.clear();
 
                     for (QueryDocumentSnapshot document : querySnapshot) {
                         String eventId = document.getId();
@@ -162,14 +163,8 @@ public class OrganizerHomeView extends AppCompatActivity {
                         try{
                             Date eventDate = dateFormat.parse(dateString);
                             Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
-
+                            event.setEventId(eventId);
                             eventList.add(event);
-
-                            eventAdapter = new EventRecyclerArrayAdapter(this, eventList, clickedEvent -> {
-                                Intent intent = new Intent(OrganizerHomeView.this, OrganizerEventDetailsActivity.class);
-                                intent.putExtra("eventId", eventId);
-                                startActivity(intent);
-                            });
                         } catch (ParseException e) {
                             Log.e("OrganizerHomeview", "Date parsing error: " + e.getMessage(), e);
                         }

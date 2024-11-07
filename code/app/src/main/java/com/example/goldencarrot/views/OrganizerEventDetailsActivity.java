@@ -33,6 +33,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private ListenerRegistration listenerRegistration;
     private EventRepository eventRepository;
     private String deviceID;
+    private String eventId;
 
     // UI initialize
     private ImageView eventPosterView;
@@ -53,7 +54,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventRepository = new EventRepository();
 
         // Get eventID from Intent
-        String eventId = getIntent().getStringExtra("eventId");
+        eventId = getIntent().getStringExtra("eventId");
         if (eventId != null) {
             loadEventDetails(eventId);
         } else {
@@ -81,25 +82,13 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        // Does organizer have delete permissions for their events? Yes right?
-
+        // Hide delete button for organizer
         Button deleteEventBtn = findViewById(R.id.delete_DetailEventBtn);
         deleteEventBtn.setVisibility(View.INVISIBLE);
-        /*
-        deleteEventBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                eventRepository.deleteEvent(eventId);
-                Toast.makeText(OrganizerEventDetailsActivity.this, "Event deleted", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerHomeView.class);
-                startActivity(intent);
-            }
-        });
-         */
 
         // Entrants button
         Button entrantsButton = findViewById(R.id.button_DetailViewEventLists);
-        entrantsButton.setOnClickListener(v -> showEntrantsPopup());
+        entrantsButton.setOnClickListener(v -> showEntrantsPopup(eventId));
     }
 
     /**
@@ -162,7 +151,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     /**
      * Show a popup with Entrants options (Waitlisted, Accepted, Declined)
      */
-    private void showEntrantsPopup() {
+    private void showEntrantsPopup(String eventId) {
         // Inflate Popup
         View popupView = LayoutInflater.from(this).inflate(R.layout.popup_event_lists, null);
 
@@ -178,17 +167,24 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         waitlistedButton.setOnClickListener(v -> {
             // Handle  the waitlisted entrants
             Toast.makeText(this, "Viewing Waitlisted Entrants for this event", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistView.class);
+            intent.putExtra("eventId",eventId);
             entrantsPopup.dismiss();
+            startActivity(intent);
         });
 
         acceptedButton.setOnClickListener(v -> {
             Toast.makeText(this, "Viewing Entrants who have accepted", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerChosenView.class);
+            intent.putExtra("eventId",eventId);
             entrantsPopup.dismiss();
+            startActivity(intent);
         });
 
         declinedButton.setOnClickListener(v -> {
             Toast.makeText(this, "Viewing Entrants who declined", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerCancelledView.class);
+            intent.putExtra("eventId",eventId);
             entrantsPopup.dismiss();
             startActivity(intent);
         });
