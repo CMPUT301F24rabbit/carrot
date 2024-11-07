@@ -113,14 +113,17 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 db.collection("waitlist").document().getId(),
                 event.getEventName(),
                 new ArrayList<UserImpl>());
-        // generate a waitlist id
+        // generate a waitlist id and event id
         waitList.setWaitListId(db.collection("waitlist").document().getId());
         event.setEventId(db.collection("events").document().getId());
         event.setWaitListId(waitList.getWaitListId());
+      
         // Add waitlist and event to Firestore
         eventRepository.addEvent(event);
         waitList.setEventId(event.getEventId());
-        Log.d("OrganizerCreateEvent", "create waitlist");
+      
+        // Add waitlist and event to Firestore
+        eventRepository.addEvent(event, waitList.getWaitListId());
         waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 
 
