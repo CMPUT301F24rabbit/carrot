@@ -67,7 +67,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     private void loadEventDetails() {
-        String eventId = getIntent().getStringExtra("documentId");
+        String eventId = getIntent().getStringExtra("eventId");
         if (eventId != null) {
             eventRepository.getBasicEventById(eventId, new EventRepository.EventCallback() {
                 @Override

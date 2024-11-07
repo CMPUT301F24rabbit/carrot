@@ -118,4 +118,8 @@ public interface EventConfigurator {
      */
     void setOrganizerId(String organizerId);
 
+    void setEventId(String eventId);
+
+    String getEventId();
+
 }

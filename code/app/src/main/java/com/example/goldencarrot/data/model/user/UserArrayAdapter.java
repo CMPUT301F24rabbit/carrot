@@ -36,7 +36,10 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
         }
         User user = getItem(position);
         TextView username = view.findViewById(R.id.nameListView);
+        TextView email = view.findViewById(R.id.emailListView);
         username.setText(user.getName());
+        email.setText(user.getEmail());
         return view;
     }
+
 }

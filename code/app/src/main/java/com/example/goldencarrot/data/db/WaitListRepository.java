@@ -1,7 +1,5 @@
 package com.example.goldencarrot.data.db;
 
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-
 import android.util.Log;
 
 import com.example.goldencarrot.data.model.user.User;
@@ -111,6 +109,13 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Updates the status of a user in the waitlist document in Firestore.
+     *
+     * @param docId   the document ID of the waitlist
+     * @param user    the user to update
+     * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
+     */
 
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
@@ -124,6 +129,11 @@ public class WaitListRepository implements WaitListDb {
                 .addOnFailureListener(e -> Log.w(TAG, "Error updating user status", e));
     }
 
+    /**
+     * Deletes a waitlist document from Firestore.
+     *
+     * @param docId the document ID of the waitlist to delete
+     */
     @Override
     public void deleteWaitList(String docId) {
         waitListRef.document(docId)
@@ -197,6 +207,13 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Checks the status of a user in the waitlist.
+     *
+     * @param docId the document ID of the waitlist
+     * @param user  the user to check
+     * @param callback a callback that handles the result
+     */
     @Override
     public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
@@ -214,6 +231,12 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined"
+     * @param docId    the document ID of the waitlist
+     * @param status   the status to filter users by (e.g., "waiting", "accepted")
+     * @param callback a callback that returns a list of names with the specified status
+     */
     @Override
     public void getUsersWithStatus(final String docId, final String status, final FirestoreCallback callback) {
         waitListRef.document(docId).get()
@@ -221,12 +244,17 @@ public class WaitListRepository implements WaitListDb {
                     if (documentSnapshot.exists()) {
                         List<String> usersWithStatus = new ArrayList<>();
 
-                        // get users document
-                        Map<String, Object> usersData = (Map<String, Object>) documentSnapshot.get("users");
-                        if (usersData != null) {
-                            for (Map.Entry<String, Object> entry : usersData.entrySet()) {
-                                if (entry.getValue().toString().equals(status)) {
-                                    usersWithStatus.add(entry.getKey());
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") &&
+                                        !entry.getKey().equals("limit")) {
+                                    // Check if the user has the specified status
+                                    if (entry.getValue().toString().equals(status)) {
+                                        usersWithStatus.add(entry.getKey());
+                                    }
                                 }
                             }
                         }
