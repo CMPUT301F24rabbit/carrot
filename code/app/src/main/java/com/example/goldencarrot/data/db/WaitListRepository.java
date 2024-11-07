@@ -1,5 +1,7 @@
 package com.example.goldencarrot.data.db;
 
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+
 import android.util.Log;
 
 import com.example.goldencarrot.data.model.user.User;
@@ -40,17 +42,20 @@ public class WaitListRepository implements WaitListDb {
      */
     @Override
     public void createWaitList(WaitList waitList, String docId, String eventName) {
+        Log.d("WaitListRepository", "creating waitlist");
         Map<String, Object> waitListData = new HashMap<>();
         waitListData.put("eventId", waitList.getEventId());
         waitListData.put("eventName", eventName);
         waitListData.put("limit", waitList.getLimitNumber());
         waitListData.put("size", waitList.getUserArrayList().size());
+        Log.d("WaitListRepository", "creating waitlist for accepted, declined, waiting");
 
         // Create a "users" sub-map to store user statuses
         Map<String, String> usersMap = new HashMap<>();
         for (UserImpl user : waitList.getUserArrayList()) {
             usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
         }
+        Log.d("WaitListRepository", "putting map");
         waitListData.put("users", usersMap);  // Add users map to the main document
 
         // Add the waitlist document to Firestore

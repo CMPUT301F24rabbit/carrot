@@ -59,6 +59,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
+        // hide delete button
 
         // UI Initialization
         eventPosterView = findViewById(R.id.event_DetailPosterView);
@@ -72,18 +73,29 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerHomeView.class);
+                startActivity(intent);
+            }
+        });
 
         // Does organizer have delete permissions for their events? Yes right?
+
         Button deleteEventBtn = findViewById(R.id.delete_DetailEventBtn);
+        deleteEventBtn.setVisibility(View.INVISIBLE);
+        /*
         deleteEventBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 eventRepository.deleteEvent(eventId);
                 Toast.makeText(OrganizerEventDetailsActivity.this, "Event deleted", Toast.LENGTH_SHORT).show();
-                finish();
+                Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerHomeView.class);
+                startActivity(intent);
             }
         });
+         */
 
         // Entrants button
         Button entrantsButton = findViewById(R.id.button_DetailViewEventLists);

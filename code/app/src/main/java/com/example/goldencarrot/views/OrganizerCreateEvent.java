@@ -3,6 +3,7 @@ package com.example.goldencarrot.views;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -56,7 +57,14 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         Button createEventButton = findViewById(R.id.createEventButton);
 
         // Set onClickListener for the Create Event button
-        createEventButton.setOnClickListener(view -> createEvent());
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createEvent();
+                Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void createEvent() {
@@ -110,6 +118,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
         // Add waitlist and event to Firestore
         eventRepository.addEvent(event, waitList.getWaitListId());
+        Log.d("OrganizerCreateEvent", "create waitlist");
         waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 
 
