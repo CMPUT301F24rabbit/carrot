@@ -11,6 +11,10 @@ import com.example.goldencarrot.data.model.user.User;
 
 import java.util.ArrayList;
 
+/**
+ * This is an adapter for the waitlist recycler view.
+ *
+ */
 public class WaitlistUsersAdapter extends
         RecyclerView.Adapter<WaitlistUsersAdapter.WaitlistViewHolder> {
 
