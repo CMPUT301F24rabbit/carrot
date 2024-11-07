@@ -13,8 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 public class UserTest {
 
     private User newUser;
@@ -57,5 +55,4 @@ public class UserTest {
             User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null);
         });
     }
-
 }

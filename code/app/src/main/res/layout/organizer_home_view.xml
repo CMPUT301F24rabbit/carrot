@@ -1,90 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/organizer_home_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".views.OrganizerHomeView">
 
     <TextView
         android:id="@+id/welcomeMSG"
-        android:layout_width="287dp"
-        android:layout_height="58dp"
-        android:text="Welcome back "
-        android:textSize="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/imageButtonTL"
-        android:layout_width="145dp"
-        android:layout_height="142dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:contentDescription="Event Name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeMSG"
-        app:srcCompat="@drawable/common_google_signin_btn_text_dark_normal"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <ImageButton
-        android:id="@+id/imageButtonTR"
-        android:layout_width="145dp"
-        android:layout_height="142dp"
-        android:layout_marginTop="32dp"
-        android:contentDescription="Event Name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageButtonTL"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeMSG"
-        app:srcCompat="@drawable/common_google_signin_btn_text_dark_normal"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <ImageButton
-        android:id="@+id/imageButtonBL"
-        android:layout_width="145dp"
-        android:layout_height="142dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="64dp"
-        android:contentDescription="Event Name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButtonTL"
-        app:srcCompat="@drawable/common_google_signin_btn_text_dark_normal"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <ImageButton
-        android:id="@+id/imageButtonBR"
-        android:layout_width="145dp"
-        android:layout_height="142dp"
-        android:layout_marginTop="64dp"
-        android:contentDescription="Event Name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageButtonBL"
-        app:layout_constraintTop_toBottomOf="@+id/imageButtonTR"
-        app:srcCompat="@drawable/common_google_signin_btn_text_dark_normal"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <Button
-        android:id="@+id/button_create_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Event"
-        app:layout_constraintBottom_toTopOf="@+id/button_manage_profile"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButtonBL" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:text="Welcome back "
+        android:textSize="32dp" />
+
+    <TextView
+        android:id="@+id/organizer_user_name_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="poop" />
+
+    <!-- Recycle view  for the events!!! -->
 
     <Button
         android:id="@+id/button_manage_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="32dp"
         android:text="Manage Profile"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.12"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="10sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_events"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+         />
+
+    <Button
+        android:id="@+id/button_create_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="New Event" />
+
+</LinearLayout>
