@@ -1,7 +1,9 @@
 package com.example.goldencarrot.views;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,7 +13,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.UserRepository;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,6 +35,9 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private ArrayList<DocumentSnapshot> eventDocuments;
 
     private Button backButton;
+    private String deviceId;
+    private String currentUserType;
+    private UserRepository userRepository;
 
 
     @Override
@@ -38,9 +45,10 @@ public class BrowseEventsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_events);
 
-        // Initialize Firestore and Collections
+        // Initialize Firestore, Collections and user repo
         firestore = FirebaseFirestore.getInstance();
         eventsCollection = firestore.collection("events");
+        userRepository = new UserRepository();
 
         // Initialize ListView and Adapter
         eventsListView = findViewById(R.id.eventsListView);
@@ -54,47 +62,72 @@ public class BrowseEventsActivity extends AppCompatActivity {
         // Fetch events from Firestore
         loadEventsFromFirestore();
 
+        //Get user type of current device
+        deviceId = getDeviceId(this);
+        userRepository.checkUserExistsAndGetUserType(deviceId, new UserRepository.UserTypeCallback() {
+            @Override
+            public void onResult(boolean exists, String userType) {
+                if (exists) {
+                    // User exists, and we have the userType
+                    Log.d("BrowseEventsActivity", "User Type: " + userType);
+                    currentUserType = userType;
+                } else {
+                    // Failed to get user type
+                    Log.d("BrowseEventsActivity", "Error: failed to get UserType");
+                }
+            }
+        });
+
         // Set an item click listener to open EventDetailsActivity
         eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                    // Get the selected event document
-                    DocumentSnapshot selectedDocument = eventDocuments.get(position);
-                    String documentId = selectedDocument.getId();
+            // Get the selected event document
+            DocumentSnapshot selectedDocument = eventDocuments.get(position);
+            String documentId = selectedDocument.getId();
 
-                    // Start EventDetailsAdminActivity and pass document ID as an extra
-                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                    intent.putExtra("documentId", documentId);
-                    startActivity(intent);
-                });
+            // Start EventDetailsAdminActivity and pass document ID as an extra
+            if (currentUserType.equals("ADMIN")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
+                intent.putExtra("eventId", documentId);
+                startActivity(intent);
+            } else if (currentUserType.equals("PARTICIPANT")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, EntrantEventDetailsActivity.class);
+                intent.putExtra("eventId", documentId);
+                startActivity(intent);
+            }
+        });
 
         backButton = findViewById(R.id.browseEventsBackBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                if (currentUserType.equals("ADMIN")) {
+                    Intent intent = new Intent(BrowseEventsActivity.this, AdminHomeActivity.class);
+                    startActivity(intent);
+                } else if (currentUserType.equals("PARTICIPANT")) {
+                    Intent intent = new Intent(BrowseEventsActivity.this, EntrantHomeView.class);
+                    startActivity(intent);
+                }
             }
         });
     }
 
+    /**
+     * Todo add this method to EventRepository
+     */
     private void loadEventsFromFirestore() {
         eventsCollection.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         eventsList.clear();
+                        eventDocuments.clear(); // Clear previous documents in case of refresh
                         QuerySnapshot querySnapshot = task.getResult();
 
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 // Assuming each document has a "name" field for event name
                                 String eventName = document.getString("eventName");
-                                String eventId = document.getId(); // Get the document ID
                                 eventsList.add(eventName);
-
-                                // Add a click listener to the ListView item to navigate to EventDetailsActivity
-                                eventsListView.setOnItemClickListener((parent, view, position, id) -> {
-                                    Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                                    intent.putExtra("eventId", eventId); // Pass the event ID
-                                    startActivity(intent);
-                                });
+                                eventDocuments.add(document); // Store the document snapshot for later access
                             }
                             eventsAdapter.notifyDataSetChanged();
                         } else {
@@ -105,6 +138,10 @@ public class BrowseEventsActivity extends AppCompatActivity {
                         Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
 }
