@@ -193,7 +193,6 @@ public class UserRepository {
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        documentSnapshot.getString("name");
                         try {
                             UserImpl user = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),

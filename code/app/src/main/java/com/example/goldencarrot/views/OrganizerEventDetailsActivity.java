@@ -88,7 +88,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         // Entrants button
         Button entrantsButton = findViewById(R.id.button_DetailViewEventLists);
-        entrantsButton.setOnClickListener(v -> showEntrantsPopup(eventId));
+        entrantsButton.setOnClickListener(v -> showEntrantsPopup());
     }
 
     /**
@@ -151,8 +151,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     /**
      * Show a popup with Entrants options (Waitlisted, Accepted, Declined)
      */
-    private void showEntrantsPopup(String eventId) {
-        // Inflate Popup
+    private void showEntrantsPopup() {
         View popupView = LayoutInflater.from(this).inflate(R.layout.popup_event_lists, null);
 
         // Make the window and show it
@@ -164,30 +163,21 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
         Button declinedButton = popupView.findViewById(R.id.button_EventDetailRejectedEntrants);
 
-        waitlistedButton.setOnClickListener(v -> {
-            // Handle  the waitlisted entrants
-            Toast.makeText(this, "Viewing Waitlisted Entrants for this event", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistView.class);
-            intent.putExtra("eventId",eventId);
-            entrantsPopup.dismiss();
-            startActivity(intent);
-        });
+        waitlistedButton.setOnClickListener(v -> openEntrantsView("waitlisted"));
+        acceptedButton.setOnClickListener(v -> openEntrantsView("accepted"));
+        declinedButton.setOnClickListener(v -> openEntrantsView("declined"));
+    }
 
-        acceptedButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Viewing Entrants who have accepted", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerChosenView.class);
-            intent.putExtra("eventId",eventId);
-            entrantsPopup.dismiss();
-            startActivity(intent);
-        });
-
-        declinedButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Viewing Entrants who declined", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerCancelledView.class);
-            intent.putExtra("eventId",eventId);
-            entrantsPopup.dismiss();
-            startActivity(intent);
-        });
+    /**
+     * Opens the OrganizerWaitlistView with the specified entrant status.
+     *
+     * @param status The entrant status to pass to the view ("waitlisted", "accepted", "declined").
+     */
+    private void openEntrantsView(String status) {
+        Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistView.class);
+        intent.putExtra("entrantStatus", status); // Pass the status to OrganizerWaitlistView
+        entrantsPopup.dismiss();
+        startActivity(intent);
     }
 
     @Override

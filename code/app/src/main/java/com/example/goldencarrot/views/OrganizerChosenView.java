@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class OrganizerChosenView extends AppCompatActivity {
     private ArrayList<String> userIdList;
     private RecyclerView chosenUserListView;
-    private WaitlistedUsersRecyclerAdapter userArrayAdapter;
+    private WaitlistUsersAdapter userArrayAdapter;
     private FirebaseFirestore db;
     private Button backBtn;
     private WaitListRepository waitListRepository;
@@ -94,7 +94,7 @@ public class OrganizerChosenView extends AppCompatActivity {
                 }
             });
         }
-        userArrayAdapter = new WaitlistedUsersRecyclerAdapter(chosenUserList);
+        userArrayAdapter = new WaitlistUsersAdapter(chosenUserList, "chosen");
         chosenUserListView.setAdapter(userArrayAdapter);
     }
 }

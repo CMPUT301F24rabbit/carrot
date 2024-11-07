@@ -1,7 +1,5 @@
 package com.example.goldencarrot.data.db;
 
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-
 import android.util.Log;
 
 import com.example.goldencarrot.data.model.user.User;
@@ -53,8 +51,7 @@ public class WaitListRepository implements WaitListDb {
         // Create a "users" sub-map to store user statuses
         Map<String, String> usersMap = new HashMap<>();
         for (UserImpl user : waitList.getUserArrayList()) {
-            // usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
-            usersMap.put(user.getUserId(), "joined");
+            usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
         }
         Log.d("WaitListRepository", "putting map");
         waitListData.put("users", usersMap);  // Add users map to the main document
@@ -82,13 +79,11 @@ public class WaitListRepository implements WaitListDb {
                             if (!documentSnapshot.contains("users")) {
                                 // Initialize the "users" map if it doesn't exist
                                 Map<String, String> usersMap = new HashMap<>();
-                                // usersMap.put(user.getUserId(), "waiting");
-                                usersMap.put(user.getUserId(), "joined");
+                                usersMap.put(user.getUserId(), "waiting");
                                 updateData.put("users", usersMap);  // Add the new user in the new map
                             } else {
                                 // Add the user to the existing "users" map
-                                // updateData.put("users." + user.getUserId(), "waiting");
-                                updateData.put("users." + user.getUserId(), "joined");
+                                updateData.put("users." + user.getUserId(), "waiting");
                             }
 
                             // Update Firestore document
@@ -114,6 +109,13 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Updates the status of a user in the waitlist document in Firestore.
+     *
+     * @param docId   the document ID of the waitlist
+     * @param user    the user to update
+     * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
+     */
 
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
@@ -128,7 +130,8 @@ public class WaitListRepository implements WaitListDb {
     }
 
     /**
-     * Deletes waitlist from firestore
+     * Deletes a waitlist document from Firestore.
+     *
      * @param docId the document ID of the waitlist to delete
      */
     @Override
@@ -204,6 +207,13 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Checks the status of a user in the waitlist.
+     *
+     * @param docId the document ID of the waitlist
+     * @param user  the user to check
+     * @param callback a callback that handles the result
+     */
     @Override
     public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
@@ -234,12 +244,17 @@ public class WaitListRepository implements WaitListDb {
                     if (documentSnapshot.exists()) {
                         List<String> usersWithStatus = new ArrayList<>();
 
-                        // get users document
-                        Map<String, Object> usersData = (Map<String, Object>) documentSnapshot.get("users");
-                        if (usersData != null) {
-                            for (Map.Entry<String, Object> entry : usersData.entrySet()) {
-                                if (entry.getValue().toString().equals(status)) {
-                                    usersWithStatus.add(entry.getKey());
+                        // Loop through all users in the document
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                                // Skip metadata fields like "size" or "limit"
+                                if (!entry.getKey().equals("size") &&
+                                        !entry.getKey().equals("limit")) {
+                                    // Check if the user has the specified status
+                                    if (entry.getValue().toString().equals(status)) {
+                                        usersWithStatus.add(entry.getKey());
+                                    }
                                 }
                             }
                         }

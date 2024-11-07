@@ -116,6 +116,10 @@ public class Event implements EventConfigurator {
         return date;
     }
 
+    /**
+     * Gets Event's location
+     * @return location
+     */
     @Override
     public void setEventId(String eventId) {
         this.eventId = eventId;
