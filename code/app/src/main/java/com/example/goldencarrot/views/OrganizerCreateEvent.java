@@ -3,6 +3,7 @@ package com.example.goldencarrot.views;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
