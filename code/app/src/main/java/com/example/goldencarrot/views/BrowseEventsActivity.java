@@ -87,11 +87,11 @@ public class BrowseEventsActivity extends AppCompatActivity {
             // Start EventDetailsAdminActivity and pass document ID as an extra
             if (currentUserType.equals("ADMIN")) {
                 Intent intent = new Intent(BrowseEventsActivity.this, EventDetailsAdminActivity.class);
-                intent.putExtra("documentId", documentId);
+                intent.putExtra("eventId", documentId);
                 startActivity(intent);
             } else if (currentUserType.equals("PARTICIPANT")) {
                 Intent intent = new Intent(BrowseEventsActivity.this, EntrantEventDetailsActivity.class);
-                intent.putExtra("documentId", documentId);
+                intent.putExtra("eventId", documentId);
                 startActivity(intent);
             }
         });

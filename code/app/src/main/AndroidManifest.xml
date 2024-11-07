@@ -38,8 +38,9 @@
         <activity android:name=".views.WaitlistActivity" />
         <activity android:name=".views.EventDetailsAdminActivity" />
         <activity android:name=".views.EntrantEventDetailsActivity" />
-        <activity android:name=".views.OrganizerEventDetailsActivity"/>
-
+        <activity android:name=".views.OrganizerEventDetailsActivity" />
+        <activity android:name=".views.OrganizerChosenView"/>
+        <activity android:name=".views.OrganizerWaitlistView" />
     </application>
 
 </manifest>
