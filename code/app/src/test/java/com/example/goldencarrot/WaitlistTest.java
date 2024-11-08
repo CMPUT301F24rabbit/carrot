@@ -1,5 +1,8 @@
 package com.example.goldencarrot;
 
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
@@ -14,7 +17,7 @@ public class WaitlistTest {
     private UserImpl mockOrganizer;
     private WaitList mockWaitlist;
 
-    private UserImpl getMockOrganizer(String email, String name){
+    private UserImpl mockOrganizerSetup(String email, String name){
         try {
             mockOrganizer = new UserImpl(email,
                     "ORGANIZER",
@@ -47,6 +50,15 @@ public class WaitlistTest {
     }
     @Test
     void testWaitlistGetEvent() {
+        // initialize mock waitlist
+        UserImpl mockOrganizer = mockOrganizerSetup("mockEmail", "mockName");
+        Event mockEvent = mockEventSetup(mockOrganizer);
+        WaitList mockWaitlist = mockWaitlistSetup(mockEvent);
 
+        // test waitlist event
+        assertSame(mockEvent.getEventId(), mockWaitlist.getEventId());
+
+        mockWaitlist.setEventId("noteventId");
+        assertNotSame(mockEvent.getEventId(), mockWaitlist.getEventId());
     }
 }
