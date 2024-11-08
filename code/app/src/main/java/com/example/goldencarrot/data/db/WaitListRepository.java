@@ -249,22 +249,6 @@ public class WaitListRepository implements WaitListDb {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         List<String> usersWithStatus = new ArrayList<>();
-                        /*
-                        // Loop through all users in the document
-                        Map<String, Object> data = documentSnapshot.getData();
-                        if (data != null) {
-                            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                                // Skip metadata fields like "size" or "limit"
-                                if (!entry.getKey().equals("size") &&
-                                        !entry.getKey().equals("limit")) {
-                                    // Check if the user has the specified status
-                                    if (entry.getValue().toString().equals(status)) {
-                                        usersWithStatus.add(entry.getKey());
-                                    }
-                                }
-                            }
-                         }
-                         */
                         Map<String, Object> usersMap = (Map<String, Object>) documentSnapshot.get("users");
                         for (Map.Entry<String, Object> entry : usersMap.entrySet()) {
                             String currentUserId = entry.getKey();

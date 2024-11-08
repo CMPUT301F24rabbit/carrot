@@ -45,6 +45,7 @@ public class EventRepository {
         eventData.put("eventDetails", event.getEventDetails());
         eventData.put("eventName", event.getEventName());
         eventData.put("location", event.getLocation());
+        eventData.put("isGeolocationEnabled", event.getGeolocationEnabled());
         eventData.put("date", new SimpleDateFormat("dd-MM-yyyy").format(event.getDate()));
 
         // Add event document into events collection and capture the generated ID

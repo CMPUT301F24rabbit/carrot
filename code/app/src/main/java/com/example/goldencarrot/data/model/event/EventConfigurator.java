@@ -136,4 +136,15 @@ public interface EventConfigurator {
      */
     void setWaitlistLimit(Integer waitlistLimit);
 
+    /**
+     *  Returns weather geolocation is enabled or not
+     * @return geolocationEnabled bool
+     */
+    boolean getGeolocationEnabled();
+
+    /**
+     * Can set geolocation enabled true or false
+     * @param geolocationEnabled boolean
+     */
+    void setGeolocationEnabled(boolean geolocationEnabled);
 }

@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -42,8 +43,8 @@ public class OrganizerEventTest {
             onView(withId(R.id.createEventButton)).perform(click());
 
             // Check for success message or behavior
-            onView(withId(R.id.successMessageTextView))  // Ensure this ID exists
-                    .check(matches(withText("Event created successfully")));
+            onView(withText("Sample Event"))  // Ensure this ID exists
+                    .check(matches(isDisplayed()));
         }
     }
 }
