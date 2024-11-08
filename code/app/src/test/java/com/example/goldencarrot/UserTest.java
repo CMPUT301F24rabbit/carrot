@@ -27,7 +27,7 @@ public class UserTest {
     private int userCollectionSize;
     private User mockUser(String userType) {
         try {
-            newUser = new UserImpl(mockEmail(), userType, mockName(), null);
+            newUser = new UserImpl(mockEmail(), userType, mockName(), null, false, false);
         }
         catch(Exception e){
 
@@ -52,7 +52,7 @@ public class UserTest {
     void testCreateUserObj_InvalidUserType() {
         // test if exception is thrown for invalid user type
         assertThrows(Exception.class, () -> {
-            User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null);
+            User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null, false, false);
         });
     }
 }

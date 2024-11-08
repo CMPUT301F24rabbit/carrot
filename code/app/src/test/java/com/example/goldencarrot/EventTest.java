@@ -16,7 +16,9 @@ public class EventTest {
             mockOrganizer = new UserImpl(email,
                     "ORGANIZER",
                     name,
-                    null);
+                    null,
+                    false,
+                    false);
         } catch (Exception e) {
 
         }

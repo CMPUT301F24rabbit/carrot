@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * displays full list of users
+ * displays full list of users for admin to view
  */
 public class AdminAllProfilesView extends AppCompatActivity {
     private ArrayList<User> dataUserList;
@@ -94,7 +94,9 @@ public class AdminAllProfilesView extends AppCompatActivity {
                 DocumentSnapshot userFromDb = listOfUsers.get(i);
                 User newUser = new UserImpl(userFromDb.getString("email"),
                         userFromDb.getString("userType"),
-                        userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")));
+                        userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")),
+                        userFromDb.getBoolean("administratorNotification"),
+                        userFromDb.getBoolean("organizerNotification"));
                 // add user to user data list
                 dataUserList.add(newUser);
                 Log.i(TAG, "Successfully added " + userFromDb.getString("username"));

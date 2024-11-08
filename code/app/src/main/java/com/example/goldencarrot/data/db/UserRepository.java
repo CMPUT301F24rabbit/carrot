@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Queries User DB
@@ -50,6 +51,8 @@ public class UserRepository {
         userData.put("name", user.getName());
         // Only add phoneNumber if it is present (non-empty)
         user.getPhoneNumber().ifPresent(phone -> userData.put("phoneNumber", phone));
+        userData.put("organizerNotification", user.getOrganizerNotifications());
+        userData.put("adminNotification", user.getAdminNotification());
 
         Log.d(TAG, "Email: " + user.getEmail());
         Log.d(TAG, "User Type: " + user.getUserType());
@@ -114,6 +117,9 @@ public class UserRepository {
         updatedUserData.put("email", user.getEmail());
         updatedUserData.put("userType", user.getUserType());
         updatedUserData.put("name", user.getName());
+        updatedUserData.put("adminNotification", user.getAdminNotification());
+        updatedUserData.put("organizerNotification", user.getOrganizerNotifications());
+
         // Only add phoneNumber if it is present (non-empty)
         user.getPhoneNumber().ifPresent(phone -> updatedUserData.put("phoneNumber", phone));
 
@@ -192,8 +198,17 @@ public class UserRepository {
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        UserImpl user = documentSnapshot.toObject(UserImpl.class);
-                        callback.onSuccess(user); // Pass the user object to the callback
+                        try {
+                            UserImpl user = new UserImpl(documentSnapshot.getString("email"),
+                                    documentSnapshot.getString("userType"),
+                                    documentSnapshot.getString("name"),
+                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
+                                    documentSnapshot.getBoolean("administratiorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
+                            callback.onSuccess(user); // Pass the user object to the callback
+                        } catch (Exception e) {
+
+                        }
                     } else {
                         callback.onFailure(new Exception("User not found"));
                     }
