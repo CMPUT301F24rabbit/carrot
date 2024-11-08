@@ -1,6 +1,8 @@
 package com.example.goldencarrot.controller;
 
+import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
+import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 
@@ -13,12 +15,23 @@ public class WaitListController {
     private final WaitListRepository waitListRepository;
     private final Random random;
     private Integer waitlistLimit; // Optional limit for the waitlist
+    private final EventRepository eventRepository;
 
-    public WaitListController(WaitList waitList, WaitListRepository waitListRepository, Integer waitlistLimit) {
+    public WaitListController(WaitList waitList, WaitListRepository waitListRepository, Integer waitlistLimit, EventRepository eventRepository) {
         this.waitList = waitList;
         this.waitListRepository = waitListRepository;
         this.random = new Random();
         this.waitlistLimit = waitlistLimit; // Initialize with limit if provided
+        this.eventRepository = eventRepository;
+    }
+
+    public void createEventWaitlist(Event event, String eventName) {
+        String eventId = event.getEventId();
+
+        // Make the waitlist and get the documentID as waitlistID
+        String waitlistId = waitListRepository.createWaitList(waitList, eventId, eventName);
+
+        eventRepository.createWaitlist(eventId, waitlistId);
     }
 
     /**

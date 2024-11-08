@@ -1,9 +1,9 @@
 package com.example.goldencarrot.data.db;
 
+import com.example.goldencarrot.data.db.WaitListRepository.FirestoreCallback;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
-import com.example.goldencarrot.data.db.WaitListRepository.FirestoreCallback;
 
 /**
  * The {@code WaitListDb} interface defines the contract for performing
@@ -17,7 +17,7 @@ public interface WaitListDb {
      * @param waitList the waitlist to be created
      * @param docId    the document ID for this waitlist in Firestore
      */
-    void createWaitList(WaitList waitList, String docId, String eventName);
+    String createWaitList(WaitList waitList, String docId, String eventName);
 
     /**
      * Adds a user to the waitlist if there is room.

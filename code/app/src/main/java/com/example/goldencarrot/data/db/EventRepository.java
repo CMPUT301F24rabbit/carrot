@@ -99,4 +99,13 @@ public class EventRepository {
         void onSuccess(Event event);
         void onFailure(Exception e);
     }
+
+    public void createWaitlist(String eventId, String waitlistId) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("waitlistId", waitlistId);
+
+        eventsCollection.document(eventId).update(updateData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Event waitlistID updated successfuly"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error updating event waitlistID"));
+    }
 }

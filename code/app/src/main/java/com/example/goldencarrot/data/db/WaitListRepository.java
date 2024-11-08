@@ -39,7 +39,7 @@ public class WaitListRepository implements WaitListDb {
      * @param docId    the document ID for this waitlist in Firestore
      */
     @Override
-    public void createWaitList(WaitList waitList, String docId, String eventName) {
+    public String createWaitList(WaitList waitList, String docId, String eventName) {
         Log.d("WaitListRepository", "creating waitlist");
         Map<String, Object> waitListData = new HashMap<>();
         waitListData.put("eventId", waitList.getEventId());
@@ -61,6 +61,8 @@ public class WaitListRepository implements WaitListDb {
                 .set(waitListData)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "WaitList created successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating waitlist", e));
+
+        return docId;
     }
 
     @Override
