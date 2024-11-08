@@ -42,24 +42,22 @@ public class WaitListRepository implements WaitListDb {
     public void createWaitList(WaitList waitList, String docId, String eventName) {
         Log.d("WaitListRepository", "creating waitlist");
         Map<String, Object> waitListData = new HashMap<>();
-        waitListData.put("eventId", waitList.getEventId());
         waitListData.put("eventName", eventName);
         waitListData.put("limit", waitList.getLimitNumber());
         waitListData.put("size", waitList.getUserArrayList().size());
+        waitListData.put("eventId", waitList.getEventId());
         Log.d("WaitListRepository", "creating waitlist for accepted, declined, waiting");
 
         // Create a "users" sub-map to store user statuses
         Map<String, String> usersMap = new HashMap<>();
-        for (UserImpl user : waitList.getUserArrayList()) {
-            usersMap.put(user.getUserId(), "waiting");  // Default status to "waiting"
-        }
-        Log.d("WaitListRepository", "putting map");
         waitListData.put("users", usersMap);  // Add users map to the main document
 
         // Add the waitlist document to Firestore
-        waitListRef.document(docId)
-                .set(waitListData)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "WaitList created successfully"))
+        waitListRef.add(waitListData)
+                .addOnSuccessListener(documentReference -> {
+                    String generatedId = documentReference.getId(); // Get the auto-generated ID
+                    Log.d(TAG, "WaitList created successfully with ID: " + generatedId);
+                })
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating waitlist", e));
     }
 
