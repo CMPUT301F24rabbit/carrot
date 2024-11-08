@@ -25,6 +25,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -57,7 +58,8 @@ public class EntrantHomeView extends AppCompatActivity {
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "Firestore initialized");
-
+        // Set user name
+        loadUserData();
         // Initialize the views from layout file
         profileImageView = findViewById(R.id.entrant_home_view_image_view);
         usernameTextView = findViewById(R.id.entrant_home_view_user_name);
@@ -68,8 +70,7 @@ public class EntrantHomeView extends AppCompatActivity {
         notificationsButton = findViewById(R.id.notifications_button);
 
 
-        // Set user name
-        loadUserData();
+
 
         // Event lists and adapter Inititalization
         upcomingEventsList = new ArrayList<>();
@@ -116,7 +117,7 @@ public class EntrantHomeView extends AppCompatActivity {
         });
 
         // Load event data
-        loadEventData();
+
     }
 
     private void setListenersForWaitlistActivity(ListView listView, TextView titleView, Class<?> activityClass){
@@ -137,7 +138,7 @@ public class EntrantHomeView extends AppCompatActivity {
     // Load user Data
     private void loadUserData(){
         String deviceId = getDeviceId(EntrantHomeView.this);
-
+        loadEventData();
         firestore.collection("users").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -192,42 +193,61 @@ public class EntrantHomeView extends AppCompatActivity {
     // Load Event Data
     private void loadEventData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
+        Log.d("EntrantHomeView", "DeviceID: " + deviceId);
 
         // Load the first 4 waitlisted events from firestore
         CollectionReference waitlistRef = firestore.collection("waitlist");
-        waitlistRef.whereArrayContains("userIds", deviceId).limit(4).get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                waitlistedEventsList.clear(); // clear the current data
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        // Get Event Data
-                        String eventName = document.getString("eventName");
-                        String location = document.getString("location");
-                        String details = document.getString("details");
-                        Date eventDate = document.getDate("date");
-                        UserImpl organizer = document.toObject(UserImpl.class);
 
-                        Log.d("EntrantHomeView", "Processing event: " + document.getId());
+        waitlistRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                waitlistedEventsList.clear(); //BYE BYEEEEE
 
-                        if(eventName != null){
-                            Log.d("EntrantHomeview", "Adding event:" + eventName);
-                            Event event = new Event(organizer);
-                            event.setEventName(eventName);
-                            event.setLocation(location);
-                            event.setEventDetails(details);
-                            event.setDate(eventDate);
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    // CHECKIN USEr MAPS
+                    Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
 
-                            waitlistedEventsList.add(event);
+                    if (usersMap != null) {
+                        // Check if device id is in the user map with waiting
+                        if (usersMap.containsKey(deviceId)) {
+                            String status = (String) usersMap.get(deviceId);
+
+                            if ("waiting".equals(status)) {
+                                // Get dat dataaaaa
+                                String eventName = document.getString("eventName");
+                                String location = document.getString("location");
+                                String details = document.getString("details");
+                                Date eventDate = document.getDate("date");
+
+                                if (eventName != null) {
+                                    Log.d("EntrantHomeView", "Adding event: " + eventName);
+
+                                    // Make the event
+                                    Event event = new Event(new UserImpl());
+                                    event.setEventName(eventName);
+                                    event.setLocation(location);
+                                    event.setEventDetails(details);
+                                    event.setDate(eventDate);
+
+                                    waitlistedEventsList.add(event);
+                                }
+                            }
+                        } else {
+                            Log.d("EntrantHomeView", "Device ID " + deviceId + "not found in users map for event: " + document.getId());
                         }
-
+                    } else {
+                        Log.w("EntrantHomeView", "Users map is null for event: " + document.getId());
                     }
-                    // Notify adapter if changes
-                    waitlistedEventsAdapter.notifyDataSetChanged();
-            }
-            else {
-                // error stuff
-                Log.e("EntrantHomeView",  "Error loading waitlisted events", task.getException());
-            }
+                }
 
+                Log.d("EntrantHomeView", "Totalwaitlisted events for  user: " + waitlistedEventsList.size());
+
+                // Notify datas changed
+                waitlistedEventsAdapter.notifyDataSetChanged();
+            } else {
+                Log.e("EntrantHomeView", "Error loading waitlisted events", task.getException());
+            }
         });
     }
 }
+
+

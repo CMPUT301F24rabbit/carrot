@@ -149,9 +149,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(EntrantEventDetailsActivity.this, EntrantHomeView.class);
-        startActivity(intent);
-
     }
 
     private void addUserToWaitList(User user) {
@@ -159,6 +156,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Object result) {
                 showToast("Added to waitlist");
+
+                Intent intent = new Intent(EntrantEventDetailsActivity.this, EntrantHomeView.class);
+                startActivity(intent);
             }
 
             @Override
