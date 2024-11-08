@@ -1,12 +1,8 @@
 package com.example.goldencarrot.views;
 
-import static android.content.ContentValues.TAG;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,11 +13,9 @@ import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.event.Event;
-import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -132,3 +126,5 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 Toast.makeText(OrganizerCreateEvent.this, "Error retrieving user data", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+}
