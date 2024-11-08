@@ -13,9 +13,9 @@ public interface User {
 
     String getUserId();
 
-    Boolean getAdminN();
+    Boolean getAdminNotification();
 
-    Boolean getOrganizerN();
+    Boolean getOrganizerNotifications();
 
     void setUserId(String uId);
 

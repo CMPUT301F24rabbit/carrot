@@ -8,8 +8,8 @@ public class UserImpl implements User{
     private String name;
     private Optional<String> phoneNumber;
     private String uId;
-    private Boolean nAdmin;
-    private Boolean nOrgan;
+    private Boolean notificationAdministrators;
+    private Boolean notificationOrganizers;
 
     public UserImpl(){}
 
@@ -24,8 +24,8 @@ public class UserImpl implements User{
         this.userType = userType;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.nAdmin = nAdmin;
-        this.nOrgan = nOrgan;
+        this.notificationAdministrators = nAdmin;
+        this.notificationOrganizers = nOrgan;
     }
 
     @Override
@@ -63,9 +63,9 @@ public class UserImpl implements User{
         return this.uId;
     }
 
-    public Boolean getAdminN() { return this.nAdmin;}
+    public Boolean getAdminNotification() { return this.notificationAdministrators;}
 
-    public Boolean getOrganizerN() { return this.nOrgan;}
+    public Boolean getOrganizerNotifications() { return this.notificationOrganizers;}
 
     private void validateUserType(String userType) throws Exception {
         if (!UserUtils.validUserTypes.contains(userType)){

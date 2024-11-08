@@ -86,8 +86,8 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                                 phoneInput.setText(""); // If no phone number is available
                             }
 
-                            switchAdminNotifications.setChecked(updatedUser.getAdminN());
-                            switchOrganizerNotifications.setChecked(updatedUser.getOrganizerN());
+                            switchAdminNotifications.setChecked(updatedUser.getAdminNotification());
+                            switchOrganizerNotifications.setChecked(updatedUser.getOrganizerNotifications());
                         }
 
                         @Override
