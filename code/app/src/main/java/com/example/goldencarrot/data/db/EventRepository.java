@@ -45,6 +45,7 @@ public class EventRepository {
         eventData.put("eventDetails", event.getEventDetails());
         eventData.put("eventName", event.getEventName());
         eventData.put("location", event.getLocation());
+        eventData.put("isGeolocationEnabled", event.getGeolocationEnabled());
         eventData.put("date", new SimpleDateFormat("dd-MM-yyyy").format(event.getDate()));
 
         // Add event document into events collection and capture the generated ID
@@ -105,6 +106,10 @@ public class EventRepository {
                         event.setLocation(documentSnapshot.getString("location"));
                         event.setWaitListId(documentSnapshot.getString("waitlistId"));
                         event.setOrganizerId(documentSnapshot.getString("organizerId"));
+
+                        // checks if geolocation is enabled
+                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.
+                                getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);
                     } else {
                         Log.w(TAG, "No event found with ID: " + eventId);

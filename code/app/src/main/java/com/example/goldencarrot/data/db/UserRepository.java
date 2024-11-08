@@ -51,6 +51,8 @@ public class UserRepository {
         userData.put("name", user.getName());
         // Only add phoneNumber if it is present (non-empty)
         user.getPhoneNumber().ifPresent(phone -> userData.put("phoneNumber", phone));
+        userData.put("organizerNotification", user.getOrganizerNotifications());
+        userData.put("adminNotification", user.getAdminNotification());
 
         Log.d(TAG, "Email: " + user.getEmail());
         Log.d(TAG, "User Type: " + user.getUserType());

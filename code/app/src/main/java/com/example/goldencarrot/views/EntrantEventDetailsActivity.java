@@ -1,5 +1,6 @@
 package com.example.goldencarrot.views;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private WaitListDb waitListRepository;
     private WaitList eventWaitList;
     private boolean isUserInWaitList;
+    private boolean isGeolocationEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             eventRepository.getBasicEventById(eventId, new EventRepository.EventCallback() {
                 @Override
                 public void onSuccess(Event event) {
+                    isGeolocationEnabled = event.getGeolocationEnabled();
                     displayEventDetails(event);
                 }
 
@@ -116,6 +119,25 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         User user = new UserImpl();
         user.setUserId(uid);
 
+        if (isGeolocationEnabled) {
+            // Show the dialog if geolocation is enabled
+            showGeolocationDialog(user, eventId);
+        } else {
+            // Proceed directly if geolocation is not enabled
+            fetchWaitListAndJoin(user, eventId);
+        }
+    }
+
+    private void showGeolocationDialog(User user, String eventId) {
+        new AlertDialog.Builder(this)
+                .setTitle("Geolocation is enabled for this event")
+                .setMessage("Are you sure you want to join?")
+                .setPositiveButton("Yes", (dialog, which) -> fetchWaitListAndJoin(user, eventId))
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void fetchWaitListAndJoin(User user, String eventId) {
         waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
             @Override
             public void onSuccess(WaitList waitList) {

@@ -1,5 +1,11 @@
 package com.example.goldencarrot;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
@@ -21,6 +27,19 @@ public class WaitlistTest {
         try {
             mockOrganizer = new UserImpl(email,
                     "ORGANIZER",
+                    name,
+                    null,
+                    false,
+                    false);
+        } catch (Exception e) {
+
+        }
+        return mockOrganizer;
+    }
+    private UserImpl mockUserSetup(String email, String name){
+        try {
+            mockOrganizer = new UserImpl(email,
+                    "PARTICIPANT",
                     name,
                     null,
                     false,
@@ -55,6 +74,56 @@ public class WaitlistTest {
         Event mockEvent = mockEventSetup(mockOrganizer);
         WaitList mockWaitlist = mockWaitlistSetup(mockEvent);
 
+        // test waitlist getting event id
+        assertSame(mockEvent.getEventId(), mockWaitlist.getEventId());
+
+        // test waitlist event id not matching
+        mockWaitlist.setEventId("noteventId");
+        assertNotSame(mockEvent.getEventId(), mockWaitlist.getEventId());
+    }
+
+    @Test
+    void testAddingUserToWaitlist() {
+        // initialize mock waitlist
+        UserImpl mockOrganizer = mockOrganizerSetup("mockEmail", "mockName");
+        Event mockEvent = mockEventSetup(mockOrganizer);
+        WaitList mockWaitlist = mockWaitlistSetup(mockEvent);
+
+        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1");
+        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2");
+        UserImpl mockUser3 = mockUserSetup("user3@gmail.com", "user3");
+
+        // adding users to waitlist
+        mockWaitlist.setLimitNumber(2);
+        assertTrue(mockWaitlist.addUserToWaitList(mockUser1));
+        assertTrue(mockWaitlist.addUserToWaitList(mockUser2));
+
+        // testing that users were added
+        assertEquals(2, mockWaitlist.getUserArrayList().size());
+
+        // testing adding users beyond limit
+        assertFalse(mockWaitlist.addUserToWaitList(mockUser3));
+    }
+
+    @Test
+    void testDeletingUserFromWaitlist() {
+        // initialize mock waitlist
+        UserImpl mockOrganizer = mockOrganizerSetup("mockEmail", "mockName");
+        Event mockEvent = mockEventSetup(mockOrganizer);
+        WaitList mockWaitlist = mockWaitlistSetup(mockEvent);
+
+        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1");
+        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2");
+
+        // adding users to waitlist
+        mockWaitlist.setLimitNumber(2);
+        assertTrue(mockWaitlist.addUserToWaitList(mockUser1));
+        assertTrue(mockWaitlist.addUserToWaitList(mockUser2));
+
+        // remove user from waitlist
+        mockWaitlist.removeUserFromWaitList(mockUser1);
+        assertEquals(1, mockWaitlist.getUserArrayList().size());
+    }
         // test waitlist event
         assertSame(mockEvent.getEventId(), mockWaitlist.getEventId());
 

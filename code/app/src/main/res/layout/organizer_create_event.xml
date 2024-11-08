@@ -35,6 +35,12 @@
         android:layout_height="wrap_content"
         android:hint="Waitlist Limit (Optional)"/>
 
+    <Switch
+        android:id="@+id/geolocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable: Geo Location" />
+
     <Button
         android:id="@+id/createEventButton"
         android:layout_width="match_parent"
