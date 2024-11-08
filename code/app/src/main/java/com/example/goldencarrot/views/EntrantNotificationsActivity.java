@@ -1,10 +1,13 @@
 package com.example.goldencarrot.views;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -23,29 +26,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EntrantNotificationsActivity extends AppCompatActivity {
-    NotificationController notificationController;
+    NotificationRepository notificationRepository;
+    NotificationAdapter adapter;
+    List<Notification> notifications;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_notifications_view);
 
-        NotificationController notificationController = new NotificationController();
         NotificationRepository notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
 
-
-        Button addNotificationButton = findViewById(R.id.add_notification);
-        Button deleteNotification = findViewById(R.id.delete_notification);
         Button backButton = findViewById(R.id.back_button_notifications);
 
-
-
-        // Example list of notifications
-        List<Notification> notifications = new ArrayList<>();
+        notifications = new ArrayList<>();
 
 
         // Initialize adapter
-        NotificationAdapter adapter = new NotificationAdapter(this, notifications);
+        adapter = new NotificationAdapter(this, notifications);
         ListView listView = findViewById(R.id.notification_list_view);
         listView.setAdapter(adapter);
 
@@ -58,7 +56,6 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                 notifications.clear();
                 notifications.addAll(result);
                 adapter.notifyDataSetChanged();
-
             }
 
             @Override
@@ -67,53 +64,55 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
             }
         });
 
+        listView.setOnItemClickListener((adapterView, view, index, id) -> {
+            Notification selectedNotification = notifications.get(index);
+            String notificationId = selectedNotification.getNotificationId();
 
-        addNotificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Notification notification = new Notification();
-                notification.setWaitListId("waitlistid");
-                notification.setStatus("status");
-                notification.setEventId("eventId");
-                notification.setMessage("message");
-                notification.setUserId("userId");
-
-                notificationRepository.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
-                    @Override
-                    public void onSuccess(Notification result) {
-                        Toast.makeText(EntrantNotificationsActivity.this, "added notification", Toast.LENGTH_SHORT).show();
-
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        Toast.makeText(EntrantNotificationsActivity.this, "Notification not added", Toast.LENGTH_SHORT).show();
-
-
-                    }
-                });
+            if (notificationId == null || notificationId.isEmpty()) {
+                Toast.makeText(this, "Notification ID not found", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // Show dialog
+            new AlertDialog.Builder(EntrantNotificationsActivity.this)
+                    .setTitle("Notification")
+                    .setMessage(selectedNotification.getMessage())
+                    .setPositiveButton("ACCEPT", (dialog, which) -> {
+                        // Call deleteNotification method
+                        notificationRepository.deleteNotification(notificationId, new NotificationRepository.NotificationCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
+                                notifications.remove(index);
+                                adapter.notifyDataSetChanged();
+                                changeStatusInWaitList();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(EntrantNotificationsActivity.this, "Error deleting notification", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("DECLINE", (dialog, which) -> {
+                        notificationRepository.deleteNotification(notificationId, new NotificationRepository.NotificationCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
+                                notifications.remove(index);
+                                adapter.notifyDataSetChanged();
+                                changeStatusInWaitList();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(EntrantNotificationsActivity.this, "Error deleting notification", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .show();
         });
 
-        deleteNotification.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                notificationRepository.deleteNotification("Z24DN9kshjhaPsUwmTZX", new NotificationRepository.NotificationCallback<Boolean>() {
-                    @Override
-                    public void onSuccess(Boolean result) {
-                        Toast.makeText(EntrantNotificationsActivity.this, "Deleted notification", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-
-                    }
-                });
-
-            }
-        });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,9 +124,13 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Todo change the user status in the waitlist
+     */
+    private void changeStatusInWaitList() {
+    }
+
     private String getDeviceId(Context context){
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
-
-
 }

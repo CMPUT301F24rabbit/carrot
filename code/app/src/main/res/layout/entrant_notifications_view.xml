@@ -5,26 +5,6 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/add_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="add notification"
-        app:layout_constraintBottom_toTopOf="@+id/delete_notification"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/delete_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="delete_notification"
-        app:layout_constraintBottom_toTopOf="@+id/back_button_notifications"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
         android:id="@+id/back_button_notifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
