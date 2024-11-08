@@ -2,7 +2,6 @@ package com.example.goldencarrot.data.model.notification;
 
 /**
  * Notification Class
- *
  * Represents a notification associated with an event, waitlist, and user.
  * Provides methods to access and modify the notification's details.
  */
@@ -21,14 +20,14 @@ public class Notification {
     public Notification() {}
 
     /**
-     * Constructor to create a Notification with specified values for all properties.
+     * Constructor to create a Notification with specified values for all properties
      *
-     * @param userId the ID of the user associated with the notification.
-     * @param eventId the ID of the event associated with the notification.
-     * @param waitListId the ID of the waitlist associated with the notification.
-     * @param notificationId the unique ID of the notification.
-     * @param message the message content of the notification.
-     * @param status the status of the notification (e.g., read/unread).
+     * @param userId the ID of the user associated with the notification
+     * @param eventId the ID of the event associated with the notification
+     * @param waitListId the ID of the waitlist associated with the notification
+     * @param notificationId the unique ID of the notification
+     * @param message the message content of the notification
+     * @param status the status of the notification (e.g., read/unread)
      */
     public Notification(final String userId, final String eventId,
                         final String waitListId, final String notificationId,
@@ -44,7 +43,7 @@ public class Notification {
     /**
      * Gets the ID of the user associated with this notification.
      *
-     * @return the user ID.
+     * @return the user android ID.
      */
     public String getUserId() {
         return userId;
@@ -114,7 +113,7 @@ public class Notification {
     }
 
     /**
-     * Gets the status of this notification (e.g., read/unread).
+     * Gets the status of this notification eg. chosen, notchosen etc
      *
      * @return the status.
      */
@@ -123,7 +122,7 @@ public class Notification {
     }
 
     /**
-     * Sets the status of this notification (e.g., read/unread).
+     * Sets the status of this notification eg. chosen or notchosen
      *
      * @param status the status to be set.
      */
@@ -132,16 +131,16 @@ public class Notification {
     }
 
     /**
-     * Gets the unique ID of this notification.
+     * Gets the unique Id of this notification
      *
-     * @return the notification ID.
+     * @return the notification ID
      */
     public String getNotificationId() {
         return this.notificationId;
     }
 
     /**
-     * Sets the unique ID for this notification.
+     * Sets the unique ID for this notification
      *
      * @param notificationId the notification ID to be set.
      */

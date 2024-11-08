@@ -15,6 +15,7 @@ public class NotificationUtils {
     // Notification messages
     public static final String NOT_CHOSEN_MESSAGE = "Sorry, you were not chosen.";
     public static final String CHOSEN_MESSAGE = "You won! Hope to see you there :)";
-    public static final String SINGLE_USER_MESSAGE = "You are recieving this because you are an entrant with notifications on";
+    public static final String SINGLE_USER_MESSAGE = "You are recieving this because you are an" +
+            " entrant with notifications on";
 
 }

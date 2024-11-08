@@ -6,6 +6,8 @@ import java.util.List;
 /**
  * utilization of the User interface.
  * This class sets the acceptable values for the user type.
+ *
+ * Provides common stirngs used by User objects and controllers
  * */
 public class UserUtils {
     public static final String USER_TYPE = "USER_TYPE";

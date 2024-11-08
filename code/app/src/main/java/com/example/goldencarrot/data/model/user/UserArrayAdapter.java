@@ -15,7 +15,8 @@ import com.example.goldencarrot.R;
 import java.util.ArrayList;
 
 /**
- * Array adapter for users
+ * Array adapter for User Objects, used to inflate and display a list of Users
+ * in different views like Cancelled waitlist, regular waitlist, chosen waitlist etc...
  */
 public class UserArrayAdapter extends ArrayAdapter<User> {
     private ArrayList<User> users;
@@ -25,6 +26,14 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
         this.users = users;
         this.context = context;
     }
+
+    /** This method can be used to display the inflated list of Users.
+     *
+     * @param position index
+     * @param convertView convertview
+     * @param parent parent view
+     * @return
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

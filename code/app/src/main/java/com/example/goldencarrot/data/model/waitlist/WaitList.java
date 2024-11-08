@@ -17,9 +17,24 @@ import java.util.ArrayList;
  */
 public class WaitList implements WaitListConfigurator {
 
+    /**
+     * Waitlist id associated with the record in firebase
+     */
     private String waitListId;
+
+    /**
+     * Event id associated with the event record in firebase
+     */
     private String eventId;
+
+    /**
+     * Limit Number of the waitlist, can be null and optionally set by the organizer.
+     */
     private int limitNumber;
+
+    /**
+     *
+     */
     private ArrayList<UserImpl> userArrayList;
 
     /**
