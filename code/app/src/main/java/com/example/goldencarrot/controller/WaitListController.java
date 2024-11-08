@@ -1,4 +1,5 @@
 package com.example.goldencarrot.controller;
+
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
@@ -11,11 +12,13 @@ public class WaitListController {
     private final WaitList waitList;
     private final WaitListRepository waitListRepository;
     private final Random random;
+    private Integer waitlistLimit; // Optional limit for the waitlist
 
-    public WaitListController(WaitList waitList, WaitListRepository waitListRepository) {
+    public WaitListController(WaitList waitList, WaitListRepository waitListRepository, Integer waitlistLimit) {
         this.waitList = waitList;
         this.waitListRepository = waitListRepository;
         this.random = new Random();
+        this.waitlistLimit = waitlistLimit; // Initialize with limit if provided
     }
 
     /**
@@ -25,11 +28,13 @@ public class WaitListController {
      * @return true if the user was added successfully, false if the waitlist is full
      */
     public boolean addUserToLottery(UserImpl user) {
-        boolean added = waitList.addUserToWaitList(user);
-        if (waitList.isFull()) {
+        // Check if the waitlist is full based on the limit
+        if (waitlistLimit != null && waitList.getUserArrayList().size() >= waitlistLimit) {
             System.out.println("Waitlist is full. Cannot add more users.");
             return false;
         }
+
+        boolean added = waitList.addUserToWaitList(user);
         if (added) {
             // Save the updated waitlist to the database
             waitListRepository.addUserToWaitList(waitList.getEventId(), user, new WaitListRepository.FirestoreCallback() {
@@ -37,7 +42,6 @@ public class WaitListController {
                 public void onSuccess(Object result) {
                     System.out.println("User added to waitlist successfully in Firestore.");
                 }
-
 
                 @Override
                 public void onFailure(Exception e) {

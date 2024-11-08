@@ -31,7 +31,7 @@
         <activity android:name=".views.EntrantHomeView" />
         <activity android:name=".views.OrganizerHomeView"/>
         <activity android:name=".views.BrowseEventsActivity"/>
-        <activity android:name=".views.OrganizerCancelledView" />
+        <activity android:name=".views.OrganizerWaitlistView" />
         <activity android:name=".views.EntrantEditUserDetailsView" />
         <activity android:name=".views.OrganizerManageProfileActivity"/>
         <activity android:name=".views.AdminProfileView"/>
@@ -40,7 +40,7 @@
         <activity android:name=".views.EntrantEventDetailsActivity" />
         <activity android:name=".views.OrganizerEventDetailsActivity" />
         <activity android:name=".views.OrganizerChosenView"/>
-        <activity android:name=".views.OrganizerWaitlistView" />
+
     </application>
 
 </manifest>

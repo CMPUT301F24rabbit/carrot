@@ -24,6 +24,7 @@ public class Event implements EventConfigurator {
     private String waitListId;
     private Date date;
     private  int imageResId;
+    private Integer waitlistLimit;
 
     public Event(){}
 
@@ -39,6 +40,8 @@ public class Event implements EventConfigurator {
         this.date = date;
         this.eventDetails = eventDetails;
         this.imageResId = imageResId;
+        this.waitlistLimit = waitlistLimit;
+
     }
 
     @Override
@@ -61,6 +64,20 @@ public class Event implements EventConfigurator {
     @Override
     public void setWaitList(WaitList waitList) {
         this.waitList = waitList;
+    }
+
+    /**
+     * sets waitlist limit (optional for organizer)
+     */
+    // Getter and Setter for waitlistLimit
+    public Integer getWaitlistLimit() {
+        return waitlistLimit;
+    }
+    /**
+     * return the waitlist limit (optional for organizer)
+     */
+    public void setWaitlistLimit(Integer waitlistLimit) {
+        this.waitlistLimit = waitlistLimit;
     }
 
     /**

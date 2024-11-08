@@ -1,97 +1,80 @@
 package com.example.goldencarrot.views;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
-import javax.annotation.Nullable;
-
 public class OrganizerWaitlistView extends AppCompatActivity {
-    private static final String TAG = "OrganizerWaitlistView";
-
-    private RecyclerView recyclerView;
-    private WaitlistUsersAdapter adapter;
-    private ArrayList<User> waitlist = new ArrayList<>();
+    private ArrayList<String> userIdList;
+    private RecyclerView waitlistedUserListView;
+    private WaitlistedUsersRecyclerAdapter userArrayAdapter;
     private FirebaseFirestore db;
-    private String waitlistType;
+    private WaitListRepository waitListRepository;
+    private UserRepository userRepository;
+    private ArrayList<User> waitlistedUserList;
+    private String waitlistId;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_waitlist_users_list);
+        setContentView(R.layout.activity_waitlisted_users_list);
 
-        // Retrieve the waitlist type (waitlisted, accepted, or declined)
-        waitlistType = getIntent().getStringExtra("entrantStatus");
-        if (waitlistType != null) {
-            setTitle(waitlistType.substring(0, 1).toUpperCase() + waitlistType.substring(1) + " Participants");
-        }
-
-        // Initialize Firebase Firestore
+        userIdList = new ArrayList<>();
+        waitlistedUserList = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
+        waitListRepository = new WaitListRepository();
+        userRepository = new UserRepository();
+        waitlistedUserListView = findViewById(R.id.waitlistedUsersRecyclerView);
 
-        // Setup RecyclerView
-        recyclerView = findViewById(R.id.waitlistRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
+            @Override
+            public void onSuccess(WaitList waitList) {
+                waitlistId = waitList.getWaitListId();
+                fetchWaitlistedUsers(waitlistId);
+            }
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("OrganizerWaitlistView", "Failed to get waitlist");
+            }
+        });
 
-        // Initialize the adapter with waitlist data and set it on the RecyclerView
-        adapter = new WaitlistUsersAdapter(waitlist, waitlistType);
-        recyclerView.setAdapter(adapter);
-
-        // Load the waitlist based on the type (waitlisted, accepted, declined)
-        loadWaitlist();
+        userArrayAdapter = new WaitlistedUsersRecyclerAdapter(waitlistedUserList);
+        waitlistedUserListView.setAdapter(userArrayAdapter);
     }
 
-    /**
-     * Loads the waitlist from Firestore based on the event ID and waitlist type.
-     */
-    private void loadWaitlist() {
-        // Get the event ID from the intent
-        String eventID = getIntent().getStringExtra("eventID");
-        if (eventID == null) {
-            Log.e(TAG, "Event ID not found.");
-            return;
-        }
-
-        // Reference to the appropriate waitlist collection for the event
-        CollectionReference waitlistRef = db.collection("events").document(eventID).collection(waitlistType);
-
-        // Listen for changes in the waitlist collection
-        waitlistRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+    private void fetchWaitlistedUsers(String waitlistId) {
+        waitListRepository.getUsersWithStatus(waitlistId, "waiting", new WaitListRepository.FirestoreCallback() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.e(TAG, "Error fetching " + waitlistType + " users", e);
-                    return;
-                }
-
-                // Clear the current waitlist to avoid duplicates
-                waitlist.clear();
-
-                // Populate the waitlist from Firestore documents
-                if (queryDocumentSnapshots != null) {
-                    queryDocumentSnapshots.forEach(documentSnapshot -> {
-                        User user = documentSnapshot.toObject(User.class);
-                        waitlist.add(user);
+            public void onSuccess(Object result) {
+                userIdList = (ArrayList<String>) result;
+                for (String userId : userIdList) {
+                    userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
+                        @Override
+                        public void onSuccess(UserImpl user) {
+                            waitlistedUserList.add(user);
+                            userArrayAdapter.notifyDataSetChanged();
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.d("OrganizerWaitlistView", "Failed to get user from Firestore");
+                        }
                     });
-
-                    // Notify adapter to update the RecyclerView
-                    adapter.notifyDataSetChanged();
                 }
+            }
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("OrganizerWaitlistView", "Failed to get user list");
             }
         });
     }

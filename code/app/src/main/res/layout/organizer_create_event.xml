@@ -28,6 +28,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Date (e.g., DD-MM-YYYY)" />
+    <EditText
+        android:id="@+id/waitlistLimitEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Waitlist Limit (Optional)"
+        android:inputType="number" />
 
     <Button
         android:id="@+id/createEventButton"
