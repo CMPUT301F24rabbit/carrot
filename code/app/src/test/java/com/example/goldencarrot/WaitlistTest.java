@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
@@ -121,5 +123,11 @@ public class WaitlistTest {
         // remove user from waitlist
         mockWaitlist.removeUserFromWaitList(mockUser1);
         assertEquals(1, mockWaitlist.getUserArrayList().size());
+    }
+        // test waitlist event
+        assertSame(mockEvent.getEventId(), mockWaitlist.getEventId());
+
+        mockWaitlist.setEventId("noteventId");
+        assertNotSame(mockEvent.getEventId(), mockWaitlist.getEventId());
     }
 }
