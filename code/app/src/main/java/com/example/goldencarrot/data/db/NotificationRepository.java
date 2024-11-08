@@ -29,7 +29,13 @@ public class NotificationRepository {
         void onFailure(Exception e);
     }
 
-    // Add a notification and use callback for result
+    /**
+     * Adds a notification record to notifications table in firebase
+     * It gets a notification Model object and gets all the necessary fields
+     * to populate a notification and generate information
+     * @param notification Notification
+     * @param callback Callback
+     */
     public void addNotification(Notification notification, NotificationCallback<Notification> callback) {
         Map<String, Object> notificationData = new HashMap<>();
         notificationData.put("userId", notification.getUserId());
@@ -46,7 +52,11 @@ public class NotificationRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Retrieve a notification by ID
+    /**
+     * Gets Notification record from Notification table with the same notification id provided.
+     * @param notificationId notfication ID
+     * @param callback interface to add logic to the query resul
+     */
     public void getNotification(String notificationId, NotificationCallback<Notification> callback) {
         notificationsCollection.document(notificationId).get()
                 .addOnSuccessListener(documentSnapshot -> {

@@ -11,19 +11,14 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
-import com.example.goldencarrot.authentication.AccountService;
-import com.example.goldencarrot.authentication.AccountServiceImpl;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Optional;
 
 public class SignUpActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
-    private AccountService accountService;
     private String userType;
     private UserRepository userDb;
 
@@ -32,8 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth_sign_up);
 
-        mAuth = FirebaseAuth.getInstance();
-        accountService = new AccountServiceImpl(SignUpActivity.this);
+
         userDb = new UserRepository();
 
         // Default participant type
