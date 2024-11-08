@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class WaitlistActivity extends AppCompatActivity {
 
@@ -95,9 +96,12 @@ public class WaitlistActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 waitlist.clear(); // Clear existing data
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    String event = document.getString("eventName"); // Assumes each document has an "eventName" field
-                    if (event != null) {
-                        waitlist.add(event);
+                    Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
+                    if (usersMap.containsKey(getDeviceId(this))) {
+                        String event = document.getString("eventName"); // Assumes each document has an "eventName" field
+                        if (event != null) {
+                            waitlist.add(event);
+                        }
                     }
                 }
                 adapter.notifyDataSetChanged(); // Refresh the adapter
@@ -128,7 +132,7 @@ public class WaitlistActivity extends AppCompatActivity {
                                     .addOnSuccessListener(aVoid -> {
                                         waitlist.remove(position); // Remove from local list
                                         adapter.notifyDataSetChanged(); // Refresh the ListView
-                                        Log.d("WaitlistActivity", "user successflyy remomved from waitlist for event" + eventToRemove);
+                                        Log.d("WaitlistActivity", "user successfully removed from waitlist for event" + eventToRemove);
 
                                         Intent intent = new Intent(WaitlistActivity.this, EntrantHomeView.class);
                                         startActivity(intent);
