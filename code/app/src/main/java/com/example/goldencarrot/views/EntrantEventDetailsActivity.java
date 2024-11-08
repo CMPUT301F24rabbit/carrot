@@ -21,6 +21,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -95,7 +96,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Event event) {
                     isGeolocationEnabled = event.getGeolocationEnabled();
-                    displayEventDetails(event);
+                    displayEventDetails(eventId);
                 }
 
                 @Override
@@ -106,21 +107,42 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         } else {
             showToast("No event ID provided");
         }
+
     }
 
     /**
      * Displays the event details in the UI.
      *
-     * @param event The event object containing the event details.
+     * @param eventId The eventId containing the event details.
      */
-    private void displayEventDetails(Event event) {
-        eventDetailsTextView.setText(String.format(
-                "Event Name: %s\nEvent Details: %s\nLocation: %s\nDate: %s",
-                event.getEventName(),
-                event.getEventDetails(),
-                event.getLocation(),
-                event.getDate()
-        ));
+    private void displayEventDetails(String eventId) {
+        DocumentReference eventRef = firestore.collection("events").document(eventId);
+        listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
+            if (e != null) {
+                Log.e("EntrantEventDetailsActivity", "Error fetching event details", e);
+                Toast.makeText(this, "Error fetching event details", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (snapshot != null && snapshot.exists()) {
+                // Retrieve event details from Firestore
+                String eventName = snapshot.getString("eventName");
+                String eventDetails = snapshot.getString("eventDetails");
+                String location = snapshot.getString("location");
+                String date = snapshot.getString("date");
+
+                // Display event details on the UI
+                eventDetailsTextView.setText(String.format(
+                        "Event Name: %s\nEvent Details: %s\nLocation: %s\nDate: %s",
+                        eventName,
+                        eventDetails,
+                        location,
+                        date
+                ));
+                // Optionally, load an image for the event poster if available
+            } else {
+                Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
