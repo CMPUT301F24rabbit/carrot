@@ -95,8 +95,8 @@ public class AdminAllProfilesView extends AppCompatActivity {
                 User newUser = new UserImpl(userFromDb.getString("email"),
                         userFromDb.getString("userType"),
                         userFromDb.getString("name"), Optional.ofNullable(userFromDb.getString("phoneNumber")),
-                        userFromDb.getBoolean("Nadmin"),
-                        userFromDb.getBoolean("Norgan"));
+                        userFromDb.getBoolean("administratorNotification"),
+                        userFromDb.getBoolean("organizerNotification"));
                 // add user to user data list
                 dataUserList.add(newUser);
                 Log.i(TAG, "Successfully added " + userFromDb.getString("username"));

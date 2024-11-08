@@ -58,8 +58,8 @@ public class AdminProfileView extends AppCompatActivity {
                             User currentUser = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
-                                    documentSnapshot.getBoolean("Nadmin"),
-                                    documentSnapshot.getBoolean("Norg"));
+                                    documentSnapshot.getBoolean("administratorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
                             nameText.setText(currentUser.getName());
                             emailText.setText(currentUser.getEmail());
                             userTypeText.setText(currentUser.getUserType());

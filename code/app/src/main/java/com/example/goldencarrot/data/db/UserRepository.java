@@ -198,8 +198,8 @@ public class UserRepository {
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"),
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
-                                    documentSnapshot.getBoolean("Nadmin"),
-                                    documentSnapshot.getBoolean("Norgan"));
+                                    documentSnapshot.getBoolean("administratiorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
                             callback.onSuccess(user); // Pass the user object to the callback
                         } catch (Exception e) {
 

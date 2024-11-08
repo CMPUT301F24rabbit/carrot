@@ -56,15 +56,15 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
                 String phoneNumber = phoneInput.getText().toString().trim();
-                Boolean nAdmin = switchAdminNotifications.isChecked();
-                Boolean nOrgan = switchOrganizerNotifications.isChecked();
+                Boolean notificationAdministrator  = switchAdminNotifications.isChecked();
+                Boolean notificationOrganizer = switchOrganizerNotifications.isChecked();
 
                 try {
                     // Validate inputs
                     verifyInputs(email, phoneNumber, name);
 
                     Optional<String> optionalPhoneNumber = phoneNumber.isEmpty() ? Optional.empty() : Optional.of(phoneNumber);
-                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, nAdmin, nOrgan);
+                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
 
                     // Get the device ID
                     String deviceId = getDeviceId(EntrantEditUserDetailsView.this);

@@ -135,15 +135,15 @@ public class EntrantHomeView extends AppCompatActivity {
                         String email = documentSnapshot.getString("email");
                         String userType = documentSnapshot.getString("userType");
                         String phoneNumber = documentSnapshot.getString("phoneNumber"); // Firestore stores as String
-                        Boolean adminNot = documentSnapshot.getBoolean("AdminNotification");
-                        Boolean organNot = documentSnapshot.getBoolean("OrganizerNotification");
+                        Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
+                        Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, adminNot, organNot);
+                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());

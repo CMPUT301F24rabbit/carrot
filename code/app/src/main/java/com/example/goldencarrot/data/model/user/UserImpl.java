@@ -17,15 +17,15 @@ public class UserImpl implements User{
                     final String userType,
                     final String name,
                     final Optional<String> phoneNumber,
-                    final Boolean nAdmin,
-                    final Boolean nOrgan) throws Exception{
+                    final Boolean administratorNotification,
+                    final Boolean organizerNotification) throws Exception{
         validateUserType(userType);
         this.email = email;
         this.userType = userType;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.notificationAdministrators = nAdmin;
-        this.notificationOrganizers = nOrgan;
+        this.notificationAdministrators = administratorNotification;
+        this.notificationOrganizers = organizerNotification;
     }
 
     @Override
