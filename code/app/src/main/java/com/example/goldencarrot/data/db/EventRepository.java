@@ -95,7 +95,7 @@ public class EventRepository {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Event event = new Event();
-                        event.setEventName(documentSnapshot.getId());
+                        event.setEventName(documentSnapshot.getString("eventName"));
                         event.setEventDetails(documentSnapshot.getString("eventDetails"));
                         event.setLocation(documentSnapshot.getString("location"));
                         event.setWaitListId(documentSnapshot.getString("waitlistId"));
