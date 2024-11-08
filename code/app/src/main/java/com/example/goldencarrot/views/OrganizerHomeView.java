@@ -2,6 +2,8 @@ package com.example.goldencarrot.views;
 
 import static android.content.ContentValues.TAG;
 
+import static com.example.goldencarrot.data.model.user.UserUtils.PARTICIPANT_TYPE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,9 +20,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.data.db.NotificationRepository;
+import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventRecyclerArrayAdapter;
+import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -35,7 +42,7 @@ import java.util.Optional;
 
 public class OrganizerHomeView extends AppCompatActivity {
 
-    private Button manageProfileButton, createEventButton;
+    private Button manageProfileButton, createEventButton, sendAllNotifsBtn;
     private TextView usernameTextView;
     private RecyclerView recyclerView;
     private EventRecyclerArrayAdapter eventAdapter;
@@ -44,6 +51,8 @@ public class OrganizerHomeView extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String deviceId;
     private List<Event> eventList = new ArrayList<>();
+    private UserRepository userRepository;
+    NotificationRepository notifRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +64,15 @@ public class OrganizerHomeView extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "Firestore initialized");
         deviceId = getDeviceId(this);
+        userRepository = new UserRepository();
+        notifRepo = new NotificationRepository(firestore);
+
 
         // Initialize the views from layout file
         manageProfileButton = findViewById(R.id.button_manage_profile);
         createEventButton = findViewById(R.id.button_create_event);
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
+        sendAllNotifsBtn = findViewById(R.id.sendNotificationToAllEntrantsButton);
 
         // Event lists and adapter Inititalization
         recyclerView = findViewById(R.id.recycler_view_events);
@@ -98,6 +111,12 @@ public class OrganizerHomeView extends AppCompatActivity {
                 Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
                 intent.putExtra("userId", deviceId);
                 startActivity(intent);
+            }
+        });
+        sendAllNotifsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendAllEntrantsNotification();
             }
         });
     }
@@ -191,5 +210,43 @@ public class OrganizerHomeView extends AppCompatActivity {
      */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    /**
+     * sends all entrants a notification
+     */
+    private void sendAllEntrantsNotification() {
+        userRepository.getAllUsersFromFirestore(new UserRepository.FirestoreCallbackAllUsers() {
+            @Override
+            public void onSuccess(List<DocumentSnapshot> listOfUsers) {
+                for (DocumentSnapshot user : listOfUsers) {
+                    if (user.getString("userType").equals(PARTICIPANT_TYPE))
+                        if (user.getBoolean("organizerNotification")) {
+                        sendNotification(user.getId());
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("OrganizerHomeView", "failed to get all users");
+            }
+        });
+    }
+    private void sendNotification(String userId) {
+        NotificationController notifController = new NotificationController();
+        Notification notification = notifController.getOrCreateNotification(userId);
+        notifRepo.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
+            @Override
+            public void onSuccess(Notification result) {
+                Toast.makeText(OrganizerHomeView.this, "added notification", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(OrganizerHomeView.this, "Notification not added", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

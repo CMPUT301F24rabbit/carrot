@@ -54,4 +54,10 @@
         android:layout_marginBottom="32dp"
         android:text="New Event" />
 
+    <Button
+        android:id="@+id/sendNotificationToAllEntrantsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send To All" />
+
 </LinearLayout>

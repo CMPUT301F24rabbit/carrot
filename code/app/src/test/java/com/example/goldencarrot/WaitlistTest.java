@@ -124,10 +124,4 @@ public class WaitlistTest {
         mockWaitlist.removeUserFromWaitList(mockUser1);
         assertEquals(1, mockWaitlist.getUserArrayList().size());
     }
-        // test waitlist event
-        assertSame(mockEvent.getEventId(), mockWaitlist.getEventId());
-
-        mockWaitlist.setEventId("noteventId");
-        assertNotSame(mockEvent.getEventId(), mockWaitlist.getEventId());
-    }
 }

@@ -13,14 +13,14 @@ public class NotificationController {
 
     public NotificationController(){
         // Singleton
-        this.notification = createNorification();
+        this.notification = createNotification();
     }
 
     /**
      * Creates a new notification model and returns it
      * @return Notification model
      */
-    public Notification createNorification(){
+    public Notification createNotification(){
         return notification;
     }
 
@@ -57,4 +57,12 @@ public class NotificationController {
         return this.notification;
     }
 
+    /**
+     * Creates notification for a single User
+     * @param userId of the user to receiving notification
+     */
+    public Notification getOrCreateNotification(final String userId) {
+        return new Notification(userId, null, null, null,
+                NotificationUtils.SINGLE_USER_MESSAGE, NotificationUtils.SINGLE_USER);
+    }
 }
