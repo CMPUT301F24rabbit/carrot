@@ -32,7 +32,7 @@
         android:id="@+id/backButtonFromWaitlist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Back"
         app:layout_constraintBottom_toTopOf="@+id/waitlistedUsersList"
         app:layout_constraintEnd_toStartOf="@+id/entrantsListTitle"
         app:layout_constraintHorizontal_bias="0.14"
