@@ -1,85 +1,123 @@
 package com.example.goldencarrot.views;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
-import javax.annotation.Nullable;
 
+/**
+ * Activity that displays the list of users who have cancelled from a waitlist for an event.
+ * The activity retrieves the event's waitlist, fetches users with a "cancelled" status,
+ * and displays them in a RecyclerView.
+ */
 public class OrganizerCancelledView extends AppCompatActivity {
-    private static final String TAG = "OrganizerCancelledView";
 
-    private RecyclerView recyclerView;
-    private UserArrayAdapter adapter;
-    private ArrayList<User> cancelledUsersList = new ArrayList<>();
-    public FirebaseFirestore db;
+    private ArrayList<String> userIdList;
+    private RecyclerView cancelledUserListView;
+    private WaitlistedUsersRecyclerAdapter userArrayAdapter;
+    private FirebaseFirestore db;
+    private Button backBtn;
+    private WaitListRepository waitListRepository;
+    private UserRepository userRepository;
+    private ArrayList<User> cancelledUserList;
+    private WaitList eventWaitlist;
+    private String waitlistId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cancelled_users_list);
+        setContentView(R.layout.activity_cancelled_user_list);
 
-        // Initialize Firebase Firestore
+        // Initialize the lists
+        userIdList = new ArrayList<>();
+        cancelledUserList = new ArrayList<>();
+
+        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+        waitListRepository = new WaitListRepository();
+        userRepository = new UserRepository();
 
-        // Setup RecyclerView
-        recyclerView = findViewById(R.id.cancelledUsersRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // Initialize layout views
+        cancelledUserListView = findViewById(R.id.cancelledUsersRecyclerView);
 
-        adapter = new UserArrayAdapter(cancelledUsersList);
-        recyclerView.setAdapter(adapter);
-
-        // Load Cancelled Users
-        loadCancelledUsers();
-    }
-
-    private void loadCancelledUsers() {
-        // Assume eventID is passed to this activity
-        String eventID = getIntent().getStringExtra("eventID");
-        if (eventID == null) {
-            Log.e(TAG, "Event ID not found.");
-            return;
-        }
-
-        // Reference to the cancelledUsers collection for the specific event
-        CollectionReference cancelledUsersRef = db.collection("events").document(eventID).collection("cancelledUsers");
-
-        // Listen for changes in the cancelledUsers collection
-        cancelledUsersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        // Get the waitlist of the event
+        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.e(TAG, "Error fetching cancelled users", e);
-                    return;
-                }
+            public void onSuccess(WaitList waitList) {
+                eventWaitlist = waitList;
+                Log.d("OrganizerCancelledView", "Got waitlist!");
+                waitlistId = eventWaitlist.getWaitListId();
 
-                cancelledUsersList.clear(); // Clear the list before updating it
+                // Fetch users with "cancelled" status after getting waitlistId
+                fetchCancelledUsers();
+            }
 
-                // Populate the list with data from Firebase
-                if (queryDocumentSnapshots != null) {
-                    queryDocumentSnapshots.forEach(documentSnapshot -> {
-                        UserImpl user = documentSnapshot.toObject(UserImpl.class);
-                        cancelledUsersList.add(user);
-                    });
-
-                    // Notify the adapter that the data has changed
-                    adapter.notifyDataSetChanged();
-                }
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("OrganizerCancelledView", "Failed to get waitlist");
             }
         });
     }
 
+    /**
+     * Fetches the list of user IDs from the waitlist that have a "cancelled" status.
+     */
+    private void fetchCancelledUsers() {
+        // Get user IDs with "cancelled" status from the waitlist
+        waitListRepository.getUsersWithStatus(waitlistId, "cancelled", new WaitListRepository.FirestoreCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                userIdList = (ArrayList<String>) result;
+                Log.d("OrganizerCancelledView", "Cancelled user IDs retrieved.");
 
+                // Fetch User details for each ID
+                fetchUserDetails();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("OrganizerCancelledView", "Failed to get cancelled user list");
+            }
+        });
+    }
+
+    /**
+     * Fetches user details for each user ID with "cancelled" status.
+     * Adds each user to the cancelled user list and updates the RecyclerView.
+     */
+    private void fetchUserDetails() {
+        for (String userId : userIdList) {
+            userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
+                @Override
+                public void onSuccess(UserImpl user) {
+                    cancelledUserList.add(user);
+                    Log.d("OrganizerCancelledView", "Added user to list: " + user.getName());
+
+                    // Notify the adapter that data has changed after each addition
+                    userArrayAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("OrganizerCancelledView", "Failed to get user from Firestore");
+                }
+            });
+        }
+
+        // Set up the adapter once and attach it to the RecyclerView
+        userArrayAdapter = new WaitlistedUsersRecyclerAdapter(cancelledUserList);
+        cancelledUserListView.setAdapter(userArrayAdapter);
+    }
 }
