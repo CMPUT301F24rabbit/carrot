@@ -23,17 +23,6 @@ import java.util.Optional;
  * be adjusted in other parts of the application. On successful sign-up, the user is directed to the Entrant home view.
  */
 public class SignUpActivity extends AppCompatActivity {
-<<<<<<< HEAD
-=======
-
-    // Firebase Authentication instance for user authentication
-    private FirebaseAuth mAuth;
-
-    // Service for account-related operations
-    private AccountService accountService;
-
-    // The type of the user (Participant or Organizer)
->>>>>>> main
     private String userType;
 
     // Repository for managing user data in Firestore
