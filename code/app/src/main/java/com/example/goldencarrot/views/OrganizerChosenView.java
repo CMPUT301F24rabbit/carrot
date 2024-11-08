@@ -13,9 +13,12 @@ import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.utils.FirestoreCallback;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Activity that displays the list of users who have been chosen by lottery from a waitlist for an event.
  * The activity retrieves the event's waitlist, fetches users with a "chosen" status,
@@ -52,14 +55,14 @@ public class OrganizerChosenView extends AppCompatActivity {
         chosenUserListView = findViewById(R.id.chosenUsersRecyclerView);
 
         // Get the waitlist of the event
-        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
+        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new FirestoreCallback<WaitList>() {
             @Override
-            public void onSuccess(WaitList waitList) {
-                eventWaitlist = waitList;
+            public void onSuccess(WaitList result) {
+                eventWaitlist = result;
                 Log.d("OrganizerChosenView", "Got waitlist!");
                 waitlistId = eventWaitlist.getWaitListId();
 
-                // Fetch users with "chosen" status after getting waitlistId
+                // Fetch users
                 fetchChosenUsers();
             }
 
@@ -75,13 +78,13 @@ public class OrganizerChosenView extends AppCompatActivity {
      */
     private void fetchChosenUsers() {
         // Get user IDs with "chosen" status from the waitlist
-        waitListRepository.getUsersWithStatus(waitlistId, "chosen", new WaitListRepository.FirestoreCallback() {
+        waitListRepository.getUsersWithStatus(waitlistId, "chosen", new FirestoreCallback<List<String>>() {
             @Override
-            public void onSuccess(Object result) {
-                userIdList = (ArrayList<String>) result;
-                Log.d("OrganizerChosenView", "Chosen user IDs retrieved.");
+            public void onSuccess(List<String> result) {
+                userIdList = new ArrayList<>(result);
+                Log.d("OrganizerChosentView", "Chosen user ID's retrieved.");
 
-                // Fetch User details for each ID
+                // Fetch user details foreach ID
                 fetchUserDetails();
             }
 

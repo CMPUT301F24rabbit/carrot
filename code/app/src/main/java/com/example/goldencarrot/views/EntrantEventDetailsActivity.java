@@ -21,6 +21,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.utils.FirestoreCallback;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -128,10 +129,13 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private void loadWaitList() {
         String eventId = getIntent().getStringExtra("eventId");
-        waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
+        waitListRepository.getWaitListByEventId(eventId, new FirestoreCallback<WaitList>() {
             @Override
-            public void onSuccess(WaitList waitList) {
-                eventWaitList = waitList;
+            public void onSuccess(WaitList result) {
+                eventWaitList = result;
+                User user = new UserImpl();
+                user.setUserId(getDeviceId(EntrantEventDetailsActivity.this));
+                checkAndJoinWaitList(user);
             }
 
             @Override
@@ -184,10 +188,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * @param eventId The event ID for the event the user is trying to join.
      */
     private void fetchWaitListAndJoin(User user, String eventId) {
-        waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
+        waitListRepository.getWaitListByEventId(eventId, new FirestoreCallback<WaitList>() {
             @Override
-            public void onSuccess(WaitList waitList) {
-                eventWaitList = waitList;
+            public void onSuccess(WaitList result) {
+                eventWaitList = result;
                 checkAndJoinWaitList(user);
             }
 
@@ -204,12 +208,12 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * @param user The user attempting to join the waitlist.
      */
     private void checkAndJoinWaitList(User user) {
-        waitListRepository.isUserInWaitList(eventWaitList.getWaitListId(), user, new WaitListRepository.FirestoreCallback() {
+        waitListRepository.isUserInWaitList(eventWaitList.getWaitListId(), user, new FirestoreCallback<Boolean>() {
             @Override
-            public void onSuccess(Object result) {
-                isUserInWaitList = (boolean) result;
-                if (isUserInWaitList) {
-                    showToast("User already in waitlist");
+            public void onSuccess(Boolean result) {
+                isUserInWaitList = result;
+                if(isUserInWaitList) {
+                    showToast("User  already in waitlist");
                 } else {
                     addUserToWaitList(user);
                 }
@@ -228,12 +232,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * @param user The user to be added to the waitlist.
      */
     private void addUserToWaitList(User user) {
-        waitListRepository.addUserToWaitList(eventWaitList.getWaitListId(), user, new WaitListRepository.FirestoreCallback() {
+        waitListRepository.addUserToWaitList(eventWaitList.getWaitListId(), user, new FirestoreCallback<Boolean>() {
             @Override
-            public void onSuccess(Object result) {
+            public void onSuccess(Boolean result) {
                 showToast("Added to waitlist");
-
-                // Navigate back to home view after adding to waitlist
                 Intent intent = new Intent(EntrantEventDetailsActivity.this, EntrantHomeView.class);
                 startActivity(intent);
             }

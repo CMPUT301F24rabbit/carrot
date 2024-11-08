@@ -3,10 +3,13 @@ package com.example.goldencarrot.data.db;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
-import com.example.goldencarrot.data.db.WaitListRepository.FirestoreCallback;
+import com.example.goldencarrot.utils.FirestoreCallback;
+
+import java.util.List;
 
 /**
- * The {@code WaitListDb} interface provides necessary methods to update user table in firebase.
+ * The {@code WaitListDb} interface defines the contract for performing
+ * database operations related to waitlists in Firestore.
  */
 public interface WaitListDb {
 
@@ -14,7 +17,7 @@ public interface WaitListDb {
      * Creates a new waitlist document in Firestore.
      *
      * @param waitList the waitlist to be created
-     * @param docId the document ID for this waitlist in Firestore
+     * @param docId    the document ID for this waitlist in Firestore
      */
     void createWaitList(WaitList waitList, String docId, String eventName);
 
@@ -23,9 +26,9 @@ public interface WaitListDb {
      *
      * @param docId the document ID of the waitlist
      * @param user the user to be added to the waitlist
-     * @param callback a callback that handles the result (true if added, false if the waitlist full)
+     * @param callback a callback that handles the result (true if added, false if the waitlist is full)
      */
-    void addUserToWaitList(String docId, User user, FirestoreCallback callback);
+    void addUserToWaitList(String docId, User user, FirestoreCallback<Boolean> callback);
 
     /**
      * Updates the status of a user in the waitlist document in Firestore.
@@ -34,7 +37,7 @@ public interface WaitListDb {
      * @param user    the user to update
      * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
      */
-    void updateUserStatusInWaitList(String docId, UserImpl user, String status);
+    void updateUserStatusInWaitList(String docId, UserImpl user, String status, FirestoreCallback<Void> callback);
 
     /**
      * Deletes a waitlist document from Firestore.
@@ -49,7 +52,7 @@ public interface WaitListDb {
      * @param eventId  The ID of the event for which the waitlist is queried.
      * @param callback A callback to handle the result (a WaitList object or an error).
      */
-    void getWaitListByEventId(String eventId, WaitListRepository.WaitListCallback callback);
+    void getWaitListByEventId(String eventId, FirestoreCallback<WaitList> callback);
 
     /**
      * Checks if a user is in the waitlist.
@@ -58,16 +61,16 @@ public interface WaitListDb {
      * @param user    the user to check
      * @param callback a callback that handles the result
      */
-    void isUserInWaitList(String docId, User user, FirestoreCallback callback);
+    void isUserInWaitList(String docId, User user, FirestoreCallback<Boolean> callback);
 
     /**
-     * Checks the status of a user in the waitlist. TODO deprecate unused method
+     * Checks the status of a user in the waitlist.
      *
      * @param docId   the document ID of the waitlist
      * @param user    the user to check
      * @param callback a callback that handles the result
      */
-    void getUserStatus(String docId, UserImpl user, FirestoreCallback callback);
+    void getUserStatus(String docId, UserImpl user, FirestoreCallback<String> callback);
 
     /**
      * Retrieves a list of users with a specified status in the waitlist document.
@@ -76,5 +79,6 @@ public interface WaitListDb {
      * @param status   the status to filter users by (e.g., "waiting", "accepted")
      * @param callback a callback that returns a list of names with the specified status
      */
-    void getUsersWithStatus(String docId, String status, FirestoreCallback callback);
+    void getUsersWithStatus(String docId, String status, FirestoreCallback<List<String>> callback);
+
 }

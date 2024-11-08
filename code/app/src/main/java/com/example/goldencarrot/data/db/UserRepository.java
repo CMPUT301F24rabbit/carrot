@@ -1,15 +1,18 @@
 package com.example.goldencarrot.data.db;
 
+
+import static com.example.goldencarrot.data.model.user.UserUtils.ACCEPTED_STATUS;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.utils.FirestoreCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -21,10 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Provides necessary methods to update, delete, and write User model objects into
- * firebase User table. The User Id will be the same as the device ID
- *
- * Please see firebase for more detatils on the document structure
+ * Queries User DB
  */
 public class UserRepository {
     private static final String TAG = "DB" ;
@@ -41,10 +41,10 @@ public class UserRepository {
     }
 
     /**
-     * Adds a new User to firebase users table.
-     * Provides on success and on failure listenings to handle the result of the operation.
-     * @param user model object to add.
+     * Todo Implemet this method
+     * @param user
      */
+    // Add user to Firestore
     public void addUser(final User user, final String androidId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -85,14 +85,14 @@ public class UserRepository {
      * and retrieves the userType if the user exists.
      *
      * @param androidId The Android ID to be used as the document ID.
-     * @param callback A callback to handle the result of the operation.
+     * @param callback A callback to handle the result (boolean indicating existence, and userType if exists).
      */
     public void checkUserExistsAndGetUserType(String androidId, UserTypeCallback callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // The document exists, get the userType
+                        // The document exists, retrieve the userType
                         String userType = documentSnapshot.getString("userType");
                         callback.onResult(true, userType);
                     } else {
@@ -101,7 +101,7 @@ public class UserRepository {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // Fatal Error
+                    // In case of an error, assume the document does not exist
                     callback.onResult(false, null);
                     Log.e(TAG, "Error checking if user exists: " + e.getMessage(), e);
                 });
@@ -122,7 +122,8 @@ public class UserRepository {
         updatedUserData.put("name", user.getName());
         updatedUserData.put("adminNotification", user.getAdminNotification());
         updatedUserData.put("organizerNotification", user.getOrganizerNotifications());
-        // Add phoneNumber if it is not null
+
+        // Only add phoneNumber if it is present (non-empty)
         user.getPhoneNumber().ifPresent(phone -> updatedUserData.put("phoneNumber", phone));
 
         Log.d(TAG, "Updating User: " + androidId);
@@ -139,7 +140,7 @@ public class UserRepository {
                     System.out.println("User updated successfully");
                 })
                 .addOnFailureListener(e -> {
-                    // Handle error
+                    // Handle the error
                     Log.e(TAG, "Error updating user: " + e.getMessage(), e);
                     System.err.println("Error updating user: " + e.getMessage());
                 });
@@ -148,7 +149,7 @@ public class UserRepository {
     /**
      * Deletes a user from Firestore using the Android ID as the document ID.
      *
-     * @param androidId The Android device ID used as the document ID to delete
+     * @param androidId The Android device ID used as the document ID.
      */
     public void deleteUser(final String androidId) {
         // Reference to the user document
@@ -242,4 +243,21 @@ public class UserRepository {
     public interface UserTypeCallback {
         void onResult(boolean exists, String userType);
     }
+
+    public void getAcceptedUsersCount(String waitlistId, FirestoreCallback<List<DocumentSnapshot>> callback){
+        db.collection("waitlists") // Waitlist collection
+                .document(waitlistId) // Specific waitlist
+                .collection("users") // get users in waitlist
+                .whereEqualTo("status", ACCEPTED_STATUS) // we want accepted
+                .get() // get it obvi
+                .addOnSuccessListener(querySnapshot -> {
+                    List<DocumentSnapshot> acceptedUsersList = querySnapshot.getDocuments();
+                    callback.onSuccess(acceptedUsersList); // Return the count
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error getting accepted users count: " + e.getMessage(), e);
+                    callback.onFailure(e);
+                });
+    }
+
 }

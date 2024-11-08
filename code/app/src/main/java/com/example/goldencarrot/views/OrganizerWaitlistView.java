@@ -1,21 +1,18 @@
 package com.example.goldencarrot.views;
+
 import static com.example.goldencarrot.data.model.user.UserUtils.ACCEPTED_STATUS;
 import static com.example.goldencarrot.data.model.user.UserUtils.WAITING_STATUS;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
@@ -27,9 +24,14 @@ import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserArrayAdapter;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.utils.FirestoreCallback;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class represents the activity where an organizer can view the waitlist for an event.
  * It fetches users from the waitlist based on their status (e.g., waiting or accepted)
@@ -77,10 +79,10 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         Button sendNotification = findViewById(R.id.sendNotificationButton);
 
         // Fetch the waitlist data
-        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
+        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new FirestoreCallback<WaitList>() {
             @Override
-            public void onSuccess(WaitList waitList) {
-                waitlistId = waitList.getWaitListId();
+            public void onSuccess(WaitList result) {
+                waitlistId = result.getWaitListId();
                 fetchWaitlistedUsers(waitlistId);
             }
 
@@ -115,13 +117,6 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 sendNotification();
             }
         });
-
-        waitlistedUserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                sendNotificationToSingleUser(waitlistedUserList.get(position).getUserId());
-            }
-        });
     }
 
     /**
@@ -130,10 +125,10 @@ public class OrganizerWaitlistView extends AppCompatActivity {
      * @param waitlistId The ID of the waitlist to fetch users from.
      */
     private void fetchWaitlistedUsers(String waitlistId) {
-        waitListRepository.getUsersWithStatus(waitlistId, getIntent().getStringExtra("entrantStatus"), new WaitListRepository.FirestoreCallback() {
+        waitListRepository.getUsersWithStatus(waitlistId, getIntent().getStringExtra("entrantStatus"), new FirestoreCallback<List<String>>() {
             @Override
-            public void onSuccess(Object result) {
-                userIdList = (ArrayList<String>) result;
+            public void onSuccess(List<String> result) {
+                userIdList = new ArrayList<>(result);
                 for (String userId : userIdList) {
                     Log.d("OrganizerWaitlistView", "adding user: " + userId);
                     userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
@@ -162,46 +157,58 @@ public class OrganizerWaitlistView extends AppCompatActivity {
      * Sends a notification to all users in the waitlist, based on their status (waiting or accepted).
      */
     private void sendNotification() {
-        if (getIntent().getStringExtra("entrantStatus").equals(WAITING_STATUS)) {
-            if (!userIdList.isEmpty()) {
-                for (String userId : userIdList) {
-                    userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
-                        @Override
-                        public void onSuccess(UserImpl user) {
-                            boolean userGetsNotif = user.getOrganizerNotifications();
-                            if (userGetsNotif) {
-                                createNotifForNonChosenUser(userId);
+        final int MAX_ACCEPTED_CAPACITY = 3; // Will need to change once faculty profile
+
+        String waitlistId = getIntent().getStringExtra("waitlistId");
+
+        // Check if accepted list is full
+        userRepository.getAcceptedUsersCount(waitlistId, new FirestoreCallback<List<DocumentSnapshot>>() {
+            @Override
+            public void onSuccess(List<DocumentSnapshot> result) {
+                int acceptedCount = result.size();
+
+                // Check if room in accepted list
+                if (acceptedCount < MAX_ACCEPTED_CAPACITY) {
+                    int spotsAvailable = MAX_ACCEPTED_CAPACITY - acceptedCount;
+
+                    Collections.shuffle(waitlistedUserList); // COllectall waitlists
+
+                    // select waitlisted ranombly
+                    List<User> selectedUsers = waitlistedUserList.subList(0, Math.min(spotsAvailable, waitlistedUserList.size()));
+
+                    // Notify the users and update their status
+                    for (User user : selectedUsers) {
+                        if (user.getOrganizerNotifications()) {
+                            if (getIntent().getStringExtra("entrantStatus").equals(WAITING_STATUS)) {
+                                createNotifForNonChosenUser(user.getUserId());
+                            } else if (getIntent().getStringExtra("entrantStatus").equals(ACCEPTED_STATUS)) {
+                                // Notify the chosen ones
+                                createNotifForChosenUser(user.getUserId());
+                                waitListRepository.updateUserStatusInWaitList(waitlistId, (UserImpl) user, ACCEPTED_STATUS, new FirestoreCallback<Void>(){
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        Toast.makeText(OrganizerWaitlistView.this, "User accepted and notified", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("OrgnaizserWaitlistView", "Failed to update user status in waitlist: " + e.getMessage());
+                                    }
+                                });
                             }
                         }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Log.d("OrganizerWaitlistView", "failed to get user");
-                        }
-                    });
+                    }
+                } else{
+                        //notify organizer accepted listis full
+                        Toast.makeText(OrganizerWaitlistView.this, "Accepted list is full", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } else {
-                Toast.makeText(OrganizerWaitlistView.this, "list is empty, cannot send notification", Toast.LENGTH_SHORT).show();
-            }
-        } else if (getIntent().getStringExtra("entrantStatus").equals(ACCEPTED_STATUS)) {
-            for (String userId : userIdList) {
-                userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
-                    @Override
-                    public void onSuccess(UserImpl user) {
-                        boolean userGetsNotif = user.getOrganizerNotifications();
-                        if (userGetsNotif) {
-                            createNotifForChosenUser(userId);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d("OrganizerWaitlistView", "failed to get user");
-                    }
-                });
-            }
+                public void onFailure(Exception e) {
+                    Log.d("OrganizerWaitlistView", "Failed to get accepted users count", e);
+                }
+            });
         }
-    }
+
 
     /**
      * Creates a notification for a user who has been chosen in the lottery.
@@ -238,25 +245,6 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 getIntent().getStringExtra("eventId"),
                 waitlistId
         );
-        notifRepo.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
-            @Override
-            public void onSuccess(Notification result) {
-                Toast.makeText(OrganizerWaitlistView.this, "added notification", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(OrganizerWaitlistView.this, "Notification not added", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    /**
-     * Sends notification to select entrant
-     * @param userId of user to receive notification
-     */
-    private void sendNotificationToSingleUser(String userId) {
-        NotificationController notifController = new NotificationController();
-        Notification notification = notifController.getOrCreateNotification(userId);
         notifRepo.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
             @Override
             public void onSuccess(Notification result) {

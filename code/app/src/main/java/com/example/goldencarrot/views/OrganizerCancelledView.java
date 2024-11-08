@@ -13,9 +13,11 @@ import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.utils.FirestoreCallback;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity that displays the list of users who have cancelled from a waitlist for an event.
@@ -53,14 +55,14 @@ public class OrganizerCancelledView extends AppCompatActivity {
         cancelledUserListView = findViewById(R.id.cancelledUsersRecyclerView);
 
         // Get the waitlist of the event
-        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
+        waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new FirestoreCallback<WaitList>() {
             @Override
-            public void onSuccess(WaitList waitList) {
-                eventWaitlist = waitList;
-                Log.d("OrganizerCancelledView", "Got waitlist!");
+            public void onSuccess(WaitList result) {
+                eventWaitlist = result;
+                Log.d("OrganizerCancelledView", "Got waitlisted!");
                 waitlistId = eventWaitlist.getWaitListId();
 
-                // Fetch users with "cancelled" status after getting waitlistId
+                // Fetch users with canceleld status
                 fetchCancelledUsers();
             }
 
@@ -76,13 +78,13 @@ public class OrganizerCancelledView extends AppCompatActivity {
      */
     private void fetchCancelledUsers() {
         // Get user IDs with "cancelled" status from the waitlist
-        waitListRepository.getUsersWithStatus(waitlistId, "cancelled", new WaitListRepository.FirestoreCallback() {
+        waitListRepository.getUsersWithStatus(waitlistId, "cancelled", new FirestoreCallback<List<String>>() {
             @Override
-            public void onSuccess(Object result) {
-                userIdList = (ArrayList<String>) result;
-                Log.d("OrganizerCancelledView", "Cancelled user IDs retrieved.");
+            public void onSuccess(List<String> result) {
+                userIdList = new ArrayList<>(result);
+                Log.d("OrganizerCancelledView", "Cancelled users IDs rtrieved.");
 
-                // Fetch User details for each ID
+                // fetch details
                 fetchUserDetails();
             }
 

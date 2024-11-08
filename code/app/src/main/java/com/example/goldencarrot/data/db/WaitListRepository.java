@@ -1,7 +1,5 @@
 package com.example.goldencarrot.data.db;
 
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.util.Log;
@@ -10,7 +8,7 @@ import android.widget.Toast;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
-import com.example.goldencarrot.views.EntrantEventDetailsActivity;
+import com.example.goldencarrot.utils.FirestoreCallback;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,7 +66,7 @@ public class WaitListRepository implements WaitListDb {
     }
 
     @Override
-    public void addUserToWaitList(String docId, User user, FirestoreCallback callback) {
+    public void addUserToWaitList(String docId, User user, FirestoreCallback<Boolean> callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -121,17 +119,25 @@ public class WaitListRepository implements WaitListDb {
      * @param docId   the document ID of the waitlist
      * @param user    the user to update
      * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
+     * @param callback the callback to handle success or failure
      */
+
     @Override
-    public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
+    public void updateUserStatusInWaitList(String docId, UserImpl user, String status, FirestoreCallback<Void> callback) {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("users." + user.getUserId(), status);  // Update the status in the users map
 
         // Update the user status in the waitlist document
         waitListRef.document(docId)
                 .update(updateData)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "User status updated successfully"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error updating user status", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User status updated successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error updating user status", e);
+                    callback.onFailure(e);
+                });
     }
 
     /**
@@ -153,7 +159,7 @@ public class WaitListRepository implements WaitListDb {
      * @param callback A callback to handle the result (a WaitList object or an error).
      */
     @Override
-    public void getWaitListByEventId(String eventId, WaitListCallback callback) {
+    public void getWaitListByEventId(String eventId, FirestoreCallback<WaitList> callback) {
         waitListRef.whereEqualTo("eventId", eventId)
                 .limit(1)
                 .get()
@@ -197,7 +203,7 @@ public class WaitListRepository implements WaitListDb {
     }
 
     @Override
-    public void isUserInWaitList(String docId, User user, FirestoreCallback callback) {
+    public void isUserInWaitList(String docId, User user, FirestoreCallback<Boolean> callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && documentSnapshot.contains("users." + user.getUserId())) {
@@ -220,7 +226,7 @@ public class WaitListRepository implements WaitListDb {
      * @param callback a callback that handles the result
      */
     @Override
-    public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
+    public void getUserStatus(String docId, UserImpl user, FirestoreCallback<String> callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && documentSnapshot.contains("users." + user.getUserId())) {
@@ -237,13 +243,13 @@ public class WaitListRepository implements WaitListDb {
     }
 
     /**
-     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined", etc...)
+     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined"
      * @param docId    the document ID of the waitlist
      * @param status   the status to filter users by (e.g., "waiting", "accepted")
      * @param callback a callback that returns a list of names with the specified status
      */
     @Override
-    public void getUsersWithStatus(final String docId, final String status, final FirestoreCallback callback) {
+    public void getUsersWithStatus(final String docId, final String status, final FirestoreCallback<List<String>> callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -273,8 +279,4 @@ public class WaitListRepository implements WaitListDb {
         void onFailure(Exception e);
     }
 
-    public interface FirestoreCallback {
-        void onSuccess(Object result);
-        void onFailure(Exception e);
-    }
 }

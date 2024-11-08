@@ -3,15 +3,14 @@ package com.example.goldencarrot.controller;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.utils.FirestoreCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Provides methods to edit a WaitList Model and make changes in firebase.
- *
- * This controller method can addUserToLottery, and selectRandomWinners
+ * Controller for managing Waitlist operations.
  */
 public class WaitListController {
     private final WaitList waitList;
@@ -42,9 +41,9 @@ public class WaitListController {
         boolean added = waitList.addUserToWaitList(user);
         if (added) {
             // Save the updated waitlist to the database
-            waitListRepository.addUserToWaitList(waitList.getEventId(), user, new WaitListRepository.FirestoreCallback() {
+            waitListRepository.addUserToWaitList(waitList.getEventId(), user, new FirestoreCallback<Boolean>() {
                 @Override
-                public void onSuccess(Object result) {
+                public void onSuccess(Boolean result) {
                     System.out.println("User added to waitlist successfully in Firestore.");
                 }
 
@@ -76,7 +75,19 @@ public class WaitListController {
             UserImpl winner = userArrayList.remove(winnerIndex);
             winners.add(winner);
 
-            waitListRepository.updateUserStatusInWaitList(waitList.getEventId(), winner, "accepted");
+            waitListRepository.updateUserStatusInWaitList(waitList.getEventId(), winner, "accepted", new FirestoreCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    System.out.println("User status updated toaccepts for: " + winner.getUserId());
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    System.err.println("Failed to update user status for: " + winner.getUserId());
+                    e.printStackTrace();
+                }
+            });
+
         }
 
         return winners;
