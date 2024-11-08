@@ -178,9 +178,11 @@ public class EntrantHomeView extends AppCompatActivity {
 
     // Load Event Data
     private void loadEventData() {
+        String deviceId = getDeviceId(EntrantHomeView.this);
+
         // Load the first 4 waitlisted events from firestore
         CollectionReference waitlistRef = firestore.collection("waitlist");
-        waitlistRef.limit(4).get().addOnCompleteListener(task -> {
+        waitlistRef.whereArrayContains("userIds", deviceId).limit(4).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 waitlistedEventsList.clear(); // clear the current data
                     for (QueryDocumentSnapshot document : task.getResult()) {
