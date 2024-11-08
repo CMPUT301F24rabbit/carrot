@@ -40,6 +40,8 @@
         <activity android:name=".views.EntrantEventDetailsActivity" />
         <activity android:name=".views.OrganizerEventDetailsActivity" />
         <activity android:name=".views.OrganizerChosenView"/>
+        <activity android:name=".views.EntrantNotificationsActivity"/>
+
 
     </application>
 

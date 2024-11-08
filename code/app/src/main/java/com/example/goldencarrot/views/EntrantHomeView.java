@@ -40,6 +40,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ListView waitlistedEventsListView;
     private Button exploreEventsButton;
     private Button goToWaitlistButton;
+    private Button notificationsButton;
 
    // Firestore
     private FirebaseFirestore firestore;
@@ -64,6 +65,8 @@ public class EntrantHomeView extends AppCompatActivity {
         waitlistedEventsListView = findViewById(R.id.waitlisted_events);
         exploreEventsButton = findViewById(R.id.button_explore_events);
         waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
+        notificationsButton = findViewById(R.id.notifications_button);
+
 
         // Set user name
         loadUserData();
@@ -100,6 +103,14 @@ public class EntrantHomeView extends AppCompatActivity {
             public void onClick(View v) {
                 // Go to Events Exploration Activity
                 Intent intent = new Intent(EntrantHomeView.this, BrowseEventsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        notificationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
                 startActivity(intent);
             }
         });
