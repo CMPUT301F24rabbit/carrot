@@ -2,11 +2,15 @@ package com.example.goldencarrot.data.db;
 
 import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.views.EntrantEventDetailsActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -100,6 +104,8 @@ public class WaitListRepository implements WaitListDb {
                         } else {
                             Log.d(TAG, "Waitlist is full");
                             callback.onSuccess(false);
+                            Toast.makeText(getApplicationContext(), "The waitlist is full.", Toast.LENGTH_SHORT).show();
+
                         }
                     }
                 })

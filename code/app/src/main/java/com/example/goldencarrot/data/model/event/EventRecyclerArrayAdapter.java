@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecyclerArrayAdapter.EventViewHolder> {
 
-    public interface OnEventLongClickListener{
+    public interface OnEventLongClickListener {
         void onEventLongClick(Event event);
     }
 
@@ -44,9 +44,15 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
         Log.d("EventRecyclerArrayAdapter", "clicked on: " + event.getEventName());
+
+        // Set text for each view
         holder.eventName.setText(event.getEventName());
         holder.eventLocation.setText(event.getLocation());
         holder.eventImageView.setImageResource(event.getImageResId());
+
+        // Set date and details
+        holder.eventDate.setText(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(event.getDate()));
+        holder.eventDetails.setText(event.getEventDetails());
 
         holder.itemView.setOnLongClickListener(v -> {
             longClickListener.onEventLongClick(event);
@@ -63,13 +69,17 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         ImageView eventImageView;
         TextView eventName;
         TextView eventLocation;
+        TextView eventDate;     // New TextView for Date
+        TextView eventDetails;  // New TextView for Details
 
-        public EventViewHolder(@NonNull View itemView){
-        super(itemView);
-        eventImageView = itemView.findViewById(R.id.eventImageView);
-        eventName = itemView.findViewById(R.id.eventNameView);
-        eventLocation = itemView.findViewById(R.id.eventLocationView);
-    }
+        public EventViewHolder(@NonNull View itemView) {
+            super(itemView);
+            eventImageView = itemView.findViewById(R.id.eventImageView);
+            eventName = itemView.findViewById(R.id.eventNameView);
+            eventLocation = itemView.findViewById(R.id.eventLocationView);
+            eventDate = itemView.findViewById(R.id.eventDateView);       // Initialize new Date view
+            eventDetails = itemView.findViewById(R.id.eventDetailsView); // Initialize new Details view
+        }
     }
 }
 
