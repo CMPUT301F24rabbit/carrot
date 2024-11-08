@@ -1,6 +1,8 @@
 package com.example.goldencarrot.views;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +14,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.UserRepository;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -29,12 +33,16 @@ public class WaitlistActivity extends AppCompatActivity {
     // Firestore database reference
     private FirebaseFirestore firestore;
     private CollectionReference waitlistRef;
+    private UserRepository userRepository;
+    private String deviceId;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_waitlist);
 
+        userRepository = new UserRepository();
         // Initialize the ListView
         waitingListView = findViewById(R.id.waitingListView);
 
@@ -45,6 +53,24 @@ public class WaitlistActivity extends AppCompatActivity {
         Button backButton = findViewById(R.id.button_back_to_previous_activity);
         backButton.setOnClickListener(v -> {
             finish();
+        });
+
+
+        deviceId = getDeviceId(this);
+        userRepository.getCurrentUserId(deviceId, new UserRepository.FirestoreCallbackUserId() {
+            @Override
+            public void onUserIdRetrieved(String userId) {
+                Log.d("WaitlistActivity", "Current user ID: " + userId);
+                currentUserId = userId;
+
+                // Now you can use this userId in removeEventFromWaitlist or other methods
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("WaitlistActivity", "Failed to retrieve user ID: " + e.getMessage());
+                // Handle failure (e.g., prompt user to log in)
+            }
         });
 
         // Set up the custom adapter with ArrayAdapter using the custom view
@@ -67,7 +93,7 @@ public class WaitlistActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         String eventToRemove = getItem(position);
                         // Remove item from Firestore and update the ListView
-                        removeEventFromWaitlist(eventToRemove, position);
+                        removeEventFromWaitlist(eventToRemove, position, currentUserId);
                     }
                 });
 
@@ -103,22 +129,29 @@ public class WaitlistActivity extends AppCompatActivity {
         });
     }
 
-    private void removeEventFromWaitlist(String eventToRemove, int position) {
-        // Query to find and remove the specified event
+    private void removeEventFromWaitlist(String eventToRemove, int position, String userId) {
         waitlistRef.whereEqualTo("eventName", eventToRemove).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot document : task.getResult()) {
-                            document.getReference().delete() // Remove the item from Firestore
+                            // Update the 'users' map to remove the current user ID
+                            document.getReference().update("users." + userId, FieldValue.delete())
                                     .addOnSuccessListener(aVoid -> {
-                                        waitlist.remove(position); // Remove from local list
-                                        adapter.notifyDataSetChanged(); // Refresh the ListView
+                                        // Remove from the local list and refresh the ListView
+                                        waitlist.remove(position);
+                                        adapter.notifyDataSetChanged();
                                     })
-                                    .addOnFailureListener(e -> Log.e("WaitlistActivity", "Error removing event", e));
+                                    .addOnFailureListener(e ->
+                                            Log.e("WaitlistActivity", "Error removing user from event", e));
                         }
                     } else {
-                        Log.e("WaitlistActivity", "Error finding event to remove", task.getException());
+                        Log.e("WaitlistActivity", "Error finding event to remove user from", task.getException());
                     }
                 });
     }
+
+    private String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
 }
