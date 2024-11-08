@@ -1,4 +1,7 @@
 package com.example.goldencarrot.controller;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.Date;
 
 import com.example.goldencarrot.data.model.event.Event;
 
