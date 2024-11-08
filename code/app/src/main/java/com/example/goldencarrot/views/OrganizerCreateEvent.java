@@ -25,8 +25,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+/**
+ * Activity for the organizer to create a new event, including details such as event name,
+ * location, description, date, and optional geolocation settings. The organizer can also set
+ * a limit for the event's waitlist.
+ * This activity handles the creation of an event, stores it in the database, and generates
+ * a waitlist if a limit is set.
+ */
 public class OrganizerCreateEvent extends AppCompatActivity {
+
     private static final String TAG = "OrganizerCreateEvent";
     private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText, eventDateEditText, eventLimitEditText;
     private Switch geolocation;
@@ -36,6 +43,12 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private UserImpl organizer;
     private boolean geolocationIsEnabled;
 
+    /**
+     * Initializes the activity, sets up the UI components, and handles geolocation switch changes.
+     * Sets up an onClickListener for the Create Event button, which triggers the creation of the event.
+     *
+     * @param savedInstanceState The saved instance state of the activity, if any.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +73,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         geolocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b){
+                if (b) {
                     geolocationIsEnabled = true;
                     geolocation.setText("Enable geolocation:");
                 } else {
@@ -78,6 +91,12 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         });
     }
 
+    /**
+     * Creates a new event based on the details entered by the organizer and adds it to the event repository.
+     * Optionally creates a waitlist if a waitlist limit is provided.
+     *
+     * @throws ParseException If the date format is invalid.
+     */
     private void createEvent() {
         String eventName = eventNameEditText.getText().toString().trim();
         String location = eventLocationEditText.getText().toString().trim();

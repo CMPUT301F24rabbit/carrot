@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * displays full list of users
+ * displays full list of users for admin to view
  */
 public class AdminAllProfilesView extends AppCompatActivity {
     private ArrayList<User> dataUserList;

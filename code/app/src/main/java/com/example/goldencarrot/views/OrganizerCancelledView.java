@@ -18,9 +18,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 /**
- * Displays the list of users who have cancelled from a waitlist.
+ * Activity that displays the list of users who have cancelled from a waitlist for an event.
+ * The activity retrieves the event's waitlist, fetches users with a "cancelled" status,
+ * and displays them in a RecyclerView.
  */
 public class OrganizerCancelledView extends AppCompatActivity {
+
     private ArrayList<String> userIdList;
     private RecyclerView cancelledUserListView;
     private WaitlistedUsersRecyclerAdapter userArrayAdapter;
@@ -68,6 +71,9 @@ public class OrganizerCancelledView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the list of user IDs from the waitlist that have a "cancelled" status.
+     */
     private void fetchCancelledUsers() {
         // Get user IDs with "cancelled" status from the waitlist
         waitListRepository.getUsersWithStatus(waitlistId, "cancelled", new WaitListRepository.FirestoreCallback() {
@@ -87,6 +93,10 @@ public class OrganizerCancelledView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches user details for each user ID with "cancelled" status.
+     * Adds each user to the cancelled user list and updates the RecyclerView.
+     */
     private void fetchUserDetails() {
         for (String userId : userIdList) {
             userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {

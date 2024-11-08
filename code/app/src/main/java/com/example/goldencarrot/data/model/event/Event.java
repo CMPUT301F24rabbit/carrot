@@ -4,14 +4,10 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 
 import java.util.Date;
-
 /**
- *  The {@code Event} Class represents an Event stored in the system
- *  It stores the Organizer User Object that created the event
- *  <p>
- *      This class provides implements methods to update and
- *      create Event Objects.
- *  </p>
+ * The {@code Event} class represents an Event stored in the system.
+ * It stores the Organizer User object that created the event.
+ * This class provides methods to update and create Event objects.
  */
 public class Event implements EventConfigurator {
     private UserImpl organizer;
@@ -23,17 +19,34 @@ public class Event implements EventConfigurator {
     private String organizerId;
     private String waitListId;
     private Date date;
-    private  int imageResId;
+    private int imageResId;
     private Integer waitlistLimit;
     private boolean isGeolocationEnabled;
 
-    public Event(){}
+    /**
+     * Default constructor for the Event class.
+     */
+    public Event() {}
 
-    public Event(final UserImpl organizer){
+    /**
+     * Constructor to initialize an Event with an Organizer object.
+     *
+     * @param organizer the UserImpl object representing the organizer of the event.
+     */
+    public Event(final UserImpl organizer) {
         this.organizer = organizer;
     }
 
-
+    /**
+     * Constructor to initialize an Event with its details such as name, location, date, and details.
+     *
+     * @param organizer the UserImpl object representing the organizer of the event.
+     * @param eventName the name of the event.
+     * @param location the location where the event will take place.
+     * @param date the date of the event.
+     * @param eventDetails the details or description of the event.
+     * @param imageResId the resource ID for an image related to the event.
+     */
     public Event(UserImpl organizer, String eventName, String location, Date date, String eventDetails, int imageResId) {
         this.organizer = organizer;
         this.eventName = eventName;
@@ -42,17 +55,22 @@ public class Event implements EventConfigurator {
         this.eventDetails = eventDetails;
         this.imageResId = imageResId;
         this.waitlistLimit = waitlistLimit;
-
     }
 
+    /**
+     * Gets the Organizer of the event.
+     *
+     * @return the UserImpl object representing the organizer.
+     */
     @Override
     public UserImpl getOrganizer() {
         return organizer;
     }
 
     /**
-     * Sets Organizer object
-     * @param organizer the UserImpl object to set as the organizer
+     * Sets the Organizer object for the event.
+     *
+     * @param organizer the UserImpl object to set as the organizer.
      */
     @Override
     public void setOrganizer(UserImpl organizer) {
@@ -60,7 +78,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * @param waitList the WaitList object to set for the event
+     * Sets the WaitList for the event.
+     *
+     * @param waitList the WaitList object to set for the event.
      */
     @Override
     public void setWaitList(WaitList waitList) {
@@ -68,15 +88,19 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * sets waitlist limit (optional for organizer)
+     * Gets the Waitlist limit for the event (optional for organizer).
+     *
+     * @return the limit of the waitlist for the event.
      */
-    // Getter and Setter for waitlistLimit
     @Override
     public Integer getWaitlistLimit() {
         return waitlistLimit;
     }
+
     /**
-     * return the waitlist limit (optional for organizer)
+     * Sets the Waitlist limit for the event (optional for organizer).
+     *
+     * @param waitlistLimit the number of participants allowed on the waitlist.
      */
     @Override
     public void setWaitlistLimit(Integer waitlistLimit) {
@@ -84,7 +108,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * @return event name
+     * Gets the name of the event.
+     *
+     * @return the name of the event.
      */
     @Override
     public String getEventName() {
@@ -92,8 +118,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Sets Event's name
-     * @param eventName the name to set for the event
+     * Sets the name of the event.
+     *
+     * @param eventName the name to set for the event.
      */
     @Override
     public void setEventName(String eventName) {
@@ -101,8 +128,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Gets event details
-     * @return String event details
+     * Gets the event details.
+     *
+     * @return a string describing the event.
      */
     @Override
     public String getEventDetails() {
@@ -110,8 +138,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Sets Event Details
-     * @param eventDetails the details to set for the event
+     * Sets the details or description of the event.
+     *
+     * @param eventDetails the details to set for the event.
      */
     @Override
     public void setEventDetails(String eventDetails) {
@@ -119,8 +148,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Sets the date the event is happening
-     * @param date The date of the event.
+     * Sets the date when the event is scheduled to occur.
+     *
+     * @param date the date of the event.
      */
     @Override
     public void setDate(Date date) {
@@ -128,8 +158,9 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Gets the date of the Event
-     * @return date
+     * Gets the date when the event is scheduled to occur.
+     *
+     * @return the date of the event.
      */
     @Override
     public Date getDate() {
@@ -137,72 +168,128 @@ public class Event implements EventConfigurator {
     }
 
     /**
-     * Gets Event's location
-     * @return location
+     * Sets the unique identifier for the event.
+     *
+     * @param eventId the ID to set for the event.
      */
     @Override
     public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 
+    /**
+     * Gets the unique identifier for the event.
+     *
+     * @return the ID of the event.
+     */
     @Override
     public String getEventId() {
         return eventId;
     }
 
     /**
-     * Gets Event's location
-     * @return location
+     * Gets the location where the event will take place.
+     *
+     * @return the location of the event.
      */
-
     @Override
     public String getLocation() {
         return location;
     }
 
+    /**
+     * Sets the location where the event will take place.
+     *
+     * @param location the location of the event.
+     */
     @Override
     public void setLocation(String location) {
         this.location = location;
     }
 
+    /**
+     * Gets the unique identifier for the event's waitlist.
+     *
+     * @return the waitlist ID associated with the event.
+     */
     @Override
-    public String getWaitListId(){
+    public String getWaitListId() {
         return this.waitListId;
     }
 
+    /**
+     * Sets the unique identifier for the event's waitlist.
+     *
+     * @param waitListId the ID to set for the event's waitlist.
+     */
     @Override
     public void setWaitListId(String waitListId) {
         this.waitListId = waitListId;
     }
 
+    /**
+     * Sets the unique identifier for the organizer of the event.
+     *
+     * @param organizerId the ID to set for the organizer.
+     */
     @Override
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
     }
 
+    /**
+     * Gets the unique identifier for the organizer of the event.
+     *
+     * @return the ID of the organizer.
+     */
     @Override
     public String getOrganizerId() {
         return organizerId;
     }
 
+    /**
+     * Gets the WaitList object associated with the event.
+     *
+     * @return the WaitList object.
+     */
     @Override
     public WaitList getWaitList() {
         return waitList;
     }
 
+    /**
+     * Gets the resource ID of the image associated with the event.
+     *
+     * @return the image resource ID.
+     */
     public int getImageResId() {
         return imageResId;
     }
 
+    /**
+     * Sets the resource ID of the image associated with the event.
+     *
+     * @param imageResId the image resource ID to set.
+     */
     public void setImageResId(int imageResId) {
         this.imageResId = imageResId;
     }
 
+    /**
+     * Checks whether geolocation is enabled for the event.
+     *
+     * @return true if geolocation is enabled, false otherwise.
+     */
     @Override
     public boolean getGeolocationEnabled() {
         return isGeolocationEnabled;
     }
 
+    /**
+     * Sets whether geolocation is enabled for the event.
+     *
+     * @param geolocationEnabled true to enable geolocation, false to disable.
+     */
     @Override
     public void setGeolocationEnabled(boolean geolocationEnabled) {
         this.isGeolocationEnabled = geolocationEnabled;

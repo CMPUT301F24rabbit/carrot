@@ -20,7 +20,11 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 
 import java.util.Optional;
-
+/**
+ * The {@code EntrantEditUserDetailsView} activity allows entrants to edit their profile details,
+ * including name, email, phone number, and notification preferences. It interacts with Firestore
+ * to retrieve and update the user's data.
+ */
 public class EntrantEditUserDetailsView extends AppCompatActivity {
     private static final String TAG = "EditUserDetails";
     private static final String PREFS_NAME = "UserPreferences";
@@ -29,13 +33,18 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     private boolean isOrganizerNotificationsEnabled;
     private boolean isAdminNotificationsEnabled;
 
-
     private EditText nameInput;
     private EditText emailInput;
-    private EditText  phoneInput;
+    private EditText phoneInput;
     private Switch switchOrganizerNotifications;
     private Switch switchAdminNotifications;
 
+    /**
+     * Initializes the activity, sets up the UI elements, loads the current user data from Firestore,
+     * and handles user interactions such as saving or updating the user details.
+     *
+     * @param savedInstanceState The saved instance state if the activity is being re-initialized.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +77,6 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             }
         });
 
-        // Set a click listener on the save button
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,6 +146,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the current user's data from Firestore and populates the input fields.
+     */
     private void loadUserData() {
         String deviceId = getDeviceId(this);
         UserRepository userRepository = new UserRepository();
@@ -156,10 +167,16 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 Log.e(TAG, "Error loading user data: " + e.getMessage());
             }
         });
-
     }
 
-
+    /**
+     * Validates the user inputs (name, email, phone number).
+     *
+     * @param email The user's email.
+     * @param phoneNumber The user's phone number.
+     * @param name The user's name.
+     * @throws Exception If any validation fails (e.g., invalid email format, missing name).
+     */
     private void verifyInputs(final String email, final String phoneNumber, final String name) throws Exception {
         if (name.isEmpty()) {
             throw new Exception("Name cannot be empty");
@@ -174,6 +191,12 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retrieves the unique device ID for the current device.
+     *
+     * @param context The context of the application.
+     * @return The unique device ID.
+     */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }

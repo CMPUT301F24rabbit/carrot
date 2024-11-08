@@ -13,14 +13,14 @@ public class NotificationController {
 
     public NotificationController(){
         // Singleton
-        this.notification = createNorification();
+        this.notification = createNotification();
     }
 
     /**
      * Creates a new notification model and returns it
      * @return Notification model
      */
-    public Notification createNorification(){
+    public Notification createNotification(){
         return notification;
     }
 

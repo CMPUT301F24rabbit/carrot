@@ -13,23 +13,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class provides the necessary methods to write, delete
- * update, and fetch notifications from notifications table.
+ * This class provides the necessary methods to write, delete, update,
+ * and fetch notifications from the notifications table in Firebase
  */
 public class NotificationRepository {
     private final CollectionReference notificationsCollection;
 
+    /**
+     * Constructs a NotificationRepository object, initializing the Firestore collection.
+     *
+     * @param db FirebaseFirestore instance used to interact with Firestore.
+     */
     public NotificationRepository(FirebaseFirestore db) {
         this.notificationsCollection = db.collection("notifications");
     }
 
-    // Callback interface
+    /**
+     * Callback interface to handle results or failures of notification operations.
+     *
+     * @param <T> The type of result returned by the operation.
+     */
     public interface NotificationCallback<T> {
+        /**
+         * Called when the operation is successful.
+         *
+         * @param result The result of the operation.
+         */
         void onSuccess(T result);
+
+        /**
+         * Called when the operation fails.
+         *
+         * @param e The exception that caused the failure.
+         */
         void onFailure(Exception e);
     }
 
-    // Add a notification and use callback for result
+    /**
+     * Adds a new notification to Firestore and uses the callback to notify success or failure.
+     *
+     * @param notification The notification to be added.
+     * @param callback The callback to be invoked on success or failure.
+     */
     public void addNotification(Notification notification, NotificationCallback<Notification> callback) {
         Map<String, Object> notificationData = new HashMap<>();
         notificationData.put("userId", notification.getUserId());
@@ -46,7 +71,12 @@ public class NotificationRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Retrieve a notification by ID
+    /**
+     * Retrieves a notification by its unique ID.
+     *
+     * @param notificationId The ID of the notification to retrieve.
+     * @param callback The callback to handle the retrieved notification or failure.
+     */
     public void getNotification(String notificationId, NotificationCallback<Notification> callback) {
         notificationsCollection.document(notificationId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -60,23 +90,37 @@ public class NotificationRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Update a notification
+    /**
+     * Updates a notification in Firestore with the provided updates.
+     *
+     * @param notificationId The ID of the notification to update.
+     * @param updates The map of fields to update in the notification.
+     * @param callback The callback to handle success or failure.
+     */
     public void updateNotification(String notificationId, Map<String, Object> updates, NotificationCallback<Boolean> callback) {
         notificationsCollection.document(notificationId).update(updates)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(true))
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Delete a notification
+    /**
+     * Deletes a notification by its unique ID.
+     *
+     * @param notificationId The ID of the notification to delete.
+     * @param callback The callback to handle success or failure.
+     */
     public void deleteNotification(String notificationId, NotificationCallback<Boolean> callback) {
         notificationsCollection.document(notificationId).delete()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(true))
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Reference: Google. (n.d.). Query data in Cloud Firestore. Firebase
-    // Retrieved from https://firebase.google.com/docs/firestore/query-data/queries#java
-    // Gets all the notifications for the user with the user id
+    /**
+     * Retrieves all notifications associated with a specific user ID.
+     *
+     * @param userId The user ID to query for notifications.
+     * @param callback The callback to handle the list of notifications or failure.
+     */
     public void getNotificationsByUserId(String userId, NotificationCallback<List<Notification>> callback) {
         Query query = notificationsCollection.whereEqualTo("userId", userId);
 
@@ -97,7 +141,12 @@ public class NotificationRepository {
         });
     }
 
-    // Helper method to convert DocumentSnapshot to Notification model object
+    /**
+     * Helper method to convert a DocumentSnapshot from Firestore to a Notification object.
+     *
+     * @param document The Firestore document to convert.
+     * @return The converted Notification object.
+     */
     private Notification documentToNotification(DocumentSnapshot document) {
         Notification notification = new Notification();
         notification.setNotificationId(document.getId());

@@ -19,7 +19,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
+/**
+ * Activity that displays the details of an event for the admin user.
+ * This activity allows the admin to view event details and delete the event,
+ * including removing its associated waitlist.
+ */
 public class EventDetailsAdminActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
@@ -36,7 +40,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
 
-        // Initialize Firestore
+        // Initialize Firestore and repositories
         firestore = FirebaseFirestore.getInstance();
         eventRepository = new EventRepository();
         waitListRepository = new WaitListRepository();
@@ -67,10 +71,15 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Set up delete event button
+        // Set up delete event button to remove event and its waitlist
         deleteEventButton.setOnClickListener(view -> deleteEvent(eventId));
     }
 
+    /**
+     * Loads the event details from Firestore and displays them on the UI.
+     *
+     * @param eventId The ID of the event to load.
+     */
     private void loadEventDetails(String eventId) {
         DocumentReference eventRef = firestore.collection("events").document(eventId);
         listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
@@ -87,22 +96,27 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 String date = snapshot.getString("date");
                 String time = snapshot.getString("time");
 
-                // Display event details
+                // Display event details on the UI
                 eventNameTitleView.setText(eventName);
                 eventDateView.setText(date);
                 eventLocationView.setText(location);
                 eventTimeView.setText(time);
                 eventDetailsView.setText(eventDetails);
-                // If there is an image URL in the document, you can use it to load an image with a library like Picasso or Glide
+                // Optionally, load an image for the event poster if available
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    /**
+     * Deletes the event and its associated waitlist from Firestore.
+     *
+     * @param eventId The ID of the event to delete.
+     */
     private void deleteEvent(String eventId) {
         if (eventId != null) {
-            // delete waitlist of the event
+            // Delete the associated waitlist before deleting the event
             eventRepository.getBasicEventById(eventId, new EventRepository.EventCallback() {
                 @Override
                 public void onSuccess(Event event) {
@@ -113,9 +127,11 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Exception e) {
-                    Log.d("EventDetailAdminActivity", "failed to get event");
+                    Log.d("EventDetailAdminActivity", "Failed to get event");
                 }
             });
+
+            // Delete the event from Firestore
             firestore.collection("events").document(eventId)
                     .delete()
                     .addOnSuccessListener(aVoid -> {
@@ -124,11 +140,16 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                         finish();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete event", Toast.LENGTH_SHORT).show());
+
+            // Navigate back to the BrowseEventsActivity
             Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
             startActivity(intent);
         }
     }
 
+    /**
+     * Removes the Firestore listener when the activity is stopped to prevent memory leaks.
+     */
     @Override
     protected void onStop() {
         super.onStop();
