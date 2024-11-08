@@ -4,8 +4,12 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,6 +73,31 @@ public class NotificationRepository {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(true))
                 .addOnFailureListener(callback::onFailure);
     }
+
+    // Reference: Google. (n.d.). Query data in Cloud Firestore. Firebase
+    // Retrieved from https://firebase.google.com/docs/firestore/query-data/queries#java
+    // Gets all the notifications for the user with the user id
+    public void getNotificationsByUserId(String userId, NotificationCallback<List<Notification>> callback) {
+        Query query = notificationsCollection.whereEqualTo("userId", userId);
+
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                List<Notification> notifications = new ArrayList<>();
+                if (querySnapshot != null) {
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        Notification notification = documentToNotification(document);
+                        notifications.add(notification);
+                    }
+                }
+                callback.onSuccess(notifications);
+            } else {
+                callback.onFailure(task.getException());
+            }
+        });
+    }
+
+
 
     // Helper method to convert DocumentSnapshot to Notification model object
     private Notification documentToNotification(DocumentSnapshot document) {

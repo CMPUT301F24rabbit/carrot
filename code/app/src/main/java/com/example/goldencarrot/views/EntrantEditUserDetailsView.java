@@ -45,7 +45,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         switchAdminNotifications = findViewById(R.id.switch_admin_notifications);
 
         Button saveButton = findViewById(R.id.edit_user_details_save_button);
-        Button backButton = findViewById(R.id.back_button);
+        Button backButton = findViewById(R.id.back_button_notifications);
 
         loadUserData();
 

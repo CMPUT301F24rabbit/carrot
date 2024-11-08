@@ -99,7 +99,7 @@
             android:text="Save" />
 
         <Button
-            android:id="@+id/back_button"
+            android:id="@+id/back_button_notifications"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Back" />

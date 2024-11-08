@@ -13,7 +13,21 @@ public class Notification {
     private String message;
     private String status;
 
+    /**
+     * Empty constructor for testing purposes
+     */
     public Notification(){}
+
+    public Notification(final String userId, final String eventId,
+                        final String waitListId, final String notificationId,
+                        final String message, final String status){
+        this.userId = userId;
+        this.eventId = eventId;
+        this.waitListId = waitListId;
+        this.notificationId = notificationId;
+        this.message = message;
+        this.status = status;
+    }
 
     // Getter and Setter for userId
     public String getUserId() {
@@ -62,10 +76,10 @@ public class Notification {
 
     // Getter and Setter for notificationid
     public String getNotificationId() {
-        return status;
+        return this.notificationId;
     }
 
     public void setNotificationId(String status) {
-        this.status = status;
+        this.notificationId = status;
     }
 }
