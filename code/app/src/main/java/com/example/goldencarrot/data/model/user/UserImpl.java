@@ -157,47 +157,4 @@ public class UserImpl implements User {
             throw UserUtils.invalidUserTypeException;
         }
     }
-    public static class FacilityUserImpl extends UserImpl {
-        private Optional<String> facilityName;
-        private Optional<String> location;
-        private Optional<String> imageURL;
-
-        public FacilityUserImpl() {
-            super();
-        }
-
-        public FacilityUserImpl(final Optional<String> facilityName,
-                                final Optional<String> location,
-                                final Optional<String> imageURL) throws Exception {
-            this.facilityName = facilityName;
-            this.location = location;
-            this.imageURL = imageURL;
-        }
-
-        // Facility-specific methods
-        public Optional<String> getFacilityName() {
-            return facilityName;
-        }
-
-        public void setFacilityName(Optional<String> facilityName) {
-            this.facilityName = facilityName;
-        }
-
-        public Optional<String> getLocation() {
-            return location;
-        }
-
-        public void setLocation(Optional<String> location) {
-            this.location = location;
-        }
-
-        public Optional<String> getImageURL() {
-            return imageURL;
-        }
-
-        public void setImageURL(Optional<String> imageURL) {
-            this.imageURL = imageURL;
-        }
-    }
-
 }
