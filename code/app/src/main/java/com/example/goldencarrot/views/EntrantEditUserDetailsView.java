@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,17 +22,32 @@ import java.util.Optional;
 
 public class EntrantEditUserDetailsView extends AppCompatActivity {
     private static final String TAG = "EditUserDetails";
+    private static final String PREFS_NAME = "UserPreferences";
+    private static final String PREF_ORGANIZER_NOTIFICATIONS = "organizer_notifications";
+    private static final String PREF_ADMIN_NOTIFICATIONS = "administer_notifications";
+
+
+    private EditText nameInput;
+    private EditText emailInput;
+    private EditText  phoneInput;
+    private Switch switchOrganizerNotifications;
+    private Switch switchAdminNotifications;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_edit_user_details);
 
-        EditText nameInput = findViewById(R.id.edit_user_details_name);
-        EditText emailInput = findViewById(R.id.edit_user_details_email_input);
-        EditText phoneInput = findViewById(R.id.edit_user_details_phone_number);
+        nameInput = findViewById(R.id.edit_user_details_name);
+        emailInput = findViewById(R.id.edit_user_details_email_input);
+        phoneInput = findViewById(R.id.edit_user_details_phone_number);
+        switchOrganizerNotifications = findViewById(R.id.switch_organizer_notifications);
+        switchAdminNotifications = findViewById(R.id.switch_admin_notifications);
+
         Button saveButton = findViewById(R.id.edit_user_details_save_button);
         Button backButton = findViewById(R.id.back_button);
+
+        loadUserData();
 
         // Set a click listener on the save button
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -40,13 +56,15 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
                 String phoneNumber = phoneInput.getText().toString().trim();
+                Boolean notificationAdministrator  = switchAdminNotifications.isChecked();
+                Boolean notificationOrganizer = switchOrganizerNotifications.isChecked();
 
                 try {
                     // Validate inputs
                     verifyInputs(email, phoneNumber, name);
 
                     Optional<String> optionalPhoneNumber = phoneNumber.isEmpty() ? Optional.empty() : Optional.of(phoneNumber);
-                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber);
+                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
 
                     // Get the device ID
                     String deviceId = getDeviceId(EntrantEditUserDetailsView.this);
@@ -67,6 +85,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                             } else {
                                 phoneInput.setText(""); // If no phone number is available
                             }
+
+                            switchAdminNotifications.setChecked(updatedUser.getAdminNotification());
+                            switchOrganizerNotifications.setChecked(updatedUser.getOrganizerNotifications());
                         }
 
                         @Override
@@ -99,6 +120,28 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             }
         });
     }
+
+    private void loadUserData() {
+        String deviceId = getDeviceId(this);
+        UserRepository userRepository = new UserRepository();
+
+        userRepository.getSingleUser(deviceId, new UserRepository.FirestoreCallbackSingleUser() {
+            @Override
+            public void onSuccess(UserImpl user) {
+                // Populate fields with user data
+                nameInput.setText(user.getName());
+                emailInput.setText(user.getEmail());
+                phoneInput.setText(user.getPhoneNumber().orElse(""));
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error loading user data: " + e.getMessage());
+            }
+        });
+
+    }
+
 
     private void verifyInputs(final String email, final String phoneNumber, final String name) throws Exception {
         if (name.isEmpty()) {

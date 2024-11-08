@@ -1,5 +1,7 @@
 package com.example.goldencarrot.data.db;
 
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+
 import android.util.Log;
 
 import com.example.goldencarrot.data.model.user.User;
@@ -241,7 +243,7 @@ public class WaitListRepository implements WaitListDb {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         List<String> usersWithStatus = new ArrayList<>();
-
+                        /*
                         // Loop through all users in the document
                         Map<String, Object> data = documentSnapshot.getData();
                         if (data != null) {
@@ -255,8 +257,17 @@ public class WaitListRepository implements WaitListDb {
                                     }
                                 }
                             }
+                         }
+                         */
+                        Map<String, Object> usersMap = (Map<String, Object>) documentSnapshot.get("users");
+                        for (Map.Entry<String, Object> entry : usersMap.entrySet()) {
+                            String currentUserId = entry.getKey();
+                            String currentStatus = entry.getValue().toString();
+                            if (currentStatus.equals(status)) {
+                                usersWithStatus.add(currentUserId);
+                                Log.d("WaitListRepository", "added user to usersWithStatus "+ currentUserId);
+                            }
                         }
-
                         callback.onSuccess(usersWithStatus);
                     } else {
                         callback.onSuccess(new ArrayList<>());

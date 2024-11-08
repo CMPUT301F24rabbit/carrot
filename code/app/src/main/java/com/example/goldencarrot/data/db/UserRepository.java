@@ -197,7 +197,9 @@ public class UserRepository {
                             UserImpl user = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"),
-                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")));
+                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
+                                    documentSnapshot.getBoolean("administratiorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
                             callback.onSuccess(user); // Pass the user object to the callback
                         } catch (Exception e) {
 

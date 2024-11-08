@@ -57,7 +57,9 @@ public class AdminProfileView extends AppCompatActivity {
                             Log.i(TAG, "clicked on user: " + documentSnapshot.getString("name"));
                             User currentUser = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
-                                    documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")));
+                                    documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
+                                    documentSnapshot.getBoolean("administratorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
                             nameText.setText(currentUser.getName());
                             emailText.setText(currentUser.getEmail());
                             userTypeText.setText(currentUser.getUserType());

@@ -1,5 +1,9 @@
 package com.example.goldencarrot.views;
 
+import static com.example.goldencarrot.data.model.user.UserUtils.ACCEPTED_STATUS;
+import static com.example.goldencarrot.data.model.user.UserUtils.DECLINED_STATUS;
+import static com.example.goldencarrot.data.model.user.UserUtils.WAITING_STATUS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -163,19 +167,20 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
         Button declinedButton = popupView.findViewById(R.id.button_EventDetailRejectedEntrants);
 
-        waitlistedButton.setOnClickListener(v -> openEntrantsView("waitlisted"));
-        acceptedButton.setOnClickListener(v -> openEntrantsView("accepted"));
-        declinedButton.setOnClickListener(v -> openEntrantsView("declined"));
+        waitlistedButton.setOnClickListener(v -> openEntrantsView(WAITING_STATUS));
+        acceptedButton.setOnClickListener(v -> openEntrantsView(ACCEPTED_STATUS));
+        declinedButton.setOnClickListener(v -> openEntrantsView(DECLINED_STATUS));
     }
 
     /**
      * Opens the OrganizerWaitlistView with the specified entrant status.
      *
-     * @param status The entrant status to pass to the view ("waitlisted", "accepted", "declined").
+     * @param status The entrant status to pass to the view ("waiting", "accepted", "declined").
      */
     private void openEntrantsView(String status) {
         Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistView.class);
         intent.putExtra("entrantStatus", status); // Pass the status to OrganizerWaitlistView
+        intent.putExtra("eventId", eventId); // pass eventid to OrganizerWaitlistView
         entrantsPopup.dismiss();
         startActivity(intent);
     }

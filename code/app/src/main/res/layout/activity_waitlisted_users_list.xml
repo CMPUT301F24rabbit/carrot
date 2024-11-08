@@ -6,22 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".views.OrganizerWaitlistView">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/waitlistedUsersRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="108dp"/>
+    <ListView
+        android:id="@+id/waitlistedUsersList"
+        android:layout_width="395dp"
+        android:layout_height="667dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/entrantsListTitle" />
 
     <TextView
-        android:id="@+id/waitlistedEntrantsListTitle"
+        android:id="@+id/entrantsListTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="Waitlist"
+        android:textSize="34sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/waitlistedUsersList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/backButtonFromWaitlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        app:layout_constraintBottom_toTopOf="@+id/waitlistedUsersList"
+        app:layout_constraintEnd_toStartOf="@+id/entrantsListTitle"
+        app:layout_constraintHorizontal_bias="0.14"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

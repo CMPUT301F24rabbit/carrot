@@ -135,13 +135,15 @@ public class EntrantHomeView extends AppCompatActivity {
                         String email = documentSnapshot.getString("email");
                         String userType = documentSnapshot.getString("userType");
                         String phoneNumber = documentSnapshot.getString("phoneNumber"); // Firestore stores as String
+                        Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
+                        Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber);
+                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());
@@ -178,9 +180,11 @@ public class EntrantHomeView extends AppCompatActivity {
 
     // Load Event Data
     private void loadEventData() {
+        String deviceId = getDeviceId(EntrantHomeView.this);
+
         // Load the first 4 waitlisted events from firestore
         CollectionReference waitlistRef = firestore.collection("waitlist");
-        waitlistRef.limit(4).get().addOnCompleteListener(task -> {
+        waitlistRef.whereArrayContains("userIds", deviceId).limit(4).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 waitlistedEventsList.clear(); // clear the current data
                     for (QueryDocumentSnapshot document : task.getResult()) {
@@ -194,7 +198,7 @@ public class EntrantHomeView extends AppCompatActivity {
                         Log.d("EntrantHomeView", "Processing event: " + document.getId());
 
                         if(eventName != null){
-                            Log.d("EntrantHOmeview", "Adding event:" + eventName);
+                            Log.d("EntrantHomeview", "Adding event:" + eventName);
                             Event event = new Event(organizer);
                             event.setEventName(eventName);
                             event.setLocation(location);
