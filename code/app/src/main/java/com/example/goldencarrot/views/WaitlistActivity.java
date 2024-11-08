@@ -1,6 +1,9 @@
 package com.example.goldencarrot.views;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -102,17 +106,33 @@ public class WaitlistActivity extends AppCompatActivity {
             }
         });
     }
+    /**
+     * Retrieves the Android device ID.
+     *
+     * @param context The application context.
+     * @return The device ID as a string.
+     */
+    private String getDeviceId(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
 
     private void removeEventFromWaitlist(String eventToRemove, int position) {
+        String deviceId = getDeviceId(this);
+
         // Query to find and remove the specified event
         waitlistRef.whereEqualTo("eventName", eventToRemove).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot document : task.getResult()) {
-                            document.getReference().delete() // Remove the item from Firestore
+                            document.getReference().update("users." + deviceId, FieldValue.delete()) // Remove the item from Firestore
                                     .addOnSuccessListener(aVoid -> {
                                         waitlist.remove(position); // Remove from local list
                                         adapter.notifyDataSetChanged(); // Refresh the ListView
+                                        Log.d("WaitlistActivity", "user successflyy remomved from waitlist for event" + eventToRemove);
+
+                                        Intent intent = new Intent(WaitlistActivity.this, EntrantHomeView.class);
+                                        startActivity(intent);
+
                                     })
                                     .addOnFailureListener(e -> Log.e("WaitlistActivity", "Error removing event", e));
                         }
