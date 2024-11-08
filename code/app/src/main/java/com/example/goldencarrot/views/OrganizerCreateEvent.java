@@ -132,5 +132,3 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 Toast.makeText(OrganizerCreateEvent.this, "Error retrieving user data", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-}

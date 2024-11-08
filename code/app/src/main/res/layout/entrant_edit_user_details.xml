@@ -34,7 +34,7 @@
             android:layout_marginEnd="16dp"
             android:ems="10"
             android:inputType="text"
-            android:text="UsernName" />
+            android:text="" />
 
         <TextView
             android:id="@+id/edit_user_details_email_title"
