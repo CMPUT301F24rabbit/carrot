@@ -45,6 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
                 EditText email = findViewById(R.id.sign_up_email_input);
                 EditText phoneNumber = findViewById(R.id.sign_up_phone_number);
                 EditText name = findViewById(R.id.sign_up_name);
+                Boolean nAdmin = true;
+                Boolean nOrg = true;
 
                 String deviceId = Settings.Secure.getString(
                         SignUpActivity.this.getContentResolver(),
@@ -57,7 +59,7 @@ public class SignUpActivity extends AppCompatActivity {
                             name.getText().toString()
                     );
 
-                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()));
+                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg);
                     Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
                     startActivity(intent);
 
@@ -73,9 +75,9 @@ public class SignUpActivity extends AppCompatActivity {
      *
      */
 
-    private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber) {
+    private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber, Boolean nAdmin, Boolean nOrg) {
         try {
-            User newUser = new UserImpl(email, userType, name, phoneNumber);
+            User newUser = new UserImpl(email, userType, name, phoneNumber, nAdmin, nOrg);
             userDb.addUser(newUser, deviceId);
         } catch (Exception e) {
             e.printStackTrace();

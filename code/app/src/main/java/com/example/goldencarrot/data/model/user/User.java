@@ -13,6 +13,10 @@ public interface User {
 
     String getUserId();
 
+    Boolean getAdminNotification();
+
+    Boolean getOrganizerNotifications();
+
     void setUserId(String uId);
 
     void setPhoneNumber(Optional<String> phoneNumber);
