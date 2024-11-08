@@ -97,8 +97,6 @@ public class NotificationRepository {
         });
     }
 
-
-
     // Helper method to convert DocumentSnapshot to Notification model object
     private Notification documentToNotification(DocumentSnapshot document) {
         Notification notification = new Notification();
