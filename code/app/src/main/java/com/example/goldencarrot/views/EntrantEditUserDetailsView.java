@@ -7,6 +7,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
@@ -25,6 +26,8 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     private static final String PREFS_NAME = "UserPreferences";
     private static final String PREF_ORGANIZER_NOTIFICATIONS = "organizer_notifications";
     private static final String PREF_ADMIN_NOTIFICATIONS = "administer_notifications";
+    private boolean isOrganizerNotificationsEnabled;
+    private boolean isAdminNotificationsEnabled;
 
 
     private EditText nameInput;
@@ -49,6 +52,22 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
         loadUserData();
 
+        isAdminNotificationsEnabled = false;
+        isOrganizerNotificationsEnabled = false;
+
+        switchAdminNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    isAdminNotificationsEnabled = true;
+                    isOrganizerNotificationsEnabled = true;
+                } else {
+                    isAdminNotificationsEnabled = false;
+                    isOrganizerNotificationsEnabled = false;
+                }
+            }
+        });
+
         // Set a click listener on the save button
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,15 +75,13 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
                 String phoneNumber = phoneInput.getText().toString().trim();
-                Boolean notificationAdministrator  = switchAdminNotifications.isChecked();
-                Boolean notificationOrganizer = switchOrganizerNotifications.isChecked();
 
                 try {
                     // Validate inputs
                     verifyInputs(email, phoneNumber, name);
 
                     Optional<String> optionalPhoneNumber = phoneNumber.isEmpty() ? Optional.empty() : Optional.of(phoneNumber);
-                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
+                    User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, isAdminNotificationsEnabled, isOrganizerNotificationsEnabled);
 
                     // Get the device ID
                     String deviceId = getDeviceId(EntrantEditUserDetailsView.this);
