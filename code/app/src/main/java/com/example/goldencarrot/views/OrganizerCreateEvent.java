@@ -3,11 +3,15 @@ package com.example.goldencarrot.views;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -25,10 +29,12 @@ import java.util.Date;
 public class OrganizerCreateEvent extends AppCompatActivity {
     private static final String TAG = "OrganizerCreateEvent";
     private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText, eventDateEditText, eventLimitEditText;
+    private Switch geolocation;
     private EventRepository eventRepository;
     private UserRepository userRepository;
     private WaitListRepository waitListRepository;
     private UserImpl organizer;
+    private boolean geolocationIsEnabled;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +52,23 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventDetailsEditText = findViewById(R.id.eventDetailsEditText);
         eventDateEditText = findViewById(R.id.eventDateEditText);
         eventLimitEditText = findViewById(R.id.waitlistLimitEditText);
+        geolocation = findViewById(R.id.geolocation);
         Button createEventButton = findViewById(R.id.createEventButton);
+        geolocation.toggle();
+        geolocation.setText("Enable geolocation:");
+
+        geolocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    geolocationIsEnabled = true;
+                    geolocation.setText("Enable geolocation:");
+                } else {
+                    geolocationIsEnabled = false;
+                    geolocation.setText("Disable geolocation:");
+                }
+            }
+        });
 
         // Set onClickListener for the Create Event button
         createEventButton.setOnClickListener(view -> {
@@ -91,6 +113,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.setEventDetails(details);
                 event.setDate(date);
                 event.setOrganizerId(organizerId);
+                event.setGeolocationEnabled(geolocationIsEnabled);
 
                 // Parse waitlist limit if provided; if empty, it defaults to no limit
                 Integer waitlistLimit = null;

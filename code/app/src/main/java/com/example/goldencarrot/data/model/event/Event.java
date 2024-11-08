@@ -25,6 +25,7 @@ public class Event implements EventConfigurator {
     private Date date;
     private  int imageResId;
     private Integer waitlistLimit;
+    private boolean isGeolocationEnabled;
 
     public Event(){}
 
@@ -70,12 +71,14 @@ public class Event implements EventConfigurator {
      * sets waitlist limit (optional for organizer)
      */
     // Getter and Setter for waitlistLimit
+    @Override
     public Integer getWaitlistLimit() {
         return waitlistLimit;
     }
     /**
      * return the waitlist limit (optional for organizer)
      */
+    @Override
     public void setWaitlistLimit(Integer waitlistLimit) {
         this.waitlistLimit = waitlistLimit;
     }
@@ -193,5 +196,15 @@ public class Event implements EventConfigurator {
 
     public void setImageResId(int imageResId) {
         this.imageResId = imageResId;
+    }
+
+    @Override
+    public boolean getGeolocationEnabled() {
+        return isGeolocationEnabled;
+    }
+
+    @Override
+    public void setGeolocationEnabled(boolean geolocationEnabled) {
+        this.isGeolocationEnabled = geolocationEnabled;
     }
 }
