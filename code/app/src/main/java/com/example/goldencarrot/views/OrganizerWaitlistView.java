@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -114,6 +115,13 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 sendNotification();
             }
         });
+
+        waitlistedUserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                sendNotificationToSingleUser(waitlistedUserList.get(position).getUserId());
+            }
+        });
     }
 
     /**
@@ -155,21 +163,25 @@ public class OrganizerWaitlistView extends AppCompatActivity {
      */
     private void sendNotification() {
         if (getIntent().getStringExtra("entrantStatus").equals(WAITING_STATUS)) {
-            for (String userId : userIdList) {
-                userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
-                    @Override
-                    public void onSuccess(UserImpl user) {
-                        boolean userGetsNotif = user.getOrganizerNotifications();
-                        if (userGetsNotif) {
-                            createNotifForNonChosenUser(userId);
+            if (!userIdList.isEmpty()) {
+                for (String userId : userIdList) {
+                    userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
+                        @Override
+                        public void onSuccess(UserImpl user) {
+                            boolean userGetsNotif = user.getOrganizerNotifications();
+                            if (userGetsNotif) {
+                                createNotifForNonChosenUser(userId);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d("OrganizerWaitlistView", "failed to get user");
-                    }
-                });
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.d("OrganizerWaitlistView", "failed to get user");
+                        }
+                    });
+                }
+            } else {
+                Toast.makeText(OrganizerWaitlistView.this, "list is empty, cannot send notification", Toast.LENGTH_SHORT).show();
             }
         } else if (getIntent().getStringExtra("entrantStatus").equals(ACCEPTED_STATUS)) {
             for (String userId : userIdList) {
@@ -226,6 +238,25 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 getIntent().getStringExtra("eventId"),
                 waitlistId
         );
+        notifRepo.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
+            @Override
+            public void onSuccess(Notification result) {
+                Toast.makeText(OrganizerWaitlistView.this, "added notification", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(OrganizerWaitlistView.this, "Notification not added", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    /**
+     * Sends notification to select entrant
+     * @param userId of user to receive notification
+     */
+    private void sendNotificationToSingleUser(String userId) {
+        NotificationController notifController = new NotificationController();
+        Notification notification = notifController.getOrCreateNotification(userId);
         notifRepo.addNotification(notification, new NotificationRepository.NotificationCallback<Notification>() {
             @Override
             public void onSuccess(Notification result) {

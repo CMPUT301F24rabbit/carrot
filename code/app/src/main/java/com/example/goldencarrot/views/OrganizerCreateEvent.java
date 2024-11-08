@@ -1,7 +1,9 @@
 package com.example.goldencarrot.views;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -118,7 +120,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         }
 
         // Get the organizer user details
-        String organizerId = getIntent().getStringExtra("userId");
+        //String organizerId = getIntent().getStringExtra("userId");
+        String organizerId = getDeviceId(OrganizerCreateEvent.this);
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
             public void onSuccess(UserImpl user) {
@@ -168,5 +171,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 Toast.makeText(OrganizerCreateEvent.this, "Error retrieving user data", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }
