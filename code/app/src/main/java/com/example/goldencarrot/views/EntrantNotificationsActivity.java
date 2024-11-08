@@ -18,8 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
 import com.example.goldencarrot.data.db.NotificationRepository;
+import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationAdapter;
+import com.example.goldencarrot.data.model.user.User;
+import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
     private NotificationRepository notificationRepository;
     private NotificationAdapter adapter;
     private List<Notification> notifications;
+    private WaitListRepository waitListRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +47,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
 
         // Initialize the NotificationRepository to fetch notifications from Firestore
         notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
+        waitListRepository = new WaitListRepository();
 
         // Initialize UI components
         Button backButton = findViewById(R.id.back_button_notifications);
@@ -86,9 +91,11 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                     .setMessage(selectedNotification.getMessage())
                     .setPositiveButton("ACCEPT", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), "accepted");
                     })
                     .setNegativeButton("DECLINE", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), "cancelled");
                     })
                     .show();
         });
@@ -114,7 +121,6 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                 Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
                 notifications.remove(index);
                 adapter.notifyDataSetChanged();
-                changeStatusInWaitList();
             }
 
             @Override
@@ -127,8 +133,10 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
     /**
      * TODO: Implement logic to change the user's status in the waitlist when a notification is accepted or declined.
      */
-    private void changeStatusInWaitList() {
-        // Logic to update user status in waitlist
+    private void changeStatusInWaitList(String deviceId, String waitListId, String status) {
+        UserImpl user = new UserImpl();
+        user.setUserId(deviceId);
+        waitListRepository.updateUserStatusInWaitList(waitListId, user, status);
     }
 
     /**
