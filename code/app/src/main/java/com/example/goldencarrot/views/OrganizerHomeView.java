@@ -38,8 +38,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-
+import java.util.Optional;/**
+ * This activity represents the home screen for the event organizer. It displays the organizer's profile
+ * and a list of events they have created. The user can manage their profile, create new events, or view details
+ * of existing events. The events are fetched from Firestore, and the RecyclerView displays the event list.
+ * The activity also handles user data loading and display.
+ */
 public class OrganizerHomeView extends AppCompatActivity {
 
     private Button manageProfileButton, createEventButton, sendAllNotifsBtn;
@@ -54,6 +58,12 @@ public class OrganizerHomeView extends AppCompatActivity {
     private UserRepository userRepository;
     NotificationRepository notifRepo;
 
+    /**
+     * Called when the activity is created. Initializes Firestore, UI components, and loads user data.
+     * It also sets up listeners for managing profile, creating events, and displaying events.
+     *
+     * @param savedInstanceState The saved instance state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +84,7 @@ public class OrganizerHomeView extends AppCompatActivity {
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
         sendAllNotifsBtn = findViewById(R.id.sendNotificationToAllEntrantsButton);
 
-        // Event lists and adapter Inititalization
+        // Event lists and adapter Initialization
         recyclerView = findViewById(R.id.recycler_view_events);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
@@ -92,26 +102,18 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Set user name
         loadUserData();
 
-        // Placeholder for event recycler for images
-        // Create a list of Event objects for the RecyclerView
-
         // Set an OnClickListener for the button
-        manageProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Start ManageProfileActivity
-                Intent intent = new Intent(OrganizerHomeView.this, OrganizerManageProfileActivity.class);
-                intent.putExtra("userId", deviceId);
-                startActivity(intent);
-            }
+        manageProfileButton.setOnClickListener(v -> {
+            // Start ManageProfileActivity
+            Intent intent = new Intent(OrganizerHomeView.this, OrganizerManageProfileActivity.class);
+            intent.putExtra("userId", deviceId);
+            startActivity(intent);
         });
-        createEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
-                intent.putExtra("userId", deviceId);
-                startActivity(intent);
-            }
+
+        createEventButton.setOnClickListener(v -> {
+            Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
+            intent.putExtra("userId", deviceId);
+            startActivity(intent);
         });
         sendAllNotifsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,10 +123,12 @@ public class OrganizerHomeView extends AppCompatActivity {
         });
     }
 
-    // Load user Data
+    /**
+     * Loads user data from Firestore based on the device ID.
+     * If data is found, it sets the username and proceeds to load the organizer's events.
+     * Displays appropriate error messages if user data is missing or the document does not exist.
+     */
     private void loadUserData() {
-        //String deviceId = getDeviceId(OrganizerHomeView.this);
-
         firestore.collection("users").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -135,7 +139,6 @@ public class OrganizerHomeView extends AppCompatActivity {
                         String phoneNumber = documentSnapshot.getString("phoneNumber"); // Firestore stores as String
                         Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
                         Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
-
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
@@ -164,13 +167,19 @@ public class OrganizerHomeView extends AppCompatActivity {
                     Log.e(TAG, "Error fetching user data", e);
                     usernameTextView.setText("Error fetching user data");
                 });
-
     }
 
-    private void loadEventsForOrganizer(UserImpl organizer){
+    /**
+     * Loads events associated with the organizer from Firestore.
+     * The events are filtered based on the organizer's device ID and displayed in a RecyclerView.
+     *
+     * @param organizer The organizer whose events are to be loaded.
+     */
+    private void loadEventsForOrganizer(UserImpl organizer) {
         firestore.collection("events").whereEqualTo("organizerId", deviceId)
                 .get().addOnSuccessListener(querySnapshot -> {
-                    //eventList.clear();
+                    // Clear previous events (if necessary)
+                    // eventList.clear();
 
                     for (QueryDocumentSnapshot document : querySnapshot) {
                         String eventId = document.getId();
@@ -180,9 +189,9 @@ public class OrganizerHomeView extends AppCompatActivity {
                         String dateString = document.getString("date");
                         int imageResId = document.contains("imageResId") ? document.getLong("imageResId").intValue() : R.drawable.default_poster;
 
-                        // turning date into Date
+                        // Turning date into Date object
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-                        try{
+                        try {
                             Date eventDate = dateFormat.parse(dateString);
                             Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
                             event.setEventId(eventId);

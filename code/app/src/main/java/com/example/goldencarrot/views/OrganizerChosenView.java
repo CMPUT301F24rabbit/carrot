@@ -16,11 +16,13 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-
 /**
- * Displays the list of users chosen by lottery from a waitlist.
+ * Activity that displays the list of users who have been chosen by lottery from a waitlist for an event.
+ * The activity retrieves the event's waitlist, fetches users with a "chosen" status,
+ * and displays them in a RecyclerView.
  */
 public class OrganizerChosenView extends AppCompatActivity {
+
     private ArrayList<String> userIdList;
     private RecyclerView chosenUserListView;
     private WaitlistedUsersRecyclerAdapter userArrayAdapter;
@@ -68,6 +70,9 @@ public class OrganizerChosenView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the list of user IDs from the waitlist that have a "chosen" status.
+     */
     private void fetchChosenUsers() {
         // Get user IDs with "chosen" status from the waitlist
         waitListRepository.getUsersWithStatus(waitlistId, "chosen", new WaitListRepository.FirestoreCallback() {
@@ -87,6 +92,10 @@ public class OrganizerChosenView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches user details for each user ID with "chosen" status.
+     * Adds each user to the chosen user list and updates the RecyclerView.
+     */
     private void fetchUserDetails() {
         for (String userId : userIdList) {
             userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {

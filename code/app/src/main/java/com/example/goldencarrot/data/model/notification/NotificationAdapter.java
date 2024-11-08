@@ -11,34 +11,56 @@ import com.example.goldencarrot.R;
 
 import java.util.List;
 
+/**
+ * Adapter class for displaying notifications in a ListView.
+ * This class is responsible for binding data from a list of Notification objects to the views in a list item.
+ */
 public class NotificationAdapter extends ArrayAdapter<Notification> {
 
     private final Context context;
     private final List<Notification> notifications;
 
+    /**
+     * Constructor to create an instance of NotificationAdapter with a context and a list of notifications.
+     *
+     * @param context the context in which the adapter is used (e.g., an Activity or Fragment).
+     * @param notifications the list of Notification objects to be displayed.
+     */
     public NotificationAdapter(Context context, List<Notification> notifications) {
         super(context, 0, notifications);
         this.context = context;
         this.notifications = notifications;
     }
 
+    /**
+     * Creates and returns a view for a specific position in the list.
+     * This method inflates the layout for each item and binds the notification data to the views.
+     *
+     * @param position the position of the item within the list.
+     * @param convertView a recycled view that can be reused (if available).
+     * @param parent the parent ViewGroup that the new view will be attached to.
+     * @return the View for the specified position in the list.
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.notification_list, parent, false);
         }
 
+        // Get the notification at the specified position.
         Notification notification = notifications.get(position);
 
-        // Initialize the views.
+        // Initialize the views within the notification_list layout.
         TextView messageView = convertView.findViewById(R.id.notification_message);
         TextView statusView = convertView.findViewById(R.id.notification_event_name);
         TextView eventIdView = convertView.findViewById(R.id.notification_event_id);
 
+        // Set the text for each view based on the Notification object's data.
         messageView.setText(notification.getMessage());
         statusView.setText(notification.getStatus());
         eventIdView.setText("Event ID: " + notification.getEventId());
 
+        // Return the completed view for this list item.
         return convertView;
     }
 }

@@ -7,7 +7,9 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+/**
+ * Controller for managing Waitlist operations.
+ */
 public class WaitListController {
     private final WaitList waitList;
     private final WaitListRepository waitListRepository;

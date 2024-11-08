@@ -24,6 +24,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+/**
+ * The {@code BrowseEventsActivity} class is responsible for displaying a list of events
+ * that users (either admins or participants) can browse in the app.
+ * This activity interacts with Firebase Firestore to load and display events from the "events" collection.
+ * It also manages user-specific navigation and event selection behavior based on the user's type.
+ */
 public class BrowseEventsActivity extends AppCompatActivity {
     private static final String TAG = "BrowseEventsActivity";
 
@@ -39,13 +45,19 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private String currentUserType;
     private UserRepository userRepository;
 
-
+    /**
+     * This method is called when the activity is created. It sets up the UI, initializes the necessary components,
+     * and fetches events from Firestore.
+     * It also retrieves the user type and handles item click actions for navigating to event details.
+     *
+     * @param savedInstanceState a Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_events);
 
-        // Initialize Firestore, Collections and user repo
+        // Initialize Firestore, Collections, and user repo
         firestore = FirebaseFirestore.getInstance();
         eventsCollection = firestore.collection("events");
         userRepository = new UserRepository();
@@ -62,7 +74,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
         // Fetch events from Firestore
         loadEventsFromFirestore();
 
-        //Get user type of current device
+        // Get user type of current device
         deviceId = getDeviceId(this);
         userRepository.checkUserExistsAndGetUserType(deviceId, new UserRepository.UserTypeCallback() {
             @Override
@@ -96,23 +108,23 @@ public class BrowseEventsActivity extends AppCompatActivity {
             }
         });
 
+        // Handle back button click to navigate back based on user type
         backButton = findViewById(R.id.browseEventsBackBtn);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (currentUserType.equals("ADMIN")) {
-                    Intent intent = new Intent(BrowseEventsActivity.this, AdminHomeActivity.class);
-                    startActivity(intent);
-                } else if (currentUserType.equals("PARTICIPANT")) {
-                    Intent intent = new Intent(BrowseEventsActivity.this, EntrantHomeView.class);
-                    startActivity(intent);
-                }
+        backButton.setOnClickListener(view -> {
+            if (currentUserType.equals("ADMIN")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, AdminHomeActivity.class);
+                startActivity(intent);
+            } else if (currentUserType.equals("PARTICIPANT")) {
+                Intent intent = new Intent(BrowseEventsActivity.this, EntrantHomeView.class);
+                startActivity(intent);
             }
         });
     }
 
     /**
-     * Todo add this method to EventRepository
+     * Loads events from Firestore and updates the ListView.
+     * Fetches documents from the "events" collection and adds event names to the list.
+     * Also stores the document snapshots for later use when the event is selected.
      */
     private void loadEventsFromFirestore() {
         eventsCollection.get()
@@ -140,8 +152,13 @@ public class BrowseEventsActivity extends AppCompatActivity {
                 });
     }
 
-    private String getDeviceId(Context context){
+    /**
+     * Returns the unique device ID for the current device.
+     *
+     * @param context the application context.
+     * @return the unique device ID.
+     */
+    private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
-
 }

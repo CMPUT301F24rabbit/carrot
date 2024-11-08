@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -25,14 +24,17 @@
         android:layout_marginBottom="16dp"
         />
 
-    <!-- Scroll View Start now -->
+    <!-- Scroll View Start -->
+
+    <!-- Buttons at the bottom -->
     <ScrollView
         android:id="@+id/scrollViewContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@+id/event_DetailNameTitleView"
         android:layout_above="@+id/button_DetailContainer"
-        android:layout_marginBottom="16dp">
+        android:layout_below="@+id/event_DetailNameTitleView"
+        android:layout_marginTop="-2dp"
+        android:layout_marginBottom="50dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,45 +46,40 @@
                 android:id="@+id/event_DetailDateView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Date:"
-                android:textSize="16sp"
                 android:layout_marginBottom="8dp"
-                />
+                android:text="Date:"
+                android:textSize="16sp" />
 
             <!-- Event Location -->
             <TextView
                 android:id="@+id/event_DetailLocationView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Location"
-                android:textSize="16sp"
                 android:layout_marginBottom="8dp"
-                />
+                android:text="Location"
+                android:textSize="16sp" />
 
             <!-- Event Time -->
             <TextView
                 android:id="@+id/event_DetailTimeView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Time"
-                android:textSize="16sp"
                 android:layout_marginBottom="8dp"
-                />
+                android:text="Time"
+                android:textSize="16sp" />
 
             <!-- Event Details -->
             <TextView
                 android:id="@+id/event_DetailDetailsView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Details:"
-                android:textSize="16sp"
                 android:layout_marginBottom="8dp"
-                />
+                android:text="Details:"
+                android:textSize="16sp" />
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- Buttons at the bottom -->
     <LinearLayout
         android:id="@+id/button_DetailContainer"
         android:layout_width="match_parent"
@@ -109,6 +106,7 @@
             android:text="Delete Event" />
 
         <!-- Entrants Button -->
+
         <Button
             android:id="@+id/button_DetailViewEventLists"
             android:layout_width="wrap_content"
@@ -116,6 +114,21 @@
             android:text="Lists"
             android:layout_margin="8dp"/>
 
-        </LinearLayout>
+        <!-- New Button to open the dialog -->
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_SelectLotteryUsers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_DetailContainer"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="77dp"
+        android:layout_marginBottom="24dp"
+        android:text="Select Users for Lottery" />
 
 </RelativeLayout>

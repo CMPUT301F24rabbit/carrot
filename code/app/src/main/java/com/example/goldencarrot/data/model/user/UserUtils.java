@@ -3,7 +3,10 @@ package com.example.goldencarrot.data.model.user;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+/**
+ * utilization of the User interface.
+ * This class sets the acceptable values for the user type.
+ * */
 public class UserUtils {
     public static final String USER_TYPE = "USER_TYPE";
     public static final String ORGANIZER_TYPE = "ORGANIZER";
