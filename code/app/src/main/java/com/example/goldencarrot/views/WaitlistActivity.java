@@ -24,35 +24,46 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Map;
-
+/**
+ * This activity displays the user's waitlist for events. The user can view the events they are waiting for and remove themselves
+ * from the waitlist. The waitlist data is fetched from Firestore, and any changes (such as removing a user from the waitlist)
+ * are reflected in real-time.
+ */
 public class WaitlistActivity extends AppCompatActivity {
 
+    // ListView for displaying the waitlist of events
     private ListView waitingListView;
+
+    // Adapter for the ListView to display event names
     private ArrayAdapter<String> adapter;
+
+    // List to store event names for the waitlist
     private ArrayList<String> waitlist;
 
-    // Firestore database reference
+    // Firestore database reference to access the "waitlist" collection
     private FirebaseFirestore firestore;
     private CollectionReference waitlistRef;
 
+    /**
+     * Called when the activity is created. Sets up the UI components, initializes Firestore,
+     * and loads the user's waitlist data.
+     *
+     * @param savedInstanceState The saved instance state if the activity is being re-initialized.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_waitlist);
 
-        // Initialize the ListView
+        // Initialize ListView and ArrayList
         waitingListView = findViewById(R.id.waitingListView);
-
-        // Initialize the waitlist ArrayList
         waitlist = new ArrayList<>();
 
-        // Initialize back button and set a click listener
+        // Set up back button to return to the previous activity
         Button backButton = findViewById(R.id.button_back_to_previous_activity);
-        backButton.setOnClickListener(v -> {
-            finish();
-        });
+        backButton.setOnClickListener(v -> finish());
 
-        // Set up the custom adapter with ArrayAdapter using the custom view
+        // Initialize the adapter with custom layout for each list item
         adapter = new ArrayAdapter<String>(this, R.layout.entrant_waitlist_item, R.id.EventNameTextView, waitlist) {
             @Override
             public View getView(final int position, View convertView, ViewGroup parent) {
@@ -61,19 +72,15 @@ public class WaitlistActivity extends AppCompatActivity {
                     convertView = inflater.inflate(R.layout.entrant_waitlist_item, parent, false);
                 }
 
-                // Get the event name TextView and set the event name
+                // Set the event name text in the ListView item
                 TextView eventNameTextView = convertView.findViewById(R.id.EventNameTextView);
                 eventNameTextView.setText(getItem(position));
 
-                // Set up leave button to remove participant from waitlist in Firestore
+                // Set up the leave button to remove the user from the waitlist
                 Button leaveButton = convertView.findViewById(R.id.leaveButton);
-                leaveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String eventToRemove = getItem(position);
-                        // Remove item from Firestore and update the ListView
-                        removeEventFromWaitlist(eventToRemove, position);
-                    }
+                leaveButton.setOnClickListener(v -> {
+                    String eventToRemove = getItem(position);
+                    removeEventFromWaitlist(eventToRemove, position);
                 });
 
                 return convertView;
@@ -83,14 +90,18 @@ public class WaitlistActivity extends AppCompatActivity {
         // Set the adapter to the ListView
         waitingListView.setAdapter(adapter);
 
-        // Initialize Firestore and reference to the "waitlist" collection
+        // Initialize Firestore and reference the "waitlist" collection
         firestore = FirebaseFirestore.getInstance();
         waitlistRef = firestore.collection("waitlist");
 
-        // Load data from Firestore
+        // Load the waitlist data from Firestore
         loadWaitlistData();
     }
 
+    /**
+     * Loads the user's waitlist data from Firestore. It queries the "waitlist" collection
+     * and updates the local `waitlist` ArrayList with events the user is waiting for.
+     */
     private void loadWaitlistData() {
         waitlistRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -98,20 +109,21 @@ public class WaitlistActivity extends AppCompatActivity {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
                     if (usersMap.containsKey(getDeviceId(this))) {
-                        String event = document.getString("eventName"); // Assumes each document has an "eventName" field
+                        String event = document.getString("eventName"); // Get event name
                         if (event != null) {
                             waitlist.add(event);
                         }
                     }
                 }
-                adapter.notifyDataSetChanged(); // Refresh the adapter
+                adapter.notifyDataSetChanged(); // Refresh the adapter to display the updated list
             } else {
                 Log.e("WaitlistActivity", "Error getting waitlist data", task.getException());
             }
         });
     }
+
     /**
-     * Retrieves the Android device ID.
+     * Retrieves the Android device ID for the current device.
      *
      * @param context The application context.
      * @return The device ID as a string.
@@ -120,6 +132,12 @@ public class WaitlistActivity extends AppCompatActivity {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * Removes the specified event from the user's waitlist in Firestore and updates the local ListView.
+     *
+     * @param eventToRemove The event name to remove from the waitlist.
+     * @param position The position of the event in the ListView.
+     */
     private void removeEventFromWaitlist(String eventToRemove, int position) {
         String deviceId = getDeviceId(this);
 
@@ -128,15 +146,15 @@ public class WaitlistActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot document : task.getResult()) {
-                            document.getReference().update("users." + deviceId, FieldValue.delete()) // Remove the item from Firestore
+                            document.getReference().update("users." + deviceId, FieldValue.delete()) // Remove the user from Firestore
                                     .addOnSuccessListener(aVoid -> {
-                                        waitlist.remove(position); // Remove from local list
+                                        waitlist.remove(position); // Remove from the local waitlist
                                         adapter.notifyDataSetChanged(); // Refresh the ListView
-                                        Log.d("WaitlistActivity", "user successfully removed from waitlist for event" + eventToRemove);
+                                        Log.d("WaitlistActivity", "User successfully removed from waitlist for event " + eventToRemove);
 
+                                        // Return to the home view after removal
                                         Intent intent = new Intent(WaitlistActivity.this, EntrantHomeView.class);
                                         startActivity(intent);
-
                                     })
                                     .addOnFailureListener(e -> Log.e("WaitlistActivity", "Error removing event", e));
                         }

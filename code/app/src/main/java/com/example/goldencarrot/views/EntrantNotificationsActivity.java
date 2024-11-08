@@ -24,46 +24,53 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Activity that handles displaying notifications for the entrant user.
+ * This activity fetches the user's notifications from the database,
+ * displays them in a list, and allows the user to accept or decline notifications.
+ * Notifications can also be deleted from the list.
+ */
 public class EntrantNotificationsActivity extends AppCompatActivity {
-    NotificationRepository notificationRepository;
-    NotificationAdapter adapter;
-    List<Notification> notifications;
+
+    private NotificationRepository notificationRepository;
+    private NotificationAdapter adapter;
+    private List<Notification> notifications;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_notifications_view);
 
-        NotificationRepository notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
+        // Initialize the NotificationRepository to fetch notifications from Firestore
+        notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
 
+        // Initialize UI components
         Button backButton = findViewById(R.id.back_button_notifications);
-
         notifications = new ArrayList<>();
 
-
-        // Initialize adapter
+        // Initialize the adapter for notifications
         adapter = new NotificationAdapter(this, notifications);
         ListView listView = findViewById(R.id.notification_list_view);
         listView.setAdapter(adapter);
 
-        // get notifications for user
+        // Fetch notifications for the current user
         notificationRepository.getNotificationsByUserId(getDeviceId(this),
                 new NotificationRepository.NotificationCallback<List<Notification>>() {
-            @Override
-            public void onSuccess(List<Notification> result) {
-                Toast.makeText(EntrantNotificationsActivity.this, "Got notifications", Toast.LENGTH_SHORT).show();
-                notifications.clear();
-                notifications.addAll(result);
-                adapter.notifyDataSetChanged();
-            }
+                    @Override
+                    public void onSuccess(List<Notification> result) {
+                        Toast.makeText(EntrantNotificationsActivity.this, "Got notifications", Toast.LENGTH_SHORT).show();
+                        notifications.clear();
+                        notifications.addAll(result);
+                        adapter.notifyDataSetChanged();
+                    }
 
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(EntrantNotificationsActivity.this, "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(EntrantNotificationsActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
+        // Handle item clicks in the notification list
         listView.setOnItemClickListener((adapterView, view, index, id) -> {
             Notification selectedNotification = notifications.get(index);
             String notificationId = selectedNotification.getNotificationId();
@@ -73,64 +80,64 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                 return;
             }
 
-            // Show dialog
+            // Show dialog with options to accept or decline the notification
             new AlertDialog.Builder(EntrantNotificationsActivity.this)
                     .setTitle("Notification")
                     .setMessage(selectedNotification.getMessage())
                     .setPositiveButton("ACCEPT", (dialog, which) -> {
-                        // Call deleteNotification method
-                        notificationRepository.deleteNotification(notificationId, new NotificationRepository.NotificationCallback<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean result) {
-                                Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
-                                notifications.remove(index);
-                                adapter.notifyDataSetChanged();
-                                changeStatusInWaitList();
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Toast.makeText(EntrantNotificationsActivity.this, "Error deleting notification", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        handleNotificationAction(notificationId, index);
                     })
                     .setNegativeButton("DECLINE", (dialog, which) -> {
-                        notificationRepository.deleteNotification(notificationId, new NotificationRepository.NotificationCallback<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean result) {
-                                Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
-                                notifications.remove(index);
-                                adapter.notifyDataSetChanged();
-                                changeStatusInWaitList();
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Toast.makeText(EntrantNotificationsActivity.this, "Error deleting notification", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        handleNotificationAction(notificationId, index);
                     })
                     .show();
         });
 
+        // Handle back button click to navigate back to the home view
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EntrantNotificationsActivity.this, EntrantHomeView.class);
+            startActivity(intent);
+        });
+    }
 
-        backButton.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Handles notification actions (accept or decline) by deleting the notification
+     * and performing necessary status changes in the waitlist.
+     *
+     * @param notificationId The ID of the notification being acted upon.
+     * @param index The index of the notification in the list.
+     */
+    private void handleNotificationAction(String notificationId, int index) {
+        notificationRepository.deleteNotification(notificationId, new NotificationRepository.NotificationCallback<Boolean>() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(EntrantNotificationsActivity.this,
-                        EntrantHomeView.class);
-                startActivity(intent);
+            public void onSuccess(Boolean result) {
+                Toast.makeText(EntrantNotificationsActivity.this, "Notification deleted", Toast.LENGTH_SHORT).show();
+                notifications.remove(index);
+                adapter.notifyDataSetChanged();
+                changeStatusInWaitList();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(EntrantNotificationsActivity.this, "Error deleting notification", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     /**
-     * Todo change the user status in the waitlist
+     * TODO: Implement logic to change the user's status in the waitlist when a notification is accepted or declined.
      */
     private void changeStatusInWaitList() {
+        // Logic to update user status in waitlist
     }
 
-    private String getDeviceId(Context context){
+    /**
+     * Retrieves the Android device ID for the current device.
+     *
+     * @param context The application context.
+     * @return The device ID as a string.
+     */
+    private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }

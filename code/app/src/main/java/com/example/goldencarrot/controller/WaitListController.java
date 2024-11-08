@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-
 /**
  * Provides methods to edit a WaitList Model and make changes in firebase.
  *

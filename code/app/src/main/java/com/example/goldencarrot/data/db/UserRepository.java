@@ -120,6 +120,8 @@ public class UserRepository {
         updatedUserData.put("email", user.getEmail());
         updatedUserData.put("userType", user.getUserType());
         updatedUserData.put("name", user.getName());
+        updatedUserData.put("adminNotification", user.getAdminNotification());
+        updatedUserData.put("organizerNotification", user.getOrganizerNotifications());
         // Add phoneNumber if it is not null
         user.getPhoneNumber().ifPresent(phone -> updatedUserData.put("phoneNumber", phone));
 
