@@ -7,6 +7,7 @@ import java.util.Optional;
  *
  * This interface defines the basic attributes and behaviors of a user, including their contact details, user type,
  * and notification preferences. The implementing class must provide methods for getting and setting these properties.
+ * Todo : User controller class that validates user creation and deletion
  */
 public interface User {
 
@@ -60,7 +61,7 @@ public interface User {
     Boolean getOrganizerNotifications();
 
     /**
-     * Sets the unique user ID.
+     * Sets the unique user ID. Should be the Android Id
      *
      * @param uId the user ID to set.
      */
@@ -69,7 +70,8 @@ public interface User {
     /**
      * Sets the phone number of the user.
      *
-     * @param phoneNumber an Optional containing the user's phone number, or an empty Optional if no phone number is provided.
+     * @param phoneNumber an Optional containing the user's phone number, or an empty Optional
+     *                    if no phone number is provided
      */
     void setPhoneNumber(Optional<String> phoneNumber);
 }
