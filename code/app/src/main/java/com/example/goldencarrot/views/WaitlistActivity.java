@@ -35,7 +35,7 @@ public class WaitlistActivity extends AppCompatActivity {
     private CollectionReference waitlistRef;
     private UserRepository userRepository;
     private String deviceId;
-    private String currentUserId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,21 +57,6 @@ public class WaitlistActivity extends AppCompatActivity {
 
 
         deviceId = getDeviceId(this);
-        userRepository.getCurrentUserId(deviceId, new UserRepository.FirestoreCallbackUserId() {
-            @Override
-            public void onUserIdRetrieved(String userId) {
-                Log.d("WaitlistActivity", "Current user ID: " + userId);
-                currentUserId = userId;
-
-                // Now you can use this userId in removeEventFromWaitlist or other methods
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e("WaitlistActivity", "Failed to retrieve user ID: " + e.getMessage());
-                // Handle failure (e.g., prompt user to log in)
-            }
-        });
 
         // Set up the custom adapter with ArrayAdapter using the custom view
         adapter = new ArrayAdapter<String>(this, R.layout.entrant_waitlist_item, R.id.EventNameTextView, waitlist) {
@@ -93,7 +78,7 @@ public class WaitlistActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         String eventToRemove = getItem(position);
                         // Remove item from Firestore and update the ListView
-                        removeEventFromWaitlist(eventToRemove, position, currentUserId);
+                        removeEventFromWaitlist(eventToRemove, position, deviceId);
                     }
                 });
 

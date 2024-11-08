@@ -203,36 +203,6 @@ public class UserRepository {
                     Log.e(TAG, "Error fetching user: " + e.getMessage(), e);
                 });
     }
-    /**
-     * Retrieves the current user's ID based on their Android ID.
-     *
-     * @param androidId The unique Android ID of the user.
-     * @param callback A callback to handle the result (userId if exists, or null if not found).
-     */
-    public void getCurrentUserId(String androidId, FirestoreCallbackUserId callback) {
-        DocumentReference userRef = db.collection("users").document(androidId);
-
-        userRef.get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Retrieve and return the user ID
-                        String userId = documentSnapshot.getId();  // Use document ID as userId
-                        callback.onUserIdRetrieved(userId);
-                    } else {
-                        callback.onFailure(new Exception("User not found"));
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    callback.onFailure(e);
-                    Log.e(TAG, "Error fetching user ID: " + e.getMessage(), e);
-                });
-    }
-
-    // Callback interface to handle user ID retrieval
-    public interface FirestoreCallbackUserId {
-        void onUserIdRetrieved(String userId);
-        void onFailure(Exception e);
-    }
 
     /**
      * Callback interface for querying for a single user.
