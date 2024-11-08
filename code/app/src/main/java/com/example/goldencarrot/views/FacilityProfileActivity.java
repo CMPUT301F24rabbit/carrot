@@ -7,9 +7,8 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
-import com.example.goldencarrot.data.model.user.UserImpl;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.goldencarrot.data.db.FacilityRepository;
+import com.example.goldencarrot.data.model.user.FacilityUserImpl;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -18,7 +17,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class FacilityProfileActivity extends AppCompatActivity {
     private static final String TAG = "FacilityProfileActivity";
@@ -59,7 +57,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
         facilityRepository.loadFacilityProfile(facilityID, task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 DocumentSnapshot documentSnapshot = task.getResult();
-                UserImpl profile = task.getResult().toObject(UserImpl.class);
+                FacilityUserImpl profile = task.getResult().toObject(FacilityUserImpl.class);
                 if (profile != null) {
                     nameEditText.setText(profile.getName());
                     locationEditText.setText(profile.getLocation().orElse(""));

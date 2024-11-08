@@ -22,7 +22,7 @@ public class OrganizerCancelledView extends AppCompatActivity {
     private static final String TAG = "OrganizerCancelledView";
 
     private RecyclerView recyclerView;
-    private CancelledUsersAdapter adapter;
+    private UserArrayAdapter adapter;
     private ArrayList<User> cancelledUsersList = new ArrayList<>();
     public FirebaseFirestore db;
 
@@ -38,7 +38,7 @@ public class OrganizerCancelledView extends AppCompatActivity {
         recyclerView = findViewById(R.id.cancelledUsersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new CancelledUsersAdapter(cancelledUsersList);
+        adapter = new UserArrayAdapter(cancelledUsersList);
         recyclerView.setAdapter(adapter);
 
         // Load Cancelled Users

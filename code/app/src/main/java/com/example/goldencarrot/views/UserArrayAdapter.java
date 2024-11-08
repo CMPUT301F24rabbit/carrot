@@ -11,11 +11,11 @@ import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.model.user.User;
 import java.util.ArrayList;
 
-public class CancelledUsersAdapter extends RecyclerView.Adapter<CancelledUsersAdapter.CancelledUsersViewHolder> {
+public class UserArrayAdapter extends RecyclerView.Adapter<UserArrayAdapter.CancelledUsersViewHolder> {
 
     private ArrayList<User> cancelledUsersList;
 
-    public CancelledUsersAdapter(ArrayList<User> cancelledUsersList) {
+    public UserArrayAdapter(ArrayList<User> cancelledUsersList) {
         this.cancelledUsersList = cancelledUsersList;
     }
 

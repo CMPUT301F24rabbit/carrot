@@ -5,7 +5,9 @@ import android.util.Log;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -245,4 +247,5 @@ public class WaitListRepository implements WaitListDb {
         void onSuccess(Object result);
         void onFailure(Exception e);
     }
+
 }
