@@ -122,7 +122,6 @@ public class WaitListRepository implements WaitListDb {
      * @param user    the user to update
      * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
      */
-
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {
         Map<String, Object> updateData = new HashMap<>();
@@ -238,7 +237,7 @@ public class WaitListRepository implements WaitListDb {
     }
 
     /**
-     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined"
+     * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined", etc...)
      * @param docId    the document ID of the waitlist
      * @param status   the status to filter users by (e.g., "waiting", "accepted")
      * @param callback a callback that returns a list of names with the specified status

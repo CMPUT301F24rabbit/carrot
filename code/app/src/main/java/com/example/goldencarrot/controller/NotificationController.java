@@ -4,8 +4,8 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationUtils;
 
 /**
- * Notification controller provides all the methods to update
- * the Notification model
+ * Notification Controller provides all the methods to update
+ * the Notification Model
  */
 public class NotificationController {
     Notification notification;

@@ -5,18 +5,53 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 
 import java.util.Date;
 /**
- * The {@code Event} class represents an Event stored in the system.
- * It stores the Organizer User object that created the event.
- * This class provides methods to update and create Event objects.
+ *  The {@code Event} Class represents an Event stored in the system
+ *  It stores the Organizer User Object that created the event
+ *
+ *  This class provides implements methods to update and
+ *  create Event Model Objects.
  */
 public class Event implements EventConfigurator {
+
+    /**
+     * UserImpl organizer that created the event
+     */
     private UserImpl organizer;
+
+    /**
+     * Waitlist object model related to the event. Event object model
+     * should be created first.
+     */
     private WaitList waitList;
+
+    /**
+     * Name assigned to the event
+     */
     private String eventName;
+
+    /**
+     * Location of the event
+     */
     private String location;
+
+    /**
+     * Event Id associated to the event model object in firebase events table
+     */
     private String eventId;
+
+    /**
+     * Event Details String provided by the organizer when creating the event
+     */
     private String eventDetails;
+
+    /**
+     * Organizer Id associated with user record in the users table
+     */
     private String organizerId;
+
+    /**
+     * Waitlist Id 
+     */
     private String waitListId;
     private Date date;
     private int imageResId;

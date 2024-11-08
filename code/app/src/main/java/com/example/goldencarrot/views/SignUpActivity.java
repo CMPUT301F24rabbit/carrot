@@ -11,13 +11,10 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
-import com.example.goldencarrot.authentication.AccountService;
-import com.example.goldencarrot.authentication.AccountServiceImpl;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Optional;
 /**
@@ -26,14 +23,6 @@ import java.util.Optional;
  * be adjusted in other parts of the application. On successful sign-up, the user is directed to the Entrant home view.
  */
 public class SignUpActivity extends AppCompatActivity {
-
-    // Firebase Authentication instance for user authentication
-    private FirebaseAuth mAuth;
-
-    // Service for account-related operations
-    private AccountService accountService;
-
-    // The type of the user (Participant or Organizer)
     private String userType;
 
     // Repository for managing user data in Firestore
@@ -50,8 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth_sign_up);
 
-        mAuth = FirebaseAuth.getInstance();
-        accountService = new AccountServiceImpl(SignUpActivity.this);
+
         userDb = new UserRepository();
 
         // Default user type is "Participant"

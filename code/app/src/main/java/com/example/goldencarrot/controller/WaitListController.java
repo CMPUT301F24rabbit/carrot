@@ -7,8 +7,11 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 /**
- * Controller for managing Waitlist operations.
+ * Provides methods to edit a WaitList Model and make changes in firebase.
+ *
+ * This controller method can addUserToLottery, and selectRandomWinners
  */
 public class WaitListController {
     private final WaitList waitList;

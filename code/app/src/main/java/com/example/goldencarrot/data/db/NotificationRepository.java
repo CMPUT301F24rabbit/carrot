@@ -50,10 +50,11 @@ public class NotificationRepository {
     }
 
     /**
-     * Adds a new notification to Firestore and uses the callback to notify success or failure.
-     *
-     * @param notification The notification to be added.
-     * @param callback The callback to be invoked on success or failure.
+     * Adds a notification record to notifications table in firebase
+     * It gets a notification Model object and gets all the necessary fields
+     * to populate a notification and generate information
+     * @param notification Notification
+     * @param callback Callback
      */
     public void addNotification(Notification notification, NotificationCallback<Notification> callback) {
         Map<String, Object> notificationData = new HashMap<>();
@@ -72,10 +73,9 @@ public class NotificationRepository {
     }
 
     /**
-     * Retrieves a notification by its unique ID.
-     *
-     * @param notificationId The ID of the notification to retrieve.
-     * @param callback The callback to handle the retrieved notification or failure.
+     * Gets Notification record from Notification table with the same notification id provided.
+     * @param notificationId notfication ID
+     * @param callback interface to add logic to the query resul
      */
     public void getNotification(String notificationId, NotificationCallback<Notification> callback) {
         notificationsCollection.document(notificationId).get()
