@@ -79,7 +79,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waitlisted_events_title"/>
+        app:layout_constraintTop_toBottomOf="@+id/waitlisted_events_title" />
 
     <Button
         android:id="@+id/button_explore_events"
@@ -89,6 +89,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/waitlisted_events" />
+
+    <Button
+        android:id="@+id/notifications_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:text="Notifications"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_explore_events"
         app:layout_constraintTop_toBottomOf="@+id/waitlisted_events" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
