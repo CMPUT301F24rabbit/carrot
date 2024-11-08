@@ -30,7 +30,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class OrganizerCreateEvent extends AppCompatActivity {
-    private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText, eventDateEditText;
+    private EditText eventNameEditText,
+            eventLocationEditText,
+            eventDetailsEditText,
+            eventDateEditText,
+            eventLimit;
     private EventRepository eventRepository;
     private UserRepository userRepository;
     private WaitListRepository waitListRepository;
@@ -54,6 +58,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventLocationEditText = findViewById(R.id.eventLocationEditText);
         eventDetailsEditText = findViewById(R.id.eventDetailsEditText);
         eventDateEditText = findViewById(R.id.eventDateEditText);
+        eventLimit = findViewById(R.id.waitlistLimitEditText);
         Button createEventButton = findViewById(R.id.createEventButton);
 
         // Set onClickListener for the Create Event button
@@ -97,6 +102,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 Log.d(TAG, "Error getting current user");
             }
         });
+
         // create event with current user as organizer
         Event event = new Event(organizer);
         event.setEventName(eventName);
@@ -104,26 +110,25 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         event.setEventDetails(details);
         event.setDate(date);
         event.setOrganizerId(getIntent().getStringExtra("userId"));
+        eventRepository.addEvent(event);
         // create waitlist for event
         /**
          * todo
          * let organizer fill out field for waitlist size limit
          */
-        WaitList waitList = new WaitList(30,
-                db.collection("waitlist").document().getId(),
-                event.getEventName(),
-                new ArrayList<UserImpl>());
         // generate a waitlist id
-        waitList.setWaitListId(db.collection("waitlist").document().getId());
-        event.setEventId(db.collection("events").document().getId());
-        event.setWaitListId(waitList.getWaitListId());
+        // waitList.setWaitListId(db.collection("waitlist").document().getId());
+        //event.setEventId(db.collection("events").document().getId());
+        //event.setWaitListId(waitList.getWaitListId());
         // Add waitlist and event to Firestore
-        eventRepository.addEvent(event);
-        waitList.setEventId(event.getEventId());
-        Log.d("OrganizerCreateEvent", "create waitlist");
-        waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
-
-
-        Toast.makeText(this, "Event created successfully", Toast.LENGTH_SHORT).show();
+//        WaitList waitList = new WaitList();
+//        waitList.setLimitNumber(30);
+//        waitList.setEventId(event.getEventId());
+//        waitList.setUserArrayList(new ArrayList<UserImpl>());
+//        Log.d("OrganizerCreateEvent", "create waitlist");
+//        waitListRepository.createWaitList(waitList, waitList.getEventId(), event.getEventName());
+//
+//
+//        Toast.makeText(this, "Event created successfully", Toast.LENGTH_SHORT).show();
     }
 }
