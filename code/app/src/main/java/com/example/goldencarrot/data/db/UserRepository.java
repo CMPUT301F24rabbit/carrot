@@ -18,9 +18,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Queries User DB
+ * Provides necessary methods to update, delete, and write User model objects into
+ * firebase User table. The User Id will be the same as the device ID
+ *
+ * Please see firebase for more detatils on the document structure
  */
 public class UserRepository {
     private static final String TAG = "DB" ;
@@ -37,10 +41,10 @@ public class UserRepository {
     }
 
     /**
-     * Todo Implemet this method
-     * @param user
+     * Adds a new User to firebase users table.
+     * Provides on success and on failure listenings to handle the result of the operation.
+     * @param user model object to add.
      */
-    // Add user to Firestore
     public void addUser(final User user, final String androidId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -50,6 +54,8 @@ public class UserRepository {
         userData.put("name", user.getName());
         // Only add phoneNumber if it is present (non-empty)
         user.getPhoneNumber().ifPresent(phone -> userData.put("phoneNumber", phone));
+        userData.put("organizerNotification", user.getOrganizerNotifications());
+        userData.put("adminNotification", user.getAdminNotification());
 
         Log.d(TAG, "Email: " + user.getEmail());
         Log.d(TAG, "User Type: " + user.getUserType());
@@ -79,14 +85,14 @@ public class UserRepository {
      * and retrieves the userType if the user exists.
      *
      * @param androidId The Android ID to be used as the document ID.
-     * @param callback A callback to handle the result (boolean indicating existence, and userType if exists).
+     * @param callback A callback to handle the result of the operation.
      */
     public void checkUserExistsAndGetUserType(String androidId, UserTypeCallback callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // The document exists, retrieve the userType
+                        // The document exists, get the userType
                         String userType = documentSnapshot.getString("userType");
                         callback.onResult(true, userType);
                     } else {
@@ -95,7 +101,7 @@ public class UserRepository {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // In case of an error, assume the document does not exist
+                    // Fatal Error
                     callback.onResult(false, null);
                     Log.e(TAG, "Error checking if user exists: " + e.getMessage(), e);
                 });
@@ -114,7 +120,9 @@ public class UserRepository {
         updatedUserData.put("email", user.getEmail());
         updatedUserData.put("userType", user.getUserType());
         updatedUserData.put("name", user.getName());
-        // Only add phoneNumber if it is present (non-empty)
+        updatedUserData.put("adminNotification", user.getAdminNotification());
+        updatedUserData.put("organizerNotification", user.getOrganizerNotifications());
+        // Add phoneNumber if it is not null
         user.getPhoneNumber().ifPresent(phone -> updatedUserData.put("phoneNumber", phone));
 
         Log.d(TAG, "Updating User: " + androidId);
@@ -131,7 +139,7 @@ public class UserRepository {
                     System.out.println("User updated successfully");
                 })
                 .addOnFailureListener(e -> {
-                    // Handle the error
+                    // Handle error
                     Log.e(TAG, "Error updating user: " + e.getMessage(), e);
                     System.err.println("Error updating user: " + e.getMessage());
                 });
@@ -140,7 +148,7 @@ public class UserRepository {
     /**
      * Deletes a user from Firestore using the Android ID as the document ID.
      *
-     * @param androidId The Android device ID used as the document ID.
+     * @param androidId The Android device ID used as the document ID to delete
      */
     public void deleteUser(final String androidId) {
         // Reference to the user document
@@ -189,12 +197,20 @@ public class UserRepository {
      */
     public void getSingleUser(String androidId, FirestoreCallbackSingleUser callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
-
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        UserImpl user = documentSnapshot.toObject(UserImpl.class);
-                        callback.onSuccess(user); // Pass the user object to the callback
+                        try {
+                            UserImpl user = new UserImpl(documentSnapshot.getString("email"),
+                                    documentSnapshot.getString("userType"),
+                                    documentSnapshot.getString("name"),
+                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
+                                    documentSnapshot.getBoolean("administratiorNotification"),
+                                    documentSnapshot.getBoolean("organizerNotification"));
+                            callback.onSuccess(user); // Pass the user object to the callback
+                        } catch (Exception e) {
+
+                        }
                     } else {
                         callback.onFailure(new Exception("User not found"));
                     }

@@ -6,6 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
 
+/**
+ * Allows Organizer to manage profile
+ * To DO
+ */
 public class OrganizerManageProfileActivity extends AppCompatActivity {
 
     @Override
