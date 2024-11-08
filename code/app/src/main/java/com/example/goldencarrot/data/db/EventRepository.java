@@ -106,6 +106,10 @@ public class EventRepository {
                         event.setLocation(documentSnapshot.getString("location"));
                         event.setWaitListId(documentSnapshot.getString("waitlistId"));
                         event.setOrganizerId(documentSnapshot.getString("organizerId"));
+
+                        // checks if geolocation is enabled
+                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.
+                                getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);
                     } else {
                         Log.w(TAG, "No event found with ID: " + eventId);
