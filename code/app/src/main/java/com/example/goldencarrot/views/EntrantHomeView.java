@@ -102,6 +102,15 @@ public class EntrantHomeView extends AppCompatActivity {
             startActivity(intent);
         });
 
+        profileImageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Intent intent = new Intent(EntrantHomeView.this, EntrantEditUserDetailsView.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+
         // Load event data
         loadEventData();
     }
