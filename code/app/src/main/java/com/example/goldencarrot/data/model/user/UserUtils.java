@@ -10,6 +10,11 @@ public class UserUtils {
     public static final String PARTICIPANT_TYPE = "PARTICIPANT";
     public static final String ADMIN_TYPE = "ADMIN";
 
+    // waitlist user statuses
+    public static final String WAITING_STATUS = "waiting";
+    public static final String ACCEPTED_STATUS = "accepted";
+    public static final String DECLINED_STATUS = "declined";
+
     // List of valid user types, immutable for safety
     public static final List<String> validUserTypes = Collections.unmodifiableList(
             Arrays.asList(ORGANIZER_TYPE, PARTICIPANT_TYPE, ADMIN_TYPE)
