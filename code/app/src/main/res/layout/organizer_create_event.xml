@@ -9,42 +9,35 @@
         android:id="@+id/eventNameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Name" />
+        android:hint="Event Name"/>
 
     <EditText
         android:id="@+id/eventLocationEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Location" />
+        android:hint="Location"/>
 
     <EditText
         android:id="@+id/eventDetailsEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Details" />
+        android:hint="Event Details"/>
 
     <EditText
         android:id="@+id/eventDateEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Date (e.g., DD-MM-YYYY)" />
+        android:hint="Event Date (dd-MM-yyyy)"/>
+
     <EditText
         android:id="@+id/waitlistLimitEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Waitlist Limit (Optional)"
-        android:inputType="number" />
+        android:hint="Waitlist Limit (Optional)"/>
 
     <Button
         android:id="@+id/createEventButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Event" />
-
-    <TextView
-        android:id="@+id/successMessageTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Event created successfully"
-        android:visibility="gone" />
+        android:text="Create Event"/>
 </LinearLayout>

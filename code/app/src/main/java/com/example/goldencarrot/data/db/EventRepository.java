@@ -3,6 +3,8 @@ package com.example.goldencarrot.data.db;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.CollectionReference;
@@ -35,7 +37,7 @@ public class EventRepository {
      * Creates a new event document in Firestore
      * @param event is the event to be added
      */
-    public void addEvent(Event event) {
+    public void addEvent(Event event, @Nullable Integer waitlistLimit) {
         Map<String, Object> eventData = new HashMap<>();
 
         // Add event attributes to Firestore
@@ -56,19 +58,22 @@ public class EventRepository {
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Event ID updated in Firestore"))
                             .addOnFailureListener(e -> Log.w(TAG, "Error updating event ID", e));
 
-
-                    // Now create the WaitList after event ID is set
                     WaitListRepository waitListRepository = new WaitListRepository();
-
                     WaitList waitList = new WaitList();
-                    waitList.setLimitNumber(30);
+
+                    // Set the limit only if specified by the organizer; otherwise, leave as "no limit" (null)
+                    if (waitlistLimit != null) {
+                        waitList.setLimitNumber(waitlistLimit);
+                    }
                     waitList.setEventId(event.getEventId());
                     waitList.setUserArrayList(new ArrayList<>());
+
                     waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating event", e));
     }
+
 
     /**
      * deletes event from Firestore
