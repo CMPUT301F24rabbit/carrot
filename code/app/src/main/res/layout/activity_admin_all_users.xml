@@ -4,11 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<<< HEAD:code/app/src/main/res/layout/activity_admin_all_users.xml
     tools:context=".views.AdminAllProfilesView">
-========
-    tools:context=".views.AdminAllEventsView">
->>>>>>>> 213c892ed06350ccd467dc4f3b70dd78d6be666b:code/app/src/main/res/layout/activity_admin_all_events.xml
 
     <ListView
         android:id="@+id/allUsersList"
