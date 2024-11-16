@@ -2,9 +2,11 @@ package com.example.goldencarrot.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import java.util.HashSet;
@@ -33,6 +35,9 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * Activity that displays details of an event organized by the user.
@@ -58,6 +63,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private TextView eventDetailsTextView;
     private PopupWindow entrantsPopup;
     private Button selectLotteryButton;
+    private ImageView qrCodeImageView;
+    private Button generateQRCodeButton;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,6 +96,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         deviceID = getDeviceId(this);
 
+        // QR code button and image view
+        qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
+
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
         backButton.setOnClickListener(view -> {
@@ -108,6 +120,15 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // TODO: Implement lottery selection dialog where the organizer can choose
         // the number of users to approve for the event
         // selectLotteryButton.setOnClickListener(v -> showLotteryDialog());
+
+        // Set onClickListener for the Generate QR Code button
+        generateQRCodeButton.setOnClickListener(view -> {
+            if (eventId == null) {
+                Toast.makeText(this, "Please create an event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            generateQRCode();
+        });
     }
 
     private String getDeviceId(Context context) {
@@ -148,6 +169,27 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    /**
+     * Generates a QR code for the created event, encoding the event's details such as name,
+     * location, date, and description. Displays the QR code in an ImageView.
+     */
+    private void generateQRCode() {
+        if (eventId == null) {
+            Toast.makeText(this, "Please create an event first or ensure it has an ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Encode the event ID as QR code content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+            qrCodeImageView.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showEntrantsPopup() {

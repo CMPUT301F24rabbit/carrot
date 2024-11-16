@@ -1,30 +1,15 @@
 package com.example.goldencarrot.data.model.waitlist;
 
-import com.example.goldencarrot.data.model.event.Event;
-import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
- *  The {@code WaitListConfigurator} interface defines the behavior of a WaitList.
- *  It provides methods to retrieve and update the associated event and the list of users on the waitlist.
+ * The {@code WaitListConfigurator} interface defines the behavior of a WaitList.
+ * It provides methods to retrieve and update the associated event and the list of users on the waitlist.
  */
 public interface WaitListConfigurator {
-
-    /**
-     * Retrieves the list of users currently on the waitlist.
-     *
-     * @return the list of users on the waitlist
-     */
-    ArrayList<UserImpl> getUserArrayList();
-
-    /**
-     * Sets the list of users on the waitlist.
-     *
-     * @param userArrayList the new list of users on the waitlist
-     */
-    void setUserArrayList(final ArrayList<UserImpl> userArrayList);
 
     /**
      * Sets the limit number for the waitlist.
@@ -41,25 +26,30 @@ public interface WaitListConfigurator {
     int getLimitNumber();
 
     /**
-     * Adds a user to the waitlist if it is not full
+     * Removes a user from the waitlist.
      *
-     * @param user the user to be added to the waitlist
-     * @return true if the user was added, false if the waitlist is full
+     * @param user the user to remove from the waitlist
      */
-    boolean addUserToWaitList(final UserImpl user);
+    void removeUserFromWaitList(final UserImpl user);
 
     /**
-     * Gets the Event id related to this waitlist
-     * Event id matches an event record in events DB
+     * Checks if the waitlist is full.
      *
-     * @return Event id
+     * @return true if the waitlist is full, false otherwise
+     */
+    boolean isFull();
+
+    /**
+     * Gets the Event ID associated with this waitlist.
+     *
+     * @return Event ID
      */
     String getEventId();
 
     /**
-     * Sets event id related to an event record in events DB.
+     * Sets the Event ID related to an event record in the events database.
      *
-     * @param eventId related to an event record in events Db
+     * @param eventId the related Event ID
      */
     void setEventId(final String eventId);
 
@@ -77,5 +67,32 @@ public interface WaitListConfigurator {
      */
     void setWaitListId(String waitListId);
 
+    /**
+     * Gets the user map of the waitlist, where the key is a device ID,
+     * and the value is the user's status in the waitlist.
+     *
+     * @return the user map
+     */
+    Map<String, String> getUserMap();
 
+    /**
+     * Sets the user map of the waitlist.
+     *
+     * @param userMap the user map to set, with device IDs as keys and statuses as values
+     */
+    void setUserMap(Map<String, String> userMap);
+
+    /**
+     * Gets the name of the event associated with the waitlist.
+     *
+     * @return the event name
+     */
+    String getEventName();
+
+    /**
+     * Sets the name of the event associated with the waitlist.
+     *
+     * @param eventName the event name to set
+     */
+    void setEventName(String eventName);
 }
