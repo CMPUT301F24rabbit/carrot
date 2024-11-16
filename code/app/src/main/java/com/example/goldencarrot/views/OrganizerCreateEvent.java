@@ -27,6 +27,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
 /**
  * Activity for the organizer to create a new event, including details such as event name,
  * location, description, date, and optional geolocation settings. The organizer can also set
@@ -159,7 +161,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 WaitList waitList = new WaitList();
                 waitList.setLimitNumber(waitlistLimit); // Set limit from user input, or null if no limit
                 waitList.setEventId(event.getEventId());
-                waitList.setUserArrayList(new ArrayList<>());
+                waitList.setUserMap(new HashMap<String,String>());
                 waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 
                 Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();

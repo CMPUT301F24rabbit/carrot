@@ -67,7 +67,6 @@ public class EventRepository {
                         waitList.setLimitNumber(waitlistLimit);
                     }
                     waitList.setEventId(event.getEventId());
-                    waitList.setUserArrayList(new ArrayList<>());
 
                     waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
 

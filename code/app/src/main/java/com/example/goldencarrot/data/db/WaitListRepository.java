@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.data.model.waitlist.WaitListConfigurator;
 import com.example.goldencarrot.views.EntrantEventDetailsActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -48,14 +50,16 @@ public class WaitListRepository implements WaitListDb {
     public void createWaitList(WaitList waitList, String docId, String eventName) {
         Log.d("WaitListRepository", "creating waitlist");
         Map<String, Object> waitListData = new HashMap<>();
-        waitListData.put("eventName", eventName);
-        waitListData.put("limit", waitList.getLimitNumber());
-        waitListData.put("size", waitList.getUserArrayList().size());
-        waitListData.put("eventId", waitList.getEventId());
-        Log.d("WaitListRepository", "creating waitlist for accepted, declined, waiting");
 
         // Create a "users" sub-map to store user statuses
         Map<String, String> usersMap = new HashMap<>();
+
+        waitListData.put("eventName", eventName);
+        waitListData.put("limit", waitList.getLimitNumber());
+        waitListData.put("size", waitList.getUserMap().size());
+        waitListData.put("eventId", waitList.getEventId());
+        Log.d("WaitListRepository", "creating waitlist for accepted, declined, waiting");
+
         waitListData.put("users", usersMap);  // Add users map to the main document
 
         // Add the waitlist document to Firestore
@@ -65,6 +69,25 @@ public class WaitListRepository implements WaitListDb {
                     Log.d(TAG, "WaitList created successfully with ID: " + generatedId);
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error creating waitlist", e));
+    }
+
+    public void updateWaitListInDatabase(WaitListConfigurator waitList) {
+        // Prepare the data to update
+        Map<String, Object> waitListData = new HashMap<>();
+        waitListData.put("eventName", waitList.getEventName());
+        waitListData.put("limit", waitList.getLimitNumber());
+        waitListData.put("size", waitList.getUserMap().size());
+        waitListData.put("eventId", waitList.getEventId());
+
+        // Update only the "users" field
+        Map<String, String> users = new HashMap<>(waitList.getUserMap());
+        waitListData.put("users", users);
+
+        // Perform the update
+        waitListRef.document(waitList.getWaitListId())
+                .update(waitListData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "WaitList updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Error updating WaitList", e));
     }
 
     @Override
@@ -83,11 +106,11 @@ public class WaitListRepository implements WaitListDb {
                             if (!documentSnapshot.contains("users")) {
                                 // Initialize the "users" map if it doesn't exist
                                 Map<String, String> usersMap = new HashMap<>();
-                                usersMap.put(user.getUserId(), "waiting");
+                                usersMap.put(user.getUserId(), UserUtils.WAITING_STATUS);
                                 updateData.put("users", usersMap);  // Add the new user in the new map
                             } else {
                                 // Add the user to the existing "users" map
-                                updateData.put("users." + user.getUserId(), "waiting");
+                                updateData.put("users." + user.getUserId(), UserUtils.WAITING_STATUS);
                             }
 
                             // Update Firestore document
@@ -163,14 +186,7 @@ public class WaitListRepository implements WaitListDb {
 
                         // Retrieve the users map and populate userArrayList with the user IDs
                         ArrayList<UserImpl> userArrayList = new ArrayList<>();
-                        Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
-                        if (usersMap != null) {
-                            for (String userId : usersMap.keySet()) {
-                                UserImpl user = new UserImpl();
-                                user.setUserId(userId);
-                                userArrayList.add(user);
-                            }
-                        }
+                        Map<String, String> usersMap = (Map<String, String>) document.get("users");
 
                         WaitList waitList = new WaitList(
                                 // Waitlist limit
@@ -179,8 +195,10 @@ public class WaitListRepository implements WaitListDb {
                                 document.getId(),
                                 // Event Id
                                 eventId,
+                                // Event Name
+                                document.getString("eventName"),
                                 // User Array List
-                                userArrayList
+                                usersMap
                         );
 
                         Log.d(TAG, "Waitlist found for eventId: " + eventId);
@@ -196,6 +214,12 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+    /**
+     * Checks if user is in waitlist and returns true or false
+     * @param docId   the document ID of the waitlist
+     * @param user    the user to check
+     * @param callback a callback that handles the result
+     */
     @Override
     public void isUserInWaitList(String docId, User user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
