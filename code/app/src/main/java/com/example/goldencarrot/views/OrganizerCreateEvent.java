@@ -1,51 +1,58 @@
 package com.example.goldencarrot.views;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.event.Event;
-import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
 /**
  * Activity for the organizer to create a new event, including details such as event name,
  * location, description, date, and optional geolocation settings. The organizer can also set
  * a limit for the event's waitlist.
  * This activity handles the creation of an event, stores it in the database, and generates
- * a waitlist if a limit is set.
+ * a waitlist if a limit is set. Additionally, it allows for generating a QR code for the event.
  */
 public class OrganizerCreateEvent extends AppCompatActivity {
 
     private static final String TAG = "OrganizerCreateEvent";
     private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText, eventDateEditText, eventLimitEditText;
     private Switch geolocation;
+    private ImageView qrCodeImageView;
     private EventRepository eventRepository;
     private UserRepository userRepository;
     private WaitListRepository waitListRepository;
-    private UserImpl organizer;
     private boolean geolocationIsEnabled;
+    private Event createdEvent;
 
     /**
      * Initializes the activity, sets up the UI components, and handles geolocation switch changes.
-     * Sets up an onClickListener for the Create Event button, which triggers the creation of the event.
+     * Sets up onClickListeners for the Create Event button and Generate QR Code button, which trigger
+     * event creation and QR code generation, respectively.
      *
      * @param savedInstanceState The saved instance state of the activity, if any.
      */
@@ -66,28 +73,22 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventDateEditText = findViewById(R.id.eventDateEditText);
         eventLimitEditText = findViewById(R.id.waitlistLimitEditText);
         geolocation = findViewById(R.id.geolocation);
+        qrCodeImageView = findViewById(R.id.qrCodeImageView);
         Button createEventButton = findViewById(R.id.createEventButton);
-        geolocation.toggle();
-        geolocation.setText("Enable geolocation:");
+        Button generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
 
-        geolocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    geolocationIsEnabled = true;
-                    geolocation.setText("Enable geolocation:");
-                } else {
-                    geolocationIsEnabled = false;
-                    geolocation.setText("Disable geolocation:");
-                }
-            }
-        });
+        geolocation.setOnCheckedChangeListener((buttonView, isChecked) -> geolocationIsEnabled = isChecked);
 
         // Set onClickListener for the Create Event button
-        createEventButton.setOnClickListener(view -> {
-            createEvent();
-            Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
-            startActivity(intent);
+        createEventButton.setOnClickListener(view -> createEvent());
+
+        // Set onClickListener for the Generate QR Code button
+        generateQRCodeButton.setOnClickListener(view -> {
+            if (createdEvent == null) {
+                Toast.makeText(this, "Please create an event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            generateQRCode();
         });
     }
 
@@ -117,56 +118,48 @@ public class OrganizerCreateEvent extends AppCompatActivity {
             return;
         }
 
-        // Get the organizer user details
-        String organizerId = getIntent().getStringExtra("userId");
-        userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
-            @Override
-            public void onSuccess(UserImpl user) {
-                Log.d(TAG, "Successfully got current user!");
-                organizer = user;
+        createdEvent = new Event();
+        createdEvent.setEventName(eventName);
+        createdEvent.setLocation(location);
+        createdEvent.setEventDetails(details);
+        createdEvent.setDate(date);
+        createdEvent.setGeolocationEnabled(geolocationIsEnabled);
 
-                // Create event with the organizer
-                Event event = new Event(organizer);
-                event.setEventName(eventName);
-                event.setLocation(location);
-                event.setEventDetails(details);
-                event.setDate(date);
-                event.setOrganizerId(organizerId);
-                event.setGeolocationEnabled(geolocationIsEnabled);
-
-                // Parse waitlist limit if provided; if empty, it defaults to no limit
-                Integer waitlistLimit = null;
-                if (!limitString.isEmpty()) {
-                    try {
-                        waitlistLimit = Integer.parseInt(limitString);
-                        if (waitlistLimit < 0) {
-                            Toast.makeText(OrganizerCreateEvent.this, "Waitlist limit must be a positive number", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(OrganizerCreateEvent.this, "Waitlist limit must be a number", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-
-                // Add the event to the repository with the optional waitlist limit
-                eventRepository.addEvent(event, waitlistLimit);
-
-                // Create a waitlist if needed
-                WaitList waitList = new WaitList();
-                waitList.setLimitNumber(waitlistLimit); // Set limit from user input, or null if no limit
-                waitList.setEventId(event.getEventId());
-                waitList.setUserArrayList(new ArrayList<>());
-                waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
-
-                Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();
+        Integer waitlistLimit = null;
+        if (!limitString.isEmpty()) {
+            try {
+                waitlistLimit = Integer.parseInt(limitString);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Waitlist limit must be a number", Toast.LENGTH_SHORT).show();
+                return;
             }
+        }
 
-            @Override
-            public void onFailure(Exception e) {
-                Log.d(TAG, "Error getting current user");
-                Toast.makeText(OrganizerCreateEvent.this, "Error retrieving user data", Toast.LENGTH_SHORT).show();
-            }
-        });
+        eventRepository.addEvent(createdEvent, waitlistLimit);
+        Toast.makeText(this, "Event created successfully", Toast.LENGTH_SHORT).show();
     }
+
+    /**
+     * Generates a QR code for the created event, encoding the event's details such as name,
+     * location, date, and description. Displays the QR code in an ImageView.
+     */
+    private void generateQRCode() {
+        if (createdEvent == null || createdEvent.getEventId() == null) {
+            Toast.makeText(this, "Please create an event first or ensure it has an ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Encode the event ID as QR code content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + createdEvent.getEventId();
+
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+            qrCodeImageView.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            Log.e(TAG, "QR Code generation error", e);
+            Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

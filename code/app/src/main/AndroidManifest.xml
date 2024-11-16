@@ -41,6 +41,7 @@
         <activity android:name=".views.OrganizerEventDetailsActivity" />
         <activity android:name=".views.OrganizerChosenView"/>
         <activity android:name=".views.EntrantNotificationsActivity"/>
+        <activity android:name=".views.QrCodeScannerActivity"/>
 
 
     </application>
