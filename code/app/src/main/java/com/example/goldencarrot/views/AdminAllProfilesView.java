@@ -105,4 +105,5 @@ public class AdminAllProfilesView extends AppCompatActivity {
             }
         }
     }
+    
 }
