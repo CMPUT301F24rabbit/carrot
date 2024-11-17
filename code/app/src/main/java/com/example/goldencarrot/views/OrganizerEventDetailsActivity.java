@@ -4,12 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+
 import java.util.ArrayList;
 import java.util.List;
 import android.view.View;
@@ -26,10 +24,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
-import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -48,6 +48,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private String deviceID;
     private String eventId;
     private WaitListRepository waitListRepository;
+    private WaitListController waitListController;
+    private WaitList waitList;
 
     // UI Components
     private ImageView eventPosterView;
@@ -91,8 +93,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerHomeView.class);
-            startActivity(intent);
+            openEntrantHomeView();
         });
 
         // Hide delete button for organizer
@@ -105,9 +106,66 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         // Select Lottery Button: triggers the lottery dialog
         selectLotteryButton = findViewById(R.id.button_SelectLotteryUsers);
-        // TODO: Implement lottery selection dialog where the organizer can choose
-        // the number of users to approve for the event
-        // selectLotteryButton.setOnClickListener(v -> showLotteryDialog());
+
+        waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
+            @Override
+            public void onSuccess(WaitList waitList) {
+                Log.d("OrganizerEventDetails", "Found waitlist with the same" +
+                        "event id");
+
+                // Initialize WaitList Controller
+                waitListController = new WaitListController(waitList);
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Event is not associated with a waitlist
+                Toast.makeText(OrganizerEventDetailsActivity.this,
+                        "No such waitlist with the same event Id", Toast.LENGTH_SHORT).show();
+
+                Log.d("OrganizerEventDetails", "Event is not associated with a waitlist" +
+                        "delete event in firebase");
+
+                openEntrantHomeView();
+            }
+        });
+
+        selectLotteryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an EditText for number input
+                EditText numberInput = new EditText(view.getContext());
+                numberInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); // Ensures only numbers can be entered
+
+                // Create the dialog
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Pick a Number")
+                        .setMessage("Enter the number of lottery winners:")
+                        .setView(numberInput) // Add the EditText to the dialog
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            String input = numberInput.getText().toString();
+                            if (!input.isEmpty()) {
+                                try {
+                                    int pickedNumberToSample = Integer.parseInt(input);
+                                    Log.d("LotteryPicker", "Picked number: "
+                                            + pickedNumberToSample);
+
+                                    selectLottery(pickedNumberToSample);
+
+                                } catch (NumberFormatException e) {
+                                    // Handle invalid input
+                                    Log.e("LotteryPicker", "Invalid number entered");
+                                }
+                            } else {
+                                Log.e("LotteryPicker", "No number entered");
+                            }
+                            openEntrantHomeView();
+                        })
+                        .setNegativeButton("Cancel", null) // No action on cancel
+                        .show();
+            }
+        });
     }
 
     private String getDeviceId(Context context) {
@@ -118,7 +176,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         DocumentReference eventRef = firestore.collection("events").document(eventId);
         listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
-                Toast.makeText(this, "Error fetching event details", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error fetching " +
+                        "event details", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -146,6 +205,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 }
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                openEntrantHomeView();
             }
         });
     }
@@ -160,9 +220,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
         Button declinedButton = popupView.findViewById(R.id.button_EventDetailRejectedEntrants);
 
-        waitlistedButton.setOnClickListener(v -> openEntrantsView("waiting"));
-        acceptedButton.setOnClickListener(v -> openEntrantsView("accepted"));
-        declinedButton.setOnClickListener(v -> openEntrantsView("declined"));
+        waitlistedButton.setOnClickListener(v -> openEntrantsView(UserUtils.WAITING_STATUS));
+        acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
+        declinedButton.setOnClickListener(v -> openEntrantsView(UserUtils.DECLINED_STATUS));
     }
 
     private void openEntrantsView(String status) {
@@ -172,70 +232,26 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         entrantsPopup.dismiss();
         startActivity(intent);
     }
-}
-/*
-    //dialog that allows organizer to select number of users to select
-    private void showLotteryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter number of users to approve");
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        builder.setView(input);
+    private void openEntrantHomeView(){
+        Intent intent = new Intent(OrganizerEventDetailsActivity.this,
+                OrganizerHomeView.class);
+        startActivity(intent);
+    }
 
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String inputText = input.getText().toString().trim();
+    private void selectLottery(int count){
+        try {
+            // select random winners from waitlist object
+            waitListController.selectRandomWinnersAndUpdateStatus(count);
+            // Update the Waitlist document in waitlist DB
+            waitListRepository.updateWaitListInDatabase(waitListController.getWaitList());
 
-            //input validation
-            if (inputText.isEmpty()) {
-                Toast.makeText(this, "Please enter a valid number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int numToSelect;
-            try {
-                numToSelect = Integer.parseInt(inputText);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            Toast.makeText(OrganizerEventDetailsActivity.this,
+                    "Successfully picked winners randomly", Toast.LENGTH_SHORT).show();
 
-            // Call getUsersWithStatus to get users with "waiting" status
-            waitListRepository.getUsersWithStatus(eventId, "waiting", usersWithStatus -> {
-                if (usersWithStatus == null) {
-                    Toast.makeText(this, "No users found with 'waiting' status.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Random random = new Random();
-                Set<String> selectedUsers = new HashSet<>();
-
-                //randomly generate
-                while (selectedUsers.size() < numToSelect && selectedUsers.size() < usersWithStatus.size()) {
-                    int randomIndex = random.nextInt(usersWithStatus.size());
-                    selectedUsers.add(usersWithStatus.get(randomIndex));
-                }
-
-                for (String userId : selectedUsers) {
-                    UserImpl user = new UserImpl(userId);
-                    waitListRepository.updateUserStatusInWaitList(eventId, user, "approved");
-                    //sendNotification(userId, "You have been selected for the event.");
-                }
-
-                Toast.makeText(this, numToSelect + " users have been selected.", Toast.LENGTH_SHORT).show();
-            });
-
-            // Setup alert dialog for confirmation
-            new AlertDialog.Builder(this)
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                    .show();
-        }
-
-        @Override
-        protected void onStop() {
-            super.onStop();
-            if (listenerRegistration != null) {
-                listenerRegistration.remove();
-            }
+        } catch (Exception e) {
+            Toast.makeText(OrganizerEventDetailsActivity.this,
+                    "Not enough users in the waiting list", Toast.LENGTH_SHORT).show();
         }
     }
-*/
+}

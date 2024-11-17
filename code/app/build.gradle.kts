@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.espresso.intents)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     testImplementation(libs.ext.junit)
     testImplementation(libs.core)
@@ -63,4 +64,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
+
 }

@@ -129,6 +129,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="77dp"
         android:layout_marginBottom="24dp"
-        android:text="Select Users for Lottery" />
+        android:text="Sample users from lottery" />
 
 </RelativeLayout>

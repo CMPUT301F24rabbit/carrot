@@ -1,5 +1,7 @@
 package com.example.goldencarrot.data.model.notification;
 
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class provides common global variables for Notification related classes
@@ -18,4 +20,6 @@ public class NotificationUtils {
     public static final String SINGLE_USER_MESSAGE = "You are recieving this because you are an" +
             " entrant with notifications on";
 
+    // valid notification status
+    public static final List<String> validNotificationStatus = Arrays.asList(CHOSEN, NOT_CHOSEN, WAITING);
 }
