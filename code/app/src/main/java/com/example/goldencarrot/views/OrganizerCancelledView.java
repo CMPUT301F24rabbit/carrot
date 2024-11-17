@@ -120,4 +120,5 @@ public class OrganizerCancelledView extends AppCompatActivity {
         userArrayAdapter = new WaitlistedUsersRecyclerAdapter(cancelledUserList);
         cancelledUserListView.setAdapter(userArrayAdapter);
     }
+    
 }
