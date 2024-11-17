@@ -1,95 +1,63 @@
 package com.example.goldencarrot.controller;
 
-import com.example.goldencarrot.data.db.WaitListRepository;
-import com.example.goldencarrot.data.model.user.UserImpl;
-import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.data.model.user.UserUtils;
+import com.example.goldencarrot.data.model.waitlist.WaitListConfigurator;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Provides methods to edit a WaitList Model and make changes in firebase.
- *
  * This controller method can addUserToLottery, and selectRandomWinners
  */
 public class WaitListController {
-    private final WaitList waitList;
-    private final WaitListRepository waitListRepository;
-    private final Random random;
-    private Integer waitlistLimit; // Optional limit for the waitlist
+    private WaitListConfigurator waitList;
 
-    public WaitListController(WaitList waitList, WaitListRepository waitListRepository, Integer waitlistLimit) {
+    public WaitListController(WaitListConfigurator waitList){
         this.waitList = waitList;
-        this.waitListRepository = waitListRepository;
-        this.random = new Random();
-        this.waitlistLimit = waitlistLimit; // Initialize with limit if provided
     }
 
     /**
-     * Adds a user to the waitlist if there is space.
+     * Selects a random list of N winners from the userMap with "waiting" status
+     * and updates their status to "accepted".
      *
-     * @param user the user to add
-     * @return true if the user was added successfully, false if the waitlist is full
+     * @param count    the number of winners to select
      */
-    public boolean addUserToLottery(UserImpl user) {
-        // Check if the waitlist is full based on the limit
-        if (waitlistLimit != null && waitList.getUserArrayList().size() >= waitlistLimit) {
-            System.out.println("Waitlist is full. Cannot add more users.");
-            return false;
+    public void selectRandomWinnersAndUpdateStatus(int count) throws Exception {
+        // Retrieve the user map
+        Map<String, String> userMap = this.waitList.getUserMap(); // Assuming userMap is in WaitList
+
+        // Filter users with "waiting" status
+        List<String> waitingUserIds = userMap.entrySet().stream()
+                .filter(entry -> UserUtils.WAITING_STATUS.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Validate if there are enough users with "waiting" status
+        if (waitingUserIds.size() < count) {
+            throw new Exception("Not enough users with 'waiting' status to sample.");
         }
 
-        boolean added = waitList.addUserToWaitList(user);
-        if (added) {
-            // Save the updated waitlist to the database
-            waitListRepository.addUserToWaitList(waitList.getEventId(), user, new WaitListRepository.FirestoreCallback() {
-                @Override
-                public void onSuccess(Object result) {
-                    System.out.println("User added to waitlist successfully in Firestore.");
-                }
+        // Randomly select winners and update their status
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            int winnerIndex = random.nextInt(waitingUserIds.size());
+            String winnerId = waitingUserIds.remove(winnerIndex);
 
-                @Override
-                public void onFailure(Exception e) {
-                    System.err.println("Failed to add user to waitlist in Firestore: " + e.getMessage());
-                }
-            });
+            // Update the user's status in the map
+            userMap.put(winnerId, UserUtils.ACCEPTED_STATUS);
+
+            // Waitlist document is not updated in this method for testing purposes
         }
-        return added;
     }
 
-    /**
-     * Selects a random user from the waitlist and updates their status to "accepted."
-     *
-     * @return the selected user, or null if the waitlist is empty
-     */
-    public List<UserImpl> selectRandomWinners(int count) {
-        ArrayList<UserImpl> userArrayList = waitList.getUserArrayList();
-        List<UserImpl> winners = new ArrayList<>();
-
-        if (userArrayList.isEmpty()) {
-            System.out.println("Waitlist is empty. No users to select.");
-            return winners;
-        }
-
-        while (winners.size() < count && !userArrayList.isEmpty()) {
-            int winnerIndex = random.nextInt(userArrayList.size());
-            UserImpl winner = userArrayList.remove(winnerIndex);
-            winners.add(winner);
-
-            waitListRepository.updateUserStatusInWaitList(waitList.getEventId(), winner, "accepted");
-        }
-
-        return winners;
+    public WaitListConfigurator getWaitList() {
+        return waitList;
     }
 
-    /**
-     * Placeholder method to simulate sending a notification.
-     *
-     * @param user the user to notify
-     * @param message the notification message
-     */
-    private void sendNotification(UserImpl user, String message) {
-        System.out.println("Notification to " + user.getName() + ": " + message);
-        // Actual notification logic to be added later
+    public void setWaitList(WaitListConfigurator waitList) {
+        this.waitList = waitList;
     }
 }
