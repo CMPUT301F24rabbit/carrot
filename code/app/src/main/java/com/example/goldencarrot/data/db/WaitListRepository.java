@@ -1,7 +1,5 @@
 package com.example.goldencarrot.data.db;
 
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.util.Log;
@@ -12,7 +10,6 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.example.goldencarrot.data.model.waitlist.WaitListConfigurator;
-import com.example.goldencarrot.views.EntrantEventDetailsActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -236,29 +233,6 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
-    /**
-     * Checks the status of a user in the waitlist.
-     *
-     * @param docId the document ID of the waitlist
-     * @param user  the user to check
-     * @param callback a callback that handles the result
-     */
-    @Override
-    public void getUserStatus(String docId, UserImpl user, FirestoreCallback callback) {
-        waitListRef.document(docId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && documentSnapshot.contains("users." + user.getUserId())) {
-                        String status = documentSnapshot.getString("users." + user.getUserId());
-                        callback.onSuccess(status); // Return user's status
-                    } else {
-                        callback.onSuccess(null); // User not found or no status
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error fetching user status", e);
-                    callback.onFailure(e);
-                });
-    }
 
     /**
      * Returns an array of userId with the specified waitlist status ("waiting", "accepted", "declined", etc...)

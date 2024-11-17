@@ -2,12 +2,9 @@ package com.example.goldencarrot.views;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -16,14 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
-import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationAdapter;
-import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -38,6 +35,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
 
     private NotificationRepository notificationRepository;
     private NotificationAdapter adapter;
+    private Notification selectedNotification;
     private List<Notification> notifications;
     private WaitListRepository waitListRepository;
 
@@ -72,17 +70,19 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Exception e) {
-                        Toast.makeText(EntrantNotificationsActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EntrantNotificationsActivity.this, "Error",
+                                                                        Toast.LENGTH_SHORT).show();
                     }
                 });
 
         // Handle item clicks in the notification list
         listView.setOnItemClickListener((adapterView, view, index, id) -> {
-            Notification selectedNotification = notifications.get(index);
+            selectedNotification = notifications.get(index);
             String notificationId = selectedNotification.getNotificationId();
 
             if (notificationId == null || notificationId.isEmpty()) {
-                Toast.makeText(this, "Notification ID not found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Notification ID not found",
+                                                Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -92,11 +92,15 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                     .setMessage(selectedNotification.getMessage())
                     .setPositiveButton("ACCEPT", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), UserUtils.ACCEPTED_STATUS);
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.
+                                getWaitListId(), UserUtils.ACCEPTED_STATUS);
                     })
                     .setNegativeButton("DECLINE", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), UserUtils.DECLINED_STATUS);
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.
+                                getWaitListId(), UserUtils.DECLINED_STATUS);
+                        drawReplacementFromWaitlist();
+
                     })
                     .show();
         });
@@ -148,5 +152,39 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
      */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private void drawReplacementFromWaitlist(){
+
+        // We get the waitlist using the event id to ensure that the waitlist document
+        // is associated to an event document
+        waitListRepository.getWaitListByEventId(selectedNotification.getEventId(),
+                new WaitListRepository.WaitListCallback() {
+            @Override
+            public void onSuccess(WaitList waitList) {
+                WaitListController waitListController = new WaitListController(waitList);
+
+                try {
+                    // draw replacement
+                    waitListController.selectRandomWinnersAndUpdateStatus(1);
+
+                    waitListRepository.updateWaitListInDatabase(waitListController.getWaitList());
+
+                    Toast.makeText(EntrantNotificationsActivity.this,
+                            "Successfully drew a replacement ", Toast.LENGTH_SHORT).show();
+
+                } catch (Exception e){
+                    Toast.makeText(EntrantNotificationsActivity.this,
+                            "Not enough waiting users to draw " +
+                                    "replacement", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(EntrantNotificationsActivity.this,
+                        "Error fetching the waitlist", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
