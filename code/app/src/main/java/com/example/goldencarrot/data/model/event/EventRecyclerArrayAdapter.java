@@ -123,8 +123,8 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
             eventImageView = itemView.findViewById(R.id.eventImageView);
             eventName = itemView.findViewById(R.id.eventNameView);
             eventLocation = itemView.findViewById(R.id.eventLocationView);
-            eventDate = itemView.findViewById(R.id.eventDateView);       // Initialize new Date view
-            eventDetails = itemView.findViewById(R.id.eventDetailsView); // Initialize new Details view
+            eventDate = itemView.findViewById(R.id.eventDateView);
+            eventDetails = itemView.findViewById(R.id.eventDetailsView);
         }
     }
 }

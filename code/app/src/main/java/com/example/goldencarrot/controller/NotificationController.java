@@ -4,8 +4,8 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationUtils;
 
 /**
- * Notification controller provides all the methods to update
- * the Notification model
+ * Notification Controller provides all the methods to update
+ * the Notification Model
  */
 public class NotificationController {
     Notification notification;
@@ -64,5 +64,13 @@ public class NotificationController {
     public Notification getOrCreateNotification(final String userId) {
         return new Notification(userId, null, null, null,
                 NotificationUtils.SINGLE_USER_MESSAGE, NotificationUtils.SINGLE_USER);
+    }
+
+    public void changeNotificationStatus(final Notification notification, final String status) throws Exception {
+        if (!NotificationUtils.validNotificationStatus.contains(status)){
+            throw new Exception("Invalid Notification Status");
+        }
+
+        notification.setStatus(status);
     }
 }

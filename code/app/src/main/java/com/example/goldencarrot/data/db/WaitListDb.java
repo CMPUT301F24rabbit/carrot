@@ -6,8 +6,7 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.example.goldencarrot.data.db.WaitListRepository.FirestoreCallback;
 
 /**
- * The {@code WaitListDb} interface defines the contract for performing
- * database operations related to waitlists in Firestore.
+ * The {@code WaitListDb} interface provides necessary methods to update user table in firebase.
  */
 public interface WaitListDb {
 
@@ -15,7 +14,7 @@ public interface WaitListDb {
      * Creates a new waitlist document in Firestore.
      *
      * @param waitList the waitlist to be created
-     * @param docId    the document ID for this waitlist in Firestore
+     * @param docId the document ID for this waitlist in Firestore
      */
     void createWaitList(WaitList waitList, String docId, String eventName);
 
@@ -24,7 +23,7 @@ public interface WaitListDb {
      *
      * @param docId the document ID of the waitlist
      * @param user the user to be added to the waitlist
-     * @param callback a callback that handles the result (true if added, false if the waitlist is full)
+     * @param callback a callback that handles the result (true if added, false if the waitlist full)
      */
     void addUserToWaitList(String docId, User user, FirestoreCallback callback);
 
@@ -62,7 +61,7 @@ public interface WaitListDb {
     void isUserInWaitList(String docId, User user, FirestoreCallback callback);
 
     /**
-     * Checks the status of a user in the waitlist.
+     * Checks the status of a user in the waitlist. TODO deprecate unused method
      *
      * @param docId   the document ID of the waitlist
      * @param user    the user to check

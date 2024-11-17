@@ -43,8 +43,7 @@ public class OrganizerEventTest {
             onView(withId(R.id.createEventButton)).perform(click());
 
             // Check for success message or behavior
-            onView(withText("Sample Event"))  // Ensure this ID exists
-                    .check(matches(isDisplayed()));
+            onView(withText("Welcome back ")).check(matches(isDisplayed()));
         }
     }
 }

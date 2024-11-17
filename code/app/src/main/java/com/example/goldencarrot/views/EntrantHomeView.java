@@ -22,6 +22,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -105,6 +106,15 @@ public class EntrantHomeView extends AppCompatActivity {
         notificationsButton.setOnClickListener(view -> {
             Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
             startActivity(intent);
+        });
+
+        profileImageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Intent intent = new Intent(EntrantHomeView.this, EntrantEditUserDetailsView.class);
+                startActivity(intent);
+                return true;
+            }
         });
 
         // QR scanner button
@@ -235,7 +245,7 @@ public class EntrantHomeView extends AppCompatActivity {
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
 
-                        if ("waiting".equals(status)) {
+                        if (UserUtils.WAITING_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
                             String location = document.getString("location");
