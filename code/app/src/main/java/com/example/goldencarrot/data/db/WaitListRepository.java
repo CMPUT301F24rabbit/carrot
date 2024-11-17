@@ -277,4 +277,5 @@ public class WaitListRepository implements WaitListDb {
         void onSuccess(Object result);
         void onFailure(Exception e);
     }
+    
 }
