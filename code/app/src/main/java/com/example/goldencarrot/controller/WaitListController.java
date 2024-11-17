@@ -21,7 +21,7 @@ public class WaitListController {
 
     /**
      * Selects a random list of N winners from the userMap with "waiting" status
-     * and updates their status to "accepted".
+     * and updates their status to "chosen".
      *
      * @param count    the number of winners to select
      */
@@ -47,11 +47,25 @@ public class WaitListController {
             String winnerId = waitingUserIds.remove(winnerIndex);
 
             // Update the user's status in the map
-            userMap.put(winnerId, UserUtils.ACCEPTED_STATUS);
+            userMap.put(winnerId, UserUtils.CHOSEN_STATUS);
 
             // Waitlist document is not updated in this method for testing purposes
         }
     }
+
+    /**
+     * Updates the status of all users in the user map with the status "chosen" to "cancelled".
+     */
+    public void updateChosenToCancelled() {
+        // Retrieve the user map
+        Map<String, String> userMap = this.waitList.getUserMap(); // Assuming userMap is in WaitList
+
+        // Update the status of users with "chosen" to "cancelled"
+        userMap.entrySet().stream()
+                .filter(entry -> UserUtils.CHOSEN_STATUS.equals(entry.getValue()))
+                .forEach(entry -> entry.setValue(UserUtils.CANCELLED_STATUS));
+    }
+
 
     public WaitListConfigurator getWaitList() {
         return waitList;

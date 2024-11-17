@@ -53,4 +53,15 @@
         app:layout_constraintTop_toBottomOf="@+id/waitlistedUsersList"
         app:layout_constraintVertical_bias="0.636" />
 
+    <Button
+        android:id="@+id/cancel_chosen_entrants_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel Chosen Entrants"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/sendNotificationButton"
+        app:layout_constraintHorizontal_bias="0.09"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/waitlistedUsersList" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

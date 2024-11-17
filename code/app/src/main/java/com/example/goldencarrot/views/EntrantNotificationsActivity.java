@@ -23,6 +23,7 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationAdapter;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -91,11 +92,11 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                     .setMessage(selectedNotification.getMessage())
                     .setPositiveButton("ACCEPT", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), "accepted");
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), UserUtils.ACCEPTED_STATUS);
                     })
                     .setNegativeButton("DECLINE", (dialog, which) -> {
                         handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), "cancelled");
+                        changeStatusInWaitList(getDeviceId(this), selectedNotification.getWaitListId(), UserUtils.DECLINED_STATUS);
                     })
                     .show();
         });
