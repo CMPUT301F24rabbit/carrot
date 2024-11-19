@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -60,6 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
                         SignUpActivity.this.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
 
+
                 try {
                     // Verify user inputs before proceeding
                     verifyInputs(
@@ -69,7 +71,11 @@ public class SignUpActivity extends AppCompatActivity {
                     );
 
                     // Add user to Firestore
-                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg);
+                    addUserToFirestore(deviceId, name.getText().toString(),
+                            email.getText().toString(),
+                            Optional.of(phoneNumber.getText().toString()),
+                            nAdmin,
+                            nOrg);
 
                     // Proceed to the Entrant home view after sign-up
                     Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);

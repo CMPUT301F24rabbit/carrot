@@ -3,6 +3,7 @@ package com.example.goldencarrot.views;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -54,8 +55,15 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         initializeRepositories();
         setupUI();
-        loadEventDetails();
-        loadWaitList();
+        // Extract eventId from the intent or QR code URL
+        String eventId = getEventIdFromIntent(getIntent());
+
+        if (eventId != null) {
+            loadEventDetails(eventId);  // Load event details using the eventId
+            loadWaitList(eventId);      // Load waitlist using the eventId
+        } else {
+            showToast("No event ID provided");
+        }
     }
 
     /**
@@ -83,14 +91,29 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         Button joinWaitListButton = findViewById(R.id.entrant_join_waitlist_button);
         joinWaitListButton.setOnClickListener(view -> handleJoinWaitList());
     }
+    /**
+     * Extracts the eventId from the intent's data (QR code URL).
+     *
+     * @param intent The intent that started the activity.
+     * @return The eventId if it exists in the URL, otherwise null.
+     */
+    private String getEventIdFromIntent(Intent intent) {
+        String eventId = intent.getStringExtra("eventId");
 
+        // Check if the eventId is provided in the intent as a QR code URL
+        Uri uri = intent.getData();  // Get the URI from the intent's data
+        if (uri != null && uri.getScheme().equals("goldencarrot")) {  // Ensure the scheme is correct
+            eventId = uri.getQueryParameter("eventId");  // Extract the eventId from the URL query
+        }
+
+        return eventId;
+    }
     /**
      * Loads the event details based on the event ID passed in the intent.
      *
      * @throws IllegalArgumentException If no event ID is provided in the intent.
      */
-    private void loadEventDetails() {
-        String eventId = getIntent().getStringExtra("eventId");
+    private void loadEventDetails(String eventId) {
         if (eventId != null) {
             eventRepository.getBasicEventById(eventId, new EventRepository.EventCallback() {
                 @Override
@@ -148,19 +171,22 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Loads the waitlist data for the event based on the event ID passed in the intent.
      */
-    private void loadWaitList() {
-        String eventId = getIntent().getStringExtra("eventId");
-        waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
-            @Override
-            public void onSuccess(WaitList waitList) {
-                eventWaitList = waitList;
-            }
+    private void loadWaitList(String eventId) {
+        if (eventId != null) {
+            waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
+                @Override
+                public void onSuccess(WaitList waitList) {
+                    eventWaitList = waitList;
+                }
 
-            @Override
-            public void onFailure(Exception e) {
-                showToast("Error fetching waitlist details");
-            }
-        });
+                @Override
+                public void onFailure(Exception e) {
+                    showToast("Error fetching waitlist details");
+                }
+            });
+        } else {
+            showToast("No event ID provided");
+        }
     }
 
     /**

@@ -1,5 +1,8 @@
 package com.example.goldencarrot;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +14,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -19,6 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
@@ -27,7 +33,6 @@ import com.example.goldencarrot.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 /**
@@ -40,6 +45,18 @@ public class MainActivity extends AppCompatActivity {
     private String deviceId;
     private final static String TAG = "MainActivity";
 
+    private ActivityResultLauncher<String> resultLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission Granted
+                    Toast.makeText(MainActivity.this, "You will now receive push notifications!", Toast.LENGTH_LONG).show();
+                } else {
+                    // permission Denied
+                    Toast.makeText(MainActivity.this, "You will not receive push notifications", Toast.LENGTH_LONG).show();
+                    ;
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,28 +64,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         UserRepository userRepository = new UserRepository();
+
         FirebaseApp.initializeApp(this);
-
-        // Testing push notifications
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-
-                        // Get new FCM registration token
-                        String token = task.getResult();
-
-                        // Log and toast
-                        //String msg = getString(token);
-                        Log.d(TAG, token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-                    }
-                });
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+        //requestPermission();
 
         deviceId = getDeviceId(this);
 
@@ -90,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         /**
          * Todo, add a loading circle bar
          */
@@ -133,10 +131,12 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Gets the Android device id used to authenticate on device
+     *
      * @param context provided by the View
      * @return the android id
      */
-    private String getDeviceId(Context context){
+    private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
+
 }

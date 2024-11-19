@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
@@ -43,35 +42,7 @@
         <activity android:name=".views.OrganizerEventDetailsActivity" />
         <activity android:name=".views.OrganizerChosenView"/>
         <activity android:name=".views.EntrantNotificationsActivity"/>
-
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages. -->
-        <!--meta-data  android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_stat_ic_notification"  /> -->
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-            notification message. -->
-        <!--meta-data  android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent"  /> -->
-
-        <!-- From Android 8.0 (API level 26) and higher, [notification channels](https://developer.android.com/guide/topics/ui/notifiers/notifications.html#ManageChannels) are supported and recommended.
-        FCM provides a default notification channel with basic settings.
-        If you prefer to [create](https://developer.android.com/guide/topics/ui/notifiers/notifications.html#CreateChannel) and use your own default channel, set `default_notification_channel_id` to the ID of your notification channel object as shown. -->
-        <!--meta-data  android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="@string/default_notification_channel_id"  /> -->
-
-        <meta-data
-            android:name="firebase_messaging_auto_init_enabled"
-            android:value="false"/>
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
-            android:value="false"/>
-        <service
-            android:name=".FirebaseMessagingServiceConfig"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
+        <activity android:name=".views.QrCodeScannerActivity"/>
 
     </application>
 

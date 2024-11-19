@@ -10,8 +10,7 @@
         android:layout_height="200dp"
         android:scaleType="centerCrop"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="8dp"
-        />
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:id="@+id/event_DetailNameTitleView"
@@ -21,12 +20,9 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_below="@+id/event_DetailPosterView"
-        android:layout_marginBottom="16dp"
-        />
+        android:layout_marginBottom="16dp" />
 
     <!-- Scroll View Start -->
-
-    <!-- Buttons at the bottom -->
     <ScrollView
         android:id="@+id/scrollViewContent"
         android:layout_width="match_parent"
@@ -76,10 +72,48 @@
                 android:layout_marginBottom="8dp"
                 android:text="Details:"
                 android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/qrCodeImageView"
+                android:layout_width="400dp"
+                android:layout_height="400dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="visible" />
+
         </LinearLayout>
 
     </ScrollView>
 
+    <!-- Buttons aligned at the top -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_above="@+id/button_DetailContainer"
+        android:layout_marginBottom="16dp">
+
+        <!-- Generate QR Code Button -->
+        <Button
+            android:id="@+id/generateQRCodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate QR Code"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Select Lottery Users Button -->
+        <Button
+            android:id="@+id/button_SelectLotteryUsers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Users for Lottery"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp" />
+
+    </LinearLayout>
+
+    <!-- Buttons aligned at the bottom -->
     <LinearLayout
         android:id="@+id/button_DetailContainer"
         android:layout_width="match_parent"
@@ -106,7 +140,6 @@
             android:text="Delete Event" />
 
         <!-- Entrants Button -->
-
         <Button
             android:id="@+id/button_DetailViewEventLists"
             android:layout_width="wrap_content"
@@ -114,21 +147,6 @@
             android:text="Lists"
             android:layout_margin="8dp"/>
 
-        <!-- New Button to open the dialog -->
-
     </LinearLayout>
-
-    <Button
-        android:id="@+id/button_SelectLotteryUsers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/button_DetailContainer"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="77dp"
-        android:layout_marginBottom="24dp"
-        android:text="Sample users from lottery" />
 
 </RelativeLayout>

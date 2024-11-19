@@ -8,12 +8,10 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import com.example.goldencarrot.views.OrganizerCreateEvent;
 import com.example.goldencarrot.views.OrganizerHomeView;
 
 import org.junit.Rule;
@@ -47,7 +45,7 @@ public class OrganizerWaitlistTest {
             Thread.sleep(3000);
             onView(withId(R.id.recycler_view_events)).perform(longClick());
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
-            onView(withId(R.id.button_EventDetailAcceptedEntrants)).perform(click());
+            onView(withId(R.id.button_EventDetailChosenEntrants)).perform(click());
             onView(withText("ACCEPTED")).check(matches(isDisplayed()));
         } catch (Exception e) {
 

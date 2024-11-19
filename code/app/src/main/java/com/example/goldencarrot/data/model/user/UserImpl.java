@@ -17,6 +17,7 @@ public class UserImpl implements User {
     private String uId;
     private Boolean notificationAdministrators;
     private Boolean notificationOrganizers;
+    private String fcmToken;
 
     /**
      * Default constructor for creating an empty UserImpl instance.
@@ -145,6 +146,7 @@ public class UserImpl implements User {
     public Boolean getOrganizerNotifications() {
         return this.notificationOrganizers;
     }
+
 
     /**
      * Validates the user type to ensure it is a valid type.

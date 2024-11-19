@@ -66,4 +66,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-messaging:24.1.0")
 
+
+    // QR code
+    implementation ("com.google.zxing:core:3.5.2")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+
 }
