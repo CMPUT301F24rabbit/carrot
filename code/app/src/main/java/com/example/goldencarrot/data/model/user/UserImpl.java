@@ -17,7 +17,6 @@ public class UserImpl implements User {
     private String uId;
     private Boolean notificationAdministrators;
     private Boolean notificationOrganizers;
-    private String fcmToken;
 
     /**
      * Default constructor for creating an empty UserImpl instance.

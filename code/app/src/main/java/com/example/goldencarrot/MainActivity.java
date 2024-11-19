@@ -45,18 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private String deviceId;
     private final static String TAG = "MainActivity";
 
-    private ActivityResultLauncher<String> resultLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Permission Granted
-                    Toast.makeText(MainActivity.this, "You will now receive push notifications!", Toast.LENGTH_LONG).show();
-                } else {
-                    // permission Denied
-                    Toast.makeText(MainActivity.this, "You will not receive push notifications", Toast.LENGTH_LONG).show();
-                    ;
-                }
-            });
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
