@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -186,19 +187,33 @@ public class EntrantHomeView extends AppCompatActivity {
                         String phoneNumber = documentSnapshot.getString("phoneNumber"); // Firestore stores as String
                         Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
                         Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
+                        String userProfileImage = documentSnapshot.getString("profileImage");
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
+                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, userProfileImage);
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());
                             } else {
                                 Log.w(TAG, "Username field is missing in the document");
                                 usernameTextView.setText("Error: Username not found");
+                            }
+
+                            // Profile Image set
+                            if(userProfileImage != null && !userProfileImage.isEmpty()){
+                                Picasso.get().load(userProfileImage)
+                                        .placeholder(R.drawable.profilepic1)
+                                        .error(R.drawable.profilepic1)
+                                        .into(profileImageView);
+                                Log.d(TAG, "Profile image loaded: " + userProfileImage);
+                            } else {
+                                // Set default pic
+                                profileImageView.setImageResource(R.drawable.profilepic1);
+                                Log.w(TAG, "Profile  image URL is missing, using default image");
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error creating UserImpl object: " + e.getMessage(), e);

@@ -1,9 +1,12 @@
 package com.example.goldencarrot.views;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -15,6 +18,10 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+
 
 import java.util.Optional;
 /**
@@ -68,12 +75,16 @@ public class SignUpActivity extends AppCompatActivity {
                             name.getText().toString()
                     );
 
-                    // Add user to Firestore
-                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg);
+                    // Fetch default user profile URL from firbecase storage
+                    fetchDefaultProfilePictureUrl(defaultProfileUrl ->{
+                        // Add user to Firestore
+                        Log.d(TAG, "Default profile picture URL fetched: " + defaultProfileUrl);
+                        addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg, defaultProfileUrl);
 
-                    // Proceed to the Entrant home view after sign-up
-                    Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
-                    startActivity(intent);
+                        // Proceed to the Entrant home view after sign-up
+                        Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
+                        startActivity(intent);
+                    });
 
                 } catch (Exception e) {
                     // Show error message in case of invalid input
@@ -92,15 +103,18 @@ public class SignUpActivity extends AppCompatActivity {
      * @param phoneNumber The phone number of the user (optional).
      * @param nAdmin The admin status of the user.
      * @param nOrg The organizer status of the user.
+     * @param defaultProfileUrl The default profile users get assigned
      */
-    private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber, Boolean nAdmin, Boolean nOrg) {
+    private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber, Boolean nAdmin, Boolean nOrg, String defaultProfileUrl) {
         try {
+
             // Create a new user object
-            User newUser = new UserImpl(email, userType, name, phoneNumber, nAdmin, nOrg);
+            User newUser = new UserImpl(email, userType, name, phoneNumber, nAdmin, nOrg, defaultProfileUrl);
             // Add the user to Firestore database
             userDb.addUser(newUser, deviceId);
+            Log.d(TAG, "User added to Firestore: " + email);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error adding user to FIrestore: " + e.getMessage());
             // Show validation error dialog if adding user fails
             ValidationErrorDialog.show(SignUpActivity.this, "Error", "Invalid user type");
         }
@@ -136,5 +150,21 @@ public class SignUpActivity extends AppCompatActivity {
      */
     private boolean isValidEmail(String email) {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private void fetchDefaultProfilePictureUrl(OnProfilePictureFetched callback) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference("profile/profilepic1.png");
+        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            // Pass URL to callback
+            callback.onSuccess(uri.toString());
+        }).addOnFailureListener(e -> {
+            // Failure
+            Log.e(TAG, "Failed to fetch default profile picture URL", e);
+            callback.onSuccess("android.resource://" + getPackageName() + "/drawable/profilepic1");
+        });
+    }
+
+    private interface OnProfilePictureFetched {
+        void onSuccess(String url);
     }
 }
