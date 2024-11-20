@@ -1,58 +1,82 @@
 package com.example.goldencarrot.data.db;
 
 import android.util.Log;
+import androidx.annotation.Nullable;
 
-import androidx.annotation.NonNull;
-
-import com.example.goldencarrot.data.model.user.FacilityUserImpl;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class FacilityRepository {
+import java.util.HashMap;
+import java.util.Map;
 
+public class FacilityRepository {
     private static final String TAG = "FacilityRepository";
     private FirebaseFirestore db;
+    private CollectionReference usersCollection;
 
+    /**
+     * Constructor initializes the Firestore instance and references the "users" collection.
+     */
     public FacilityRepository() {
-        // Initialize Firebase Firestore
         db = FirebaseFirestore.getInstance();
+        usersCollection = db.collection("users");
     }
 
     /**
-     * Load a facility profile based on facility ID.
+     * Adds facility-related fields to a user document in Firestore.
      *
-     * @param facilityID The ID of the facility to load.
-     * @param onCompleteListener Listener to handle completion of the loading operation.
+     * @param userId The ID of the user document to update.
+     * @param facilityName The name of the facility.
+     * @param location The location of the facility.
+     * @param imageURL The URL of the facility's image.
      */
-    public void loadFacilityProfile(String facilityID, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
-        DocumentReference docRef = db.collection("facilities").document(facilityID);
-        docRef.get().addOnCompleteListener(onCompleteListener);
+    public void addFacilityFields(String userId, String facilityName, String location, String imageURL) {
+        // Create a map for the new fields
+        Map<String, Object> facilityData = new HashMap<>();
+        facilityData.put("facilityName", facilityName);
+        facilityData.put("location", location);
+        facilityData.put("imageURL", imageURL);
+
+        // Update the specific user document with the new fields
+        db.collection("users").document(userId)
+                .update(facilityData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Facility fields added successfully for user: " + userId))
+                .addOnFailureListener(e -> Log.e(TAG, "Error adding facility fields", e));
     }
 
     /**
-     * Save or update a facility profile in Firestore.
+     * Fetches facility-related fields from a user document.
      *
-     * @param facilityProfile The FacilityUserImpl instance containing facility profile data.
-     * @param onCompleteListener Listener to handle completion of the saving operation.
+     * @param userId The ID of the user document to fetch.
+     * @param callback A callback to handle the retrieved data or error.
      */
-    public void saveFacilityProfile(FacilityUserImpl facilityProfile, OnCompleteListener<Void> onCompleteListener) {
-        DocumentReference docRef = db.collection("facilities").document(facilityProfile.getUserId());
+    public void getFacilityFields(String userId, FacilityCallback callback) {
+        usersCollection.document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String facilityName = documentSnapshot.getString("facilityName");
+                        String location = documentSnapshot.getString("location");
+                        String imageURL = documentSnapshot.getString("imageURL");
 
-        docRef.set(facilityProfile).addOnCompleteListener(onCompleteListener);
+                        callback.onSuccess(facilityName, location, imageURL);
+                    } else {
+                        Log.w(TAG, "No user found with ID: " + userId);
+                        callback.onFailure(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching facility fields", e);
+                    callback.onFailure(e);
+                });
     }
 
     /**
-     * Update specific fields in an existing facility profile document.
-     *
-     * @param facilityID The ID of the facility to update.
-     * @param field The name of the field to update.
-     * @param value The new value for the field.
-     * @param onCompleteListener Listener to handle completion of the update operation.
+     * Callback interface for facility-related Firestore operations.
      */
-    public void updateFacilityField(String facilityID, String field, Object value, OnCompleteListener<Void> onCompleteListener) {
-        DocumentReference docRef = db.collection("facilities").document(facilityID);
-        docRef.update(field, value).addOnCompleteListener(onCompleteListener);
+    public interface FacilityCallback {
+        void onSuccess(String facilityName, String location, String imageURL);
+        void onFailure(Exception e);
     }
 }
