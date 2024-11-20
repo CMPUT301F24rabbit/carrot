@@ -15,12 +15,12 @@
         android:layout_marginBottom="8dp"
         />
 
-    <!-- Accepted Entrants Button -->
+    <!-- Chosen Entrants Button -->
     <Button
-        android:id="@+id/button_EventDetailAcceptedEntrants"
+        android:id="@+id/button_EventDetailChosenEntrants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Accepted Participants"
+        android:text="Chosen Participants"
         android:layout_marginBottom="8dp"
         />
 
@@ -29,8 +29,14 @@
         android:id="@+id/button_EventDetailRejectedEntrants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Declined Participants"
+        android:text="Cancelled Participants"
         android:layout_marginBottom="8dp"
         />
+
+    <Button
+        android:id="@+id/button_EventDetailAcceptedEntrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Accepted Participants" />
 
 </LinearLayout>

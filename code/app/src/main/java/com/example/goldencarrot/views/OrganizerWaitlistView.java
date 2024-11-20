@@ -1,11 +1,9 @@
 package com.example.goldencarrot.views;
-import static com.example.goldencarrot.data.model.user.UserUtils.ACCEPTED_STATUS;
+import static com.example.goldencarrot.data.model.user.UserUtils.CHOSEN_STATUS;
 import static com.example.goldencarrot.data.model.user.UserUtils.WAITING_STATUS;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,10 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
@@ -36,7 +34,6 @@ import java.util.ArrayList;
  * and allows sending notifications to users based on their status in the waitlist.
  */
 public class OrganizerWaitlistView extends AppCompatActivity {
-
     private ArrayList<String> userIdList;
     private ListView waitlistedUserListView;
     private TextView listTitle;
@@ -49,6 +46,7 @@ public class OrganizerWaitlistView extends AppCompatActivity {
     private NotificationRepository notifRepo;
     private NotificationController notifController;
     private Notification notification;
+    private WaitListController waitListController;
 
     /**
      * Called when the activity is created. Initializes the Firestore instance, repositories,
@@ -75,13 +73,15 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         waitlistedUserListView = findViewById(R.id.waitlistedUsersList);
         Button backBtn = findViewById(R.id.backButtonFromWaitlist);
         Button sendNotification = findViewById(R.id.sendNotificationButton);
+        Button cancelChosenEntrantsBtn = findViewById(R.id.cancel_chosen_entrants_button);
 
-        // Fetch the waitlist data
+        // Fetch the waitlist data and initialize the waitlist controller
         waitListRepository.getWaitListByEventId(getIntent().getStringExtra("eventId"), new WaitListRepository.WaitListCallback() {
             @Override
             public void onSuccess(WaitList waitList) {
                 waitlistId = waitList.getWaitListId();
                 fetchWaitlistedUsers(waitlistId);
+                waitListController = new WaitListController(waitList);
             }
 
             @Override
@@ -98,15 +98,7 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         listTitle.setText(getIntent().getStringExtra("entrantStatus").toUpperCase());
 
         // Set up back button click listener
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(OrganizerWaitlistView.this, OrganizerEventDetailsActivity.class);
-                intent.putExtra("eventId", getIntent().getStringExtra("eventId"));
-                startActivity(intent);
-                finish();
-            }
-        });
+        backBtn.setOnClickListener(view -> sendUserToPrevActivity());
 
         // Set up send notification button click listener
         sendNotification.setOnClickListener(new View.OnClickListener() {
@@ -122,6 +114,12 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 sendNotificationToSingleUser(waitlistedUserList.get(position).getUserId());
             }
         });
+
+        // Cancel Entrants Button is only visible if organizer is in the "chosen" waitlist
+        if (!getIntent().getStringExtra("entrantStatus").equals(CHOSEN_STATUS)){
+            cancelChosenEntrantsBtn.setVisibility(View.GONE);
+        }
+        cancelChosenEntrantsBtn.setOnClickListener(view -> cancelAllChosenEntrants());
     }
 
     /**
@@ -183,7 +181,7 @@ public class OrganizerWaitlistView extends AppCompatActivity {
             } else {
                 Toast.makeText(OrganizerWaitlistView.this, "list is empty, cannot send notification", Toast.LENGTH_SHORT).show();
             }
-        } else if (getIntent().getStringExtra("entrantStatus").equals(ACCEPTED_STATUS)) {
+        } else if (getIntent().getStringExtra("entrantStatus").equals(CHOSEN_STATUS)) {
             for (String userId : userIdList) {
                 userRepository.getSingleUser(userId, new UserRepository.FirestoreCallbackSingleUser() {
                     @Override
@@ -268,5 +266,28 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                 Toast.makeText(OrganizerWaitlistView.this, "Notification not added", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Changes the status of "chosen" entrants to "cancelled"
+    private void cancelAllChosenEntrants(){
+        // change status in the model
+        waitListController.updateChosenToCancelled();
+
+        // update waitlist DB with the new model
+        waitListRepository.updateWaitListInDatabase(waitListController.getWaitList());
+
+        Toast.makeText(OrganizerWaitlistView.this, "Cancelled chosen " +
+                "entrants", Toast.LENGTH_SHORT).show();
+
+        // Send user to
+        sendUserToPrevActivity();
+    }
+
+    // Sends user to OrganizerEventDetailsActivity
+    private void sendUserToPrevActivity(){
+        Intent intent = new Intent(OrganizerWaitlistView.this, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", getIntent().getStringExtra("eventId"));
+        startActivity(intent);
+        finish();
     }
 }

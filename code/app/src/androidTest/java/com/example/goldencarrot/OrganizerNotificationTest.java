@@ -1,7 +1,6 @@
 package com.example.goldencarrot;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.captureToBitmap;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -13,7 +12,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.goldencarrot.views.OrganizerCreateEvent;
 import com.example.goldencarrot.views.OrganizerHomeView;
 
 import org.junit.Rule;
@@ -59,8 +57,8 @@ public class OrganizerNotificationTest {
             Thread.sleep(3000);
             onView(withId(R.id.recycler_view_events)).perform(longClick());
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
-            onView(withId(R.id.button_EventDetailAcceptedEntrants)).perform(click());
-            onView(withText("ACCEPTED")).check(matches(isDisplayed()));
+            onView(withId(R.id.button_EventDetailChosenEntrants)).perform(click());
+            onView(withText("CHOSEN")).check(matches(isDisplayed()));
 
             onView(withId(R.id.sendNotificationButton)).perform(click());
             Thread.sleep(1000);

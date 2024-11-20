@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -12,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.goldencarrot.R;
@@ -19,9 +22,12 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -111,9 +117,37 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         });
 
+        // QR scanner button
+        Button scanQrButton = findViewById(R.id.entrant_scan_qr_button);
+        scanQrButton.setOnClickListener(view -> startQrScanner());
+
         // Load event data
         loadEventData();
     }
+    private void startQrScanner() {
+        new IntentIntegrator(this).initiateScan();  // This will launch the QR scanner
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Process the result from the QR scanner
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            String scannedContent = result.getContents();
+            if (scannedContent != null && scannedContent.startsWith("goldencarrot://eventDetails")) {
+                // If the QR code is valid and starts with the expected prefix, extract event ID
+                Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
+                intent.setData(Uri.parse(scannedContent));
+                startActivity(intent);
+            } else {
+                // Handle invalid QR code (optional)
+                Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
 
     /**
      * Sets up listeners to open the WaitlistActivity when a waitlisted event is clicked.
@@ -211,7 +245,7 @@ public class EntrantHomeView extends AppCompatActivity {
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
 
-                        if ("waiting".equals(status)) {
+                        if (UserUtils.WAITING_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
                             String location = document.getString("location");
