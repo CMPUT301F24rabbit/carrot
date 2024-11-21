@@ -61,11 +61,25 @@ public interface User {
     Boolean getOrganizerNotifications();
 
     /**
+     * Returns the profile image of the user.
+     *
+     * @return the user's profile image as a String.
+     */
+    String getProfileImage();
+
+    /**
      * Sets the unique user ID. Should be the Android Id
      *
      * @param uId the user ID to set.
      */
     void setUserId(String uId);
+
+    /**
+     * Sets the unique profile ID.
+     *
+     * @param pId the profile ID to set.
+     */
+    void setProfileImage(String pId);
 
     /**
      * Sets the phone number of the user.
@@ -74,4 +88,6 @@ public interface User {
      *                    if no phone number is provided
      */
     void setPhoneNumber(Optional<String> phoneNumber);
+
+
 }

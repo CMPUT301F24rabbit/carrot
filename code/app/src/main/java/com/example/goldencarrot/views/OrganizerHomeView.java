@@ -139,13 +139,14 @@ public class OrganizerHomeView extends AppCompatActivity {
                         String phoneNumber = documentSnapshot.getString("phoneNumber"); // Firestore stores as String
                         Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
                         Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
+                        String profileImage = documentSnapshot.getString("userProfileImage");
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer);
+                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, profileImage);
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());

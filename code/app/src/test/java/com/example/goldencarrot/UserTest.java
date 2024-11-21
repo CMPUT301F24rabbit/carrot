@@ -22,12 +22,14 @@ public class UserTest {
     private String mockName() {
         return "BugsBunny";
     }
+    private String userProfileImage = "android.resource://" + getClass().getPackageName() + "/drawable/profilepic1";
     private FirebaseFirestore db;
     private UserRepository userRepository;
     private int userCollectionSize;
     private User mockUser(String userType) {
         try {
-            newUser = new UserImpl(mockEmail(), userType, mockName(), null, false, false);
+
+            newUser = new UserImpl(mockEmail(), userType, mockName(), null, false, false, userProfileImage);
         }
         catch(Exception e){
 
@@ -52,7 +54,7 @@ public class UserTest {
     void testCreateUserObj_InvalidUserType() {
         // test if exception is thrown for invalid user type
         assertThrows(Exception.class, () -> {
-            User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null, false, false);
+            User nUser = new UserImpl(mockEmail(), "InvalidType", mockName(), null, false, false, userProfileImage);
         });
     }
 }

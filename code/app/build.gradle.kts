@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.espresso.intents)
-    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     testImplementation(libs.ext.junit)
     testImplementation(libs.core)
@@ -64,11 +64,13 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-messaging:24.1.0")
-
 
     // QR code
     implementation ("com.google.zxing:core:3.5.2")
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    // IMAGE
+    implementation("com.squareup.picasso:picasso:2.71828")
+    implementation("com.github.yalantis:ucrop:2.2.9")
 
 }
