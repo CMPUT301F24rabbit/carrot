@@ -33,7 +33,6 @@ import com.example.goldencarrot.views.SignUpActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 /**
  * MainActivity is the landing page for users when they open the app
@@ -54,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
         UserRepository userRepository = new UserRepository();
 
         FirebaseApp.initializeApp(this);
-        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
-        //requestPermission();
 
         deviceId = getDeviceId(this);
 

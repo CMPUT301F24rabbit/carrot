@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.NotificationController;
 import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
@@ -79,6 +80,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ArrayList<Event> upcomingEventsList;
     private ArrayList<Event> waitlistedEventsList;
     private NotificationRepository notificationRepository;
+    private NotificationController notifController;
     private ArrayList<Notification> notifications;
     private ActivityResultLauncher<String> resultLauncher;
     /**
@@ -165,15 +167,16 @@ public class EntrantHomeView extends AppCompatActivity {
 
         //display all notifications
         notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
+        notifController = new NotificationController();
 
         notificationRepository.getNotificationsByUserId(getDeviceId(this),
                 new NotificationRepository.NotificationCallback<List<Notification>>() {
                     @Override
                     public void onSuccess(List<Notification> result) {
-                        Log.d(TAG, "Got notifications");
+                        Log.d(TAG, "Got notifications: " + notifications.toString());
                         notifications.clear();
                         notifications.addAll(result);
-                        displayNotifications(notifications);
+                        notifController.displayNotifications(notifications, EntrantHomeView.this);
                     }
 
                     @Override
@@ -351,89 +354,6 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         });
     }
-
-    /**
-     * Builds and displays notification on android system
-     * @param messageBody
-     * @param messageTitle
-     */
-    public void sendNotification(String messageBody, String messageTitle, String eventId) {
-        //Intent intent = new Intent(this, EntrantHomeView.class);
-        Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("eventId", eventId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE);
-
-
-        // build notification with message body and title
-        String channelId = getString(R.string.notification_channel_id);
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_notifications)
-                        .setContentTitle(messageTitle)
-                        .setContentText(messageBody)
-                        .setAutoCancel(true)
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        .setContentIntent(pendingIntent);
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // build notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            NotificationChannel notificationChannel = new NotificationChannel(getString(R.string.notification_channel_id),
-                    "Notification Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.setDescription("This is the notification channel");
-            notificationChannel.setShowBadge(true);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-        int notificationId = createID();
-
-        // send notification
-        notificationManager.notify(notificationId, notificationBuilder.build());
-
-        // displays notification
-        if (NotificationManagerCompat.from(this).areNotificationsEnabled()){
-            NotificationManagerCompat.from(this).notify(notificationId, notificationBuilder.build());
-        }
-
-    }
-
-    /**
-     * Generates unique notification id using local time (can be changed for something more elegant)
-     * @return id the randomly generated
-     */
-    public int createID(){
-        Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
-        return id;
-    }
-
-    /**
-     * displays all notifications on android system
-     * @param notifications arraylist of notifications
-     */
-    public void displayNotifications(ArrayList<Notification> notifications) {
-        for (Notification notification : notifications) {
-                sendNotification(notification.getMessage(), notification.getStatus(), notification.getEventId());
-                notificationRepository.deleteNotification(notification.getNotificationId(),
-                        new NotificationRepository.NotificationCallback<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean result) {
-                                Log.d(TAG, "Successfully deleted notification from Firebase");
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Log.d(TAG, "failed to delete notification");
-                            }
-                        });
-            }
-    }
-
     /**
      * Requests permission from user to enable notifications
      */

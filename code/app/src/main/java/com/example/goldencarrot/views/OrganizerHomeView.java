@@ -232,8 +232,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                 for (DocumentSnapshot user : listOfUsers) {
                     if (user.getString("userType").equals(PARTICIPANT_TYPE))
                         if (user.getBoolean("organizerNotification")) {
-                        sendNotification(user.getId());
-
+                            sendNotification(user.getId());
                     }
                 }
             }
