@@ -246,6 +246,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             return;
         }
 
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Check if a QR code for this event already exists
@@ -295,6 +296,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     private void displayQRCode(String qrContent) {
+
+        // Encode the event ID as QR code content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
@@ -304,7 +309,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
     }
 
-
     private void showEntrantsPopup() {
         View popupView = LayoutInflater.from(this).inflate(R.layout.popup_event_lists, null);
 
@@ -312,12 +316,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         entrantsPopup.showAtLocation(findViewById(R.id.button_DetailViewEventLists), Gravity.CENTER, 0, 0);
 
         Button waitlistedButton = popupView.findViewById(R.id.button_EventDetailWaitlistedEntrants);
-        Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
+        Button chosenButton = popupView.findViewById(R.id.button_EventDetailChosenEntrants);
         Button declinedButton = popupView.findViewById(R.id.button_EventDetailRejectedEntrants);
+        Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
 
         waitlistedButton.setOnClickListener(v -> openEntrantsView(UserUtils.WAITING_STATUS));
-        acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
+        chosenButton.setOnClickListener(v -> openEntrantsView(UserUtils.CHOSEN_STATUS));
         declinedButton.setOnClickListener(v -> openEntrantsView(UserUtils.DECLINED_STATUS));
+        acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
     }
 
     private void openEntrantsView(String status) {

@@ -17,8 +17,10 @@ public class UserUtils {
 
     // waitlist user statuses
     public static final String WAITING_STATUS = "waiting";
-    public static final String ACCEPTED_STATUS = "accepted";
+    public static final String CHOSEN_STATUS = "chosen";
     public static final String DECLINED_STATUS = "declined";
+    public static final String ACCEPTED_STATUS = "accepted";
+    public static final String CANCELLED_STATUS = "cancelled";
 
     // List of valid user types, immutable for safety
     public static final List<String> validUserTypes = Collections.unmodifiableList(
