@@ -126,7 +126,7 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         waitlistedUserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                sendNotificationToSingleUser(waitlistedUserList.get(position).getUserId());
+                sendNotificationToSingleUser(userIdList.get(position));
             }
         });
 

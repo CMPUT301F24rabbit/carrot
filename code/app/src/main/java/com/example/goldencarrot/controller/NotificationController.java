@@ -180,17 +180,21 @@ public class NotificationController{
     public void displayNotifications(ArrayList<Notification> notifications, Context context) {
         if (!notifications.isEmpty()) {
             for (Notification notification : notifications) {
-                eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {
-                    @Override
-                    public void onSuccess(Event event) {
-                        sendNotification(notification.getMessage(), notification.getStatus(), notification.getEventId(), event.getEventName(), context);        
-                    }
+                if (notification.getEventId() != null) {
+                    eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {
+                        @Override
+                        public void onSuccess(Event event) {
+                            sendNotification(notification.getMessage(), notification.getStatus(), notification.getEventId(), event.getEventName(), context);
+                        }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        e.getMessage();
-                    }
-                });
+                        @Override
+                        public void onFailure(Exception e) {
+                            e.getMessage();
+                        }
+                    });
+                } else {
+                    sendNotification(notification.getMessage(), notification.getStatus(), null, null, context);
+                }
                 notificationRepository.deleteNotification(notification.getNotificationId(),
                         new NotificationRepository.NotificationCallback<Boolean>() {
                     @Override
