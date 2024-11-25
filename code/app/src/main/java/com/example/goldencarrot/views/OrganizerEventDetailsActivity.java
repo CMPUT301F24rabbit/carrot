@@ -11,7 +11,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -242,6 +245,57 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Please create an event first or ensure it has an ID", Toast.LENGTH_SHORT).show();
             return;
         }
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Check if a QR code for this event already exists
+        db.collection("QRData")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            // QR code already exists
+                            Toast.makeText(this, "QR Code already exists for this event.", Toast.LENGTH_SHORT).show();
+
+                            // Retrieve existing QR content
+                            String existingQrContent = task.getResult().getDocuments().get(0).getString("qrContent");
+
+                            // Generate the QR code bitmap for display
+                            displayQRCode(existingQrContent);
+                        } else {
+                            // No existing QR code, generate a new one
+                            createAndSaveQRCode(db);
+                        }
+                    } else {
+                        Toast.makeText(this, "Error checking for existing QR Code: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void createAndSaveQRCode(FirebaseFirestore db) {
+        // Generate new QR content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
+        // Save QR content to Firestore
+        Map<String, Object> qrData = new HashMap<>();
+        qrData.put("eventId", eventId);
+        qrData.put("qrContent", qrContent);
+
+        db.collection("QRData")
+                .add(qrData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "QR Code data saved to Firestore", Toast.LENGTH_SHORT).show();
+                    // Display the newly generated QR code
+                    displayQRCode(qrContent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error saving to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void displayQRCode(String qrContent) {
 
         // Encode the event ID as QR code content
         String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
