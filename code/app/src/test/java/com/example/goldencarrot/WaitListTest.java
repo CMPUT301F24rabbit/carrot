@@ -14,14 +14,16 @@ import java.util.Map;
 
 public class WaitListTest {
     private WaitList mockWaitlist;
+    String userProfileImage = "android.resource://" + getClass().getPackageName() + "/drawable/profilepic1";
 
-    private UserImpl mockUserSetup(String email, String name, String uid) {
+    private UserImpl mockUserSetup(String email, String name, String uid, String image) {
         UserImpl mockUser = null;
         try {
             mockUser = new UserImpl(email, "PARTICIPANT", 
                     name, null, 
                     false, 
-                    false);
+                    false,
+                    image);
             mockUser.setUserId(uid);
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,8 +50,8 @@ public class WaitListTest {
 
     @Test
     void testAddingUserToWaitlistMap() {
-        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1");
-        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2");
+        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1", userProfileImage);
+        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2", userProfileImage);
 
         // Add users to the userMap with "waiting" status
         mockWaitlist.getUserMap().put(mockUser1.getUserId(), "waiting");
@@ -65,7 +67,7 @@ public class WaitListTest {
 
     @Test
     void testUpdatingUserStatusInWaitlistMap() {
-        UserImpl mockUser = mockUserSetup("user1@gmail.com", "user1", "fakeId1");
+        UserImpl mockUser = mockUserSetup("user1@gmail.com", "user1", "fakeId1",userProfileImage);
 
         // Add user with "waiting" status
         mockWaitlist.getUserMap().put(mockUser.getUserId(), "waiting");
@@ -79,8 +81,8 @@ public class WaitListTest {
 
     @Test
     void testRemovingUserFromWaitlistMap() {
-        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1");
-        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2");
+        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1", userProfileImage);
+        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2", userProfileImage);
 
         // Add users to the userMap
         mockWaitlist.getUserMap().put(mockUser1.getUserId(), "waiting");
@@ -99,8 +101,8 @@ public class WaitListTest {
     void testIsFull() {
         mockWaitlist.setLimitNumber(2);
 
-        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1");
-        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2");
+        UserImpl mockUser1 = mockUserSetup("user1@gmail.com", "user1", "fakeId1", userProfileImage);
+        UserImpl mockUser2 = mockUserSetup("user2@gmail.com", "user2", "fakeId2", userProfileImage);
 
         // Add users to the waitlist
         mockWaitlist.getUserMap().put(mockUser1.getUserId(), "waiting");

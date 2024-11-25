@@ -1,8 +1,16 @@
 package com.example.goldencarrot.views;
+import static android.provider.Settings.System.getString;
+import static androidx.core.content.ContextCompat.getSystemService;
 import static com.example.goldencarrot.data.model.user.UserUtils.CHOSEN_STATUS;
 import static com.example.goldencarrot.data.model.user.UserUtils.WAITING_STATUS;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
@@ -27,7 +38,11 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * This class represents the activity where an organizer can view the waitlist for an event.
  * It fetches users from the waitlist based on their status (e.g., waiting or accepted)
@@ -111,7 +126,7 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         waitlistedUserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                sendNotificationToSingleUser(waitlistedUserList.get(position).getUserId());
+                sendNotificationToSingleUser(userIdList.get(position));
             }
         });
 
@@ -171,7 +186,6 @@ public class OrganizerWaitlistView extends AppCompatActivity {
                                 createNotifForNonChosenUser(userId);
                             }
                         }
-
                         @Override
                         public void onFailure(Exception e) {
                             Log.d("OrganizerWaitlistView", "failed to get user");
@@ -290,4 +304,5 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
 }

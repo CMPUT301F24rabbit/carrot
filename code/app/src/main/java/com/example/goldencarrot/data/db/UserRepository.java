@@ -56,10 +56,12 @@ public class UserRepository {
         user.getPhoneNumber().ifPresent(phone -> userData.put("phoneNumber", phone));
         userData.put("organizerNotification", user.getOrganizerNotifications());
         userData.put("adminNotification", user.getAdminNotification());
+        userData.put("profileImage", user.getProfileImage());
 
         Log.d(TAG, "Email: " + user.getEmail());
         Log.d(TAG, "User Type: " + user.getUserType());
         Log.d(TAG, "name: " + user.getName());
+        Log.d(TAG, "Profile Image: " + user.getProfileImage());
         user.getPhoneNumber().ifPresent(phone -> Log.d(TAG, "Phone Number: " + phone));
 
         // Add the user document to the "users" collection using their UID as the document ID
@@ -124,11 +126,13 @@ public class UserRepository {
         updatedUserData.put("organizerNotification", user.getOrganizerNotifications());
         // Add phoneNumber if it is not null
         user.getPhoneNumber().ifPresent(phone -> updatedUserData.put("phoneNumber", phone));
+        updatedUserData.put("profileImage", user.getProfileImage());
 
         Log.d(TAG, "Updating User: " + androidId);
         Log.d(TAG, "Email: " + user.getEmail());
         Log.d(TAG, "User Type: " + user.getUserType());
         Log.d(TAG, "Name: " + user.getName());
+        Log.d(TAG, "Profile Image: " + user.getProfileImage());
         user.getPhoneNumber().ifPresent(phone -> Log.d(TAG, "Phone Number: " + phone));
 
         // Update the user document with the new data
@@ -206,7 +210,9 @@ public class UserRepository {
                                     documentSnapshot.getString("name"),
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("administratiorNotification"),
-                                    documentSnapshot.getBoolean("organizerNotification"));
+                                    documentSnapshot.getBoolean("organizerNotification"),
+                                    documentSnapshot.getString("profileImage")
+                            );
                             callback.onSuccess(user); // Pass the user object to the callback
                         } catch (Exception e) {
 

@@ -59,7 +59,9 @@ public class AdminProfileView extends AppCompatActivity {
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("administratorNotification"),
-                                    documentSnapshot.getBoolean("organizerNotification"));
+                                    documentSnapshot.getBoolean("organizerNotification"),
+                                    documentSnapshot.getString("userProfileImage")
+                            );
                             nameText.setText(currentUser.getName());
                             emailText.setText(currentUser.getEmail());
                             userTypeText.setText(currentUser.getUserType());
