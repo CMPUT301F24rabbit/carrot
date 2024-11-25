@@ -103,7 +103,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 eventDetailsView.setText(eventDetails);
                 // Optionally, load an image for the event poster if available
             } else {
-                Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                Log.e("EventDetailsAdminActivity", "Event not found");
             }
         });
     }
@@ -120,8 +120,10 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Event event) {
                     waitlistId = event.getWaitListId();
-                    waitListRepository.deleteWaitList(waitlistId);
-                    Log.d("EventDetailsAdminActivity", "waitlist id: " + waitlistId);
+                    if (waitlistId != null) {
+                        waitListRepository.deleteWaitList(waitlistId);
+                        Log.d("EventDetailsAdminActivity", "waitlist id: " + waitlistId);
+                    }
                 }
 
                 @Override
