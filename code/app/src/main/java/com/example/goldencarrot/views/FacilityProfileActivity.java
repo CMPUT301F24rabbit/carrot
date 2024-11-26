@@ -8,37 +8,50 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.goldencarrot.R;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import com.example.goldencarrot.data.db.FacilityRepository;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
 import java.util.Map;
 
 public class FacilityProfileActivity extends AppCompatActivity {
     private static final String TAG = "FacilityProfileActivity";
-
     private EditText nameEditText, locationEditText, descriptionEditText, contactInfoEditText;
     private WebView mapWebView;
     private Button saveButton;
     private Switch geolocationSwitch;
-
     private FirebaseFirestore firestore;
     private String userId;
+    private ImageView facilityImageView;
+    private Button saveButton;
+    private FacilityRepository facilityRepository;
+    private String userId;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facility_profile);
-
+      
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
+
+        // Initialize Firestore and Repository
+        firestore = FirebaseFirestore.getInstance();
+        facilityRepository = new FacilityRepository();
 
         // Initialize views
         nameEditText = findViewById(R.id.nameEditText);
@@ -48,6 +61,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
         mapWebView = findViewById(R.id.mapWebView);
         saveButton = findViewById(R.id.saveButton);
         geolocationSwitch = findViewById(R.id.geolocationSwitch);
+        facilityImageView = findViewById(R.id.facilityImageView);
+        saveButton = findViewById(R.id.saveButton);
 
         // Get userId from Intent
         userId = getIntent().getStringExtra("userId");
@@ -68,6 +83,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
 
         // Handle geolocation toggle
         geolocationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> updateGeolocationRequirement(isChecked));
+        saveButton.setOnClickListener(view -> saveFacilityProfile());
     }
 
     private void loadFacilityProfile() {
@@ -91,6 +107,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
                         if (location != null && !location.isEmpty()) {
                             updateMapWithLocation(location);
                         }
+
                     } else {
                         Log.e(TAG, "No such document");
                         Toast.makeText(this, "Facility profile not found.", Toast.LENGTH_SHORT).show();
@@ -185,5 +202,23 @@ public class FacilityProfileActivity extends AppCompatActivity {
         String mapUrl = "https://www.openstreetmap.org/?mlat=" + latitude + "&mlon=" + longitude + "#map=18/" + latitude + "/" + longitude;
         mapWebView.getSettings().setJavaScriptEnabled(true);
         mapWebView.loadUrl(mapUrl);
+    }
+=======
+        Map<String, Object> facilityData = new HashMap<>();
+        facilityData.put("facilityName", facilityName);
+        facilityData.put("location", location);
+        facilityData.put("contactInfo", contactInfo);
+        facilityData.put("description", description);
+
+        firestore.collection("users").document(userId)
+                .update(facilityData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Facility profile updated successfully");
+                    Toast.makeText(this, "Profile updated successfully.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating facility profile", e);
+                    Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show();
+                });
     }
 }

@@ -60,14 +60,6 @@ public interface WaitListDb {
      */
     void isUserInWaitList(String docId, User user, FirestoreCallback callback);
 
-    /**
-     * Checks the status of a user in the waitlist. TODO deprecate unused method
-     *
-     * @param docId   the document ID of the waitlist
-     * @param user    the user to check
-     * @param callback a callback that handles the result
-     */
-    void getUserStatus(String docId, UserImpl user, FirestoreCallback callback);
 
     /**
      * Retrieves a list of users with a specified status in the waitlist document.

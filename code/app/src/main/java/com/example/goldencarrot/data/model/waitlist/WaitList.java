@@ -1,17 +1,13 @@
 package com.example.goldencarrot.data.model.waitlist;
 
-import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 
-import org.checkerframework.checker.units.qual.A;
-
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * The {@code WaitList} class represents a waiting list for an event.
  * It stores the event associated with the waitlist and the list of users
  * who are on the waitlist.
- *
  * This class provides functionality to add users to the waitlist, remove users,
  * and check if the waitlist has reached its limit.
  */
@@ -28,23 +24,26 @@ public class WaitList implements WaitListConfigurator {
     private String eventId;
 
     /**
+     * Event name of the associated event
+     */
+    private String eventName;
+
+    /**
      * Limit Number of the waitlist, can be null and optionally set by the organizer.
      */
     private int limitNumber;
 
     /**
-     *
+     * Each key represnts a device id
+     * the value represents the status in the waitlist
      */
-    private ArrayList<UserImpl> userArrayList;
+    private Map<String, String> userMap;
 
     /**
      * Default constructor for initializing an empty waitlist.
      * Initializes the user list as an empty ArrayList.
      */
-    public WaitList() {
-        // Initialize Array List
-        this.userArrayList = new ArrayList<UserImpl>();
-    }
+    public WaitList() {}
 
     /**
      * Constructor to initialize the waitlist with specified parameters.
@@ -52,36 +51,19 @@ public class WaitList implements WaitListConfigurator {
      * @param limitNumber the maximum number of users allowed on the waitlist.
      * @param waitListId the unique ID of the waitlist.
      * @param eventId the ID of the event associated with the waitlist.
-     * @param userArrayList the list of users currently on the waitlist.
+     * @param eventName the name of the associated event.
+     * @param userMap the list of users currently on the waitlist.
      */
     public WaitList(final int limitNumber,
                     final String waitListId,
                     final String eventId,
-                    final ArrayList<UserImpl> userArrayList) {
+                    final String eventName,
+                    final Map<String, String> userMap) {
         this.limitNumber = limitNumber;
         this.waitListId = waitListId;
         this.eventId = eventId;
-        this.userArrayList = userArrayList;
-    }
-
-    /**
-     * Returns the list of users currently on the waitlist.
-     *
-     * @return the list of {@code UserImpl} objects.
-     */
-    @Override
-    public ArrayList<UserImpl> getUserArrayList() {
-        return userArrayList;
-    }
-
-    /**
-     * Sets the list of users for the waitlist.
-     *
-     * @param userArrayList the list of users to set.
-     */
-    @Override
-    public void setUserArrayList(ArrayList<UserImpl> userArrayList) {
-        this.userArrayList = userArrayList;
+        this.eventName = eventName;
+        this.userMap = userMap;
     }
 
     /**
@@ -125,25 +107,6 @@ public class WaitList implements WaitListConfigurator {
     }
 
     /**
-     * Adds a user to the waitlist if the list is not full.
-     *
-     * If the waitlist is full, the user is not added, and {@code false} is returned.
-     * If the waitlist is not full, the user is added, and {@code true} is returned.
-     *
-     * @param user the user to add to the waitlist.
-     * @return {@code true} if the user was added, {@code false} if the waitlist is full.
-     */
-    @Override
-    public boolean addUserToWaitList(final UserImpl user) {
-        if (isFull()) {
-            return Boolean.FALSE;
-        } else {
-            userArrayList.add(user);
-            return Boolean.TRUE;
-        }
-    }
-
-    /**
      * Returns the unique ID of the waitlist.
      *
      * @return the waitlist ID as a String.
@@ -168,8 +131,9 @@ public class WaitList implements WaitListConfigurator {
      *
      * @return {@code true} if the waitlist is full, {@code false} otherwise.
      */
+    @Override
     public boolean isFull() {
-        return this.userArrayList.size() == this.limitNumber;
+        return this.userMap.size() == this.limitNumber;
     }
 
     /**
@@ -177,7 +141,44 @@ public class WaitList implements WaitListConfigurator {
      *
      * @param user the user to remove from the waitlist.
      */
+    @Override
     public void removeUserFromWaitList(UserImpl user) {
-        this.userArrayList.remove(user);
+        this.userMap.remove(user);
+    }
+
+    /**
+     * Gets the user map of the waitlist
+     * @return user map with the device id as key and the status as the value
+     */
+    @Override
+    public Map<String, String> getUserMap() {
+        return userMap;
+    }
+
+    /**
+     * Sets the user map of the waitlist
+     * @param userMap user map with the device id as key and the status as the value
+     */
+    @Override
+    public void setUserMap(Map<String, String> userMap) {
+        this.userMap = userMap;
+    }
+
+    /**
+     * Gets the event name of the associated event object.
+     * @return event name
+     */
+    @Override
+    public String getEventName() {
+        return eventName;
+    }
+
+    /**
+     * Sets the event name of the associated event
+     * @param eventName name of the associated event
+     */
+    @Override
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 }

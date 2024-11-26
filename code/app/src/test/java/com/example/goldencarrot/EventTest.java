@@ -13,12 +13,14 @@ public class EventTest {
 
     private UserImpl getMockOrganizer(String email, String name){
         try {
+            String userProfileImage = "android.resource://" + getClass().getPackageName() + "/drawable/profilepic1";
             mockOrganizer = new UserImpl(email,
                     "ORGANIZER",
                     name,
                     null,
                     false,
-                    false);
+                    false,
+                    userProfileImage);
         } catch (Exception e) {
 
         }

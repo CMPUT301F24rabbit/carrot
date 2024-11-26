@@ -2,16 +2,19 @@ package com.example.goldencarrot.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -26,13 +29,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.user.User;
-import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * Activity that displays details of an event organized by the user.
@@ -48,6 +56,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private String deviceID;
     private String eventId;
     private WaitListRepository waitListRepository;
+    private WaitListController waitListController;
+    private WaitList waitList;
 
     // UI Components
     private ImageView eventPosterView;
@@ -58,6 +68,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private TextView eventDetailsTextView;
     private PopupWindow entrantsPopup;
     private Button selectLotteryButton;
+    private ImageView qrCodeImageView;
+    private Button generateQRCodeButton;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,11 +101,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         deviceID = getDeviceId(this);
 
+        // QR code button and image view
+        qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
+
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerHomeView.class);
-            startActivity(intent);
+            openEntrantHomeView();
         });
 
         // Hide delete button for organizer
@@ -108,6 +124,75 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // TODO: Implement lottery selection dialog where the organizer can choose
         // the number of users to approve for the event
         // selectLotteryButton.setOnClickListener(v -> showLotteryDialog());
+
+        // Set onClickListener for the Generate QR Code button
+        generateQRCodeButton.setOnClickListener(view -> {
+            if (eventId == null) {
+                Toast.makeText(this, "Please create an event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            generateQRCode();
+        });
+
+        waitListRepository.getWaitListByEventId(eventId, new WaitListRepository.WaitListCallback() {
+            @Override
+            public void onSuccess(WaitList waitList) {
+                Log.d("OrganizerEventDetails", "Found waitlist with the same" +
+                        "event id");
+
+                // Initialize WaitList Controller
+                waitListController = new WaitListController(waitList);
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Event is not associated with a waitlist
+                Toast.makeText(OrganizerEventDetailsActivity.this,
+                        "No such waitlist with the same event Id", Toast.LENGTH_SHORT).show();
+
+                Log.d("OrganizerEventDetails", "Event is not associated with a waitlist" +
+                        "delete event in firebase");
+
+                openEntrantHomeView();
+            }
+        });
+
+        selectLotteryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an EditText for number input
+                EditText numberInput = new EditText(view.getContext());
+                numberInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); // Ensures only numbers can be entered
+
+                // Create the dialog
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Pick a Number")
+                        .setMessage("Enter the number of lottery winners:")
+                        .setView(numberInput) // Add the EditText to the dialog
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            String input = numberInput.getText().toString();
+                            if (!input.isEmpty()) {
+                                try {
+                                    int pickedNumberToSample = Integer.parseInt(input);
+                                    Log.d("LotteryPicker", "Picked number: "
+                                            + pickedNumberToSample);
+
+                                    selectLottery(pickedNumberToSample);
+
+                                } catch (NumberFormatException e) {
+                                    // Handle invalid input
+                                    Log.e("LotteryPicker", "Invalid number entered");
+                                }
+                            } else {
+                                Log.e("LotteryPicker", "No number entered");
+                            }
+                            openEntrantHomeView();
+                        })
+                        .setNegativeButton("Cancel", null) // No action on cancel
+                        .show();
+            }
+        });
     }
 
     private String getDeviceId(Context context) {
@@ -118,7 +203,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         DocumentReference eventRef = firestore.collection("events").document(eventId);
         listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
-                Toast.makeText(this, "Error fetching event details", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error fetching " +
+                        "event details", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -146,8 +232,81 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 }
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                openEntrantHomeView();
             }
         });
+    }
+    /**
+     * Generates a QR code for the created event, encoding the event's details such as name,
+     * location, date, and description. Displays the QR code in an ImageView.
+     */
+    private void generateQRCode() {
+        if (eventId == null) {
+            Toast.makeText(this, "Please create an event first or ensure it has an ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Check if a QR code for this event already exists
+        db.collection("QRData")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            // QR code already exists
+                            Toast.makeText(this, "QR Code already exists for this event.", Toast.LENGTH_SHORT).show();
+
+                            // Retrieve existing QR content
+                            String existingQrContent = task.getResult().getDocuments().get(0).getString("qrContent");
+
+                            // Generate the QR code bitmap for display
+                            displayQRCode(existingQrContent);
+                        } else {
+                            // No existing QR code, generate a new one
+                            createAndSaveQRCode(db);
+                        }
+                    } else {
+                        Toast.makeText(this, "Error checking for existing QR Code: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void createAndSaveQRCode(FirebaseFirestore db) {
+        // Generate new QR content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
+        // Save QR content to Firestore
+        Map<String, Object> qrData = new HashMap<>();
+        qrData.put("eventId", eventId);
+        qrData.put("qrContent", qrContent);
+
+        db.collection("QRData")
+                .add(qrData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "QR Code data saved to Firestore", Toast.LENGTH_SHORT).show();
+                    // Display the newly generated QR code
+                    displayQRCode(qrContent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error saving to Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void displayQRCode(String qrContent) {
+
+        // Encode the event ID as QR code content
+        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+            qrCodeImageView.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showEntrantsPopup() {
@@ -157,12 +316,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         entrantsPopup.showAtLocation(findViewById(R.id.button_DetailViewEventLists), Gravity.CENTER, 0, 0);
 
         Button waitlistedButton = popupView.findViewById(R.id.button_EventDetailWaitlistedEntrants);
-        Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
+        Button chosenButton = popupView.findViewById(R.id.button_EventDetailChosenEntrants);
         Button declinedButton = popupView.findViewById(R.id.button_EventDetailRejectedEntrants);
+        Button acceptedButton = popupView.findViewById(R.id.button_EventDetailAcceptedEntrants);
 
-        waitlistedButton.setOnClickListener(v -> openEntrantsView("waiting"));
-        acceptedButton.setOnClickListener(v -> openEntrantsView("accepted"));
-        declinedButton.setOnClickListener(v -> openEntrantsView("declined"));
+        waitlistedButton.setOnClickListener(v -> openEntrantsView(UserUtils.WAITING_STATUS));
+        chosenButton.setOnClickListener(v -> openEntrantsView(UserUtils.CHOSEN_STATUS));
+        declinedButton.setOnClickListener(v -> openEntrantsView(UserUtils.DECLINED_STATUS));
+        acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
     }
 
     private void openEntrantsView(String status) {
@@ -172,70 +333,26 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         entrantsPopup.dismiss();
         startActivity(intent);
     }
-}
-/*
-    //dialog that allows organizer to select number of users to select
-    private void showLotteryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter number of users to approve");
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        builder.setView(input);
+    private void openEntrantHomeView(){
+        Intent intent = new Intent(OrganizerEventDetailsActivity.this,
+                OrganizerHomeView.class);
+        startActivity(intent);
+    }
 
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String inputText = input.getText().toString().trim();
+    private void selectLottery(int count){
+        try {
+            // select random winners from waitlist object
+            waitListController.selectRandomWinnersAndUpdateStatus(count);
+            // Update the Waitlist document in waitlist DB
+            waitListRepository.updateWaitListInDatabase(waitListController.getWaitList());
 
-            //input validation
-            if (inputText.isEmpty()) {
-                Toast.makeText(this, "Please enter a valid number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int numToSelect;
-            try {
-                numToSelect = Integer.parseInt(inputText);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            Toast.makeText(OrganizerEventDetailsActivity.this,
+                    "Successfully picked winners randomly", Toast.LENGTH_SHORT).show();
 
-            // Call getUsersWithStatus to get users with "waiting" status
-            waitListRepository.getUsersWithStatus(eventId, "waiting", usersWithStatus -> {
-                if (usersWithStatus == null) {
-                    Toast.makeText(this, "No users found with 'waiting' status.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Random random = new Random();
-                Set<String> selectedUsers = new HashSet<>();
-
-                //randomly generate
-                while (selectedUsers.size() < numToSelect && selectedUsers.size() < usersWithStatus.size()) {
-                    int randomIndex = random.nextInt(usersWithStatus.size());
-                    selectedUsers.add(usersWithStatus.get(randomIndex));
-                }
-
-                for (String userId : selectedUsers) {
-                    UserImpl user = new UserImpl(userId);
-                    waitListRepository.updateUserStatusInWaitList(eventId, user, "approved");
-                    //sendNotification(userId, "You have been selected for the event.");
-                }
-
-                Toast.makeText(this, numToSelect + " users have been selected.", Toast.LENGTH_SHORT).show();
-            });
-
-            // Setup alert dialog for confirmation
-            new AlertDialog.Builder(this)
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                    .show();
-        }
-
-        @Override
-        protected void onStop() {
-            super.onStop();
-            if (listenerRegistration != null) {
-                listenerRegistration.remove();
-            }
+        } catch (Exception e) {
+            Toast.makeText(OrganizerEventDetailsActivity.this,
+                    "Not enough users in the waiting list", Toast.LENGTH_SHORT).show();
         }
     }
-*/
+}
