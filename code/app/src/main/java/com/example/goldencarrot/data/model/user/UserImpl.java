@@ -17,6 +17,7 @@ public class UserImpl implements User {
     private String uId;
     private Boolean notificationAdministrators;
     private Boolean notificationOrganizers;
+    private String profileImage;
 
     /**
      * Default constructor for creating an empty UserImpl instance.
@@ -32,6 +33,7 @@ public class UserImpl implements User {
      * @param phoneNumber the user's phone number, wrapped in an Optional.
      * @param administratorNotification whether the user wants notifications from administrators.
      * @param organizerNotification whether the user wants notifications from organizers.
+     * @param userProfileImage the users profile image
      * @throws Exception if the userType is invalid.
      */
     public UserImpl(final String email,
@@ -39,7 +41,8 @@ public class UserImpl implements User {
                     final String name,
                     final Optional<String> phoneNumber,
                     final Boolean administratorNotification,
-                    final Boolean organizerNotification) throws Exception {
+                    final Boolean organizerNotification,
+                    final String userProfileImage) throws Exception {
         validateUserType(userType);
         this.email = email;
         this.userType = userType;
@@ -47,6 +50,7 @@ public class UserImpl implements User {
         this.phoneNumber = phoneNumber;
         this.notificationAdministrators = administratorNotification;
         this.notificationOrganizers = organizerNotification;
+        this.profileImage = userProfileImage;
     }
 
     /**
@@ -144,6 +148,23 @@ public class UserImpl implements User {
      */
     public Boolean getOrganizerNotifications() {
         return this.notificationOrganizers;
+    }
+
+    /**
+     * Returns the unique user profile.
+     *
+     * @return the user profile image as a String.
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    /**
+     * Sets the unique user profile.
+     * @param profileImage the profile image of the user
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     /**

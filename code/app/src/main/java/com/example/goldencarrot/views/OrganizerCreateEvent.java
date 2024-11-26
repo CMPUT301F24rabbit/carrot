@@ -157,13 +157,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 // Add the event to the repository with the optional waitlist limit
                 eventRepository.addEvent(event, waitlistLimit);
 
-                // Create a waitlist if needed
-                WaitList waitList = new WaitList();
-                waitList.setLimitNumber(waitlistLimit); // Set limit from user input, or null if no limit
-                waitList.setEventId(event.getEventId());
-                waitList.setUserMap(new HashMap<String,String>());
-                waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
-
                 Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();
             }
 
