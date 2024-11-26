@@ -125,6 +125,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // the number of users to approve for the event
         // selectLotteryButton.setOnClickListener(v -> showLotteryDialog());
 
+        // Fetch and display QR Code if it exists
+        fetchAndDisplayQRCode();
+
         // Set onClickListener for the Generate QR Code button
         generateQRCodeButton.setOnClickListener(view -> {
             if (eventId == null) {
@@ -247,10 +250,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Check if a QR code for this event already exists
-        db.collection("QRData")
+        firestore.collection("QRData")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -266,7 +268,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                             displayQRCode(existingQrContent);
                         } else {
                             // No existing QR code, generate a new one
-                            createAndSaveQRCode(db);
+                            createAndSaveQRCode(firestore);
                         }
                     } else {
                         Toast.makeText(this, "Error checking for existing QR Code: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -274,7 +276,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 });
     }
 
-    private void createAndSaveQRCode(FirebaseFirestore db) {
+    private void createAndSaveQRCode(FirebaseFirestore firestore) {
         // Generate new QR content
         String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
 
@@ -283,7 +285,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         qrData.put("eventId", eventId);
         qrData.put("qrContent", qrContent);
 
-        db.collection("QRData")
+        firestore.collection("QRData")
                 .add(qrData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "QR Code data saved to Firestore", Toast.LENGTH_SHORT).show();
@@ -296,10 +298,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     private void displayQRCode(String qrContent) {
-
-        // Encode the event ID as QR code content
-        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
-
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
@@ -308,6 +306,37 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Error generating QR Code", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void fetchAndDisplayQRCode() {
+        if (eventId == null) {
+            Toast.makeText(this, "No event ID provided.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Query Firestore for an existing QR code
+        firestore.collection("QRData")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // QR code exists
+                        String qrContent = task.getResult().getDocuments().get(0).getString("qrContent");
+                        if (qrContent != null) {
+                            displayQRCode(qrContent);
+                            Toast.makeText(this, "QR Code loaded successfully.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "No QR Code data found.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "No existing QR Code. You can generate one.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error fetching QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
 
     private void showEntrantsPopup() {
         View popupView = LayoutInflater.from(this).inflate(R.layout.popup_event_lists, null);

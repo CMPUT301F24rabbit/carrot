@@ -1,8 +1,10 @@
 package com.example.goldencarrot.views;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +20,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 /**
  * Activity that displays the details of an event for the admin user.
  * This activity allows the admin to view event details and delete the event,
@@ -33,7 +39,9 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
     private ImageView eventPosterView;
     private Button backButton, deleteEventButton;
     private String waitlistId;
-
+    private Button generateQRCodeButton;
+    private ImageView qrCodeImageView;
+    private Button deleteQRCodeButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +61,9 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         eventDetailsView = findViewById(R.id.event_DetailDetailsView);
         backButton = findViewById(R.id.back_DetailButton);
         deleteEventButton = findViewById(R.id.delete_DetailEventBtn);
+        generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
+        qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        deleteQRCodeButton = findViewById(R.id.deleteQRCodeButton);
 
         // Get the event ID from the Intent
         String eventId = getIntent().getStringExtra("eventId");
@@ -60,6 +71,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         if (eventId != null) {
             // Load event details from Firestore using the event ID
             loadEventDetails(eventId);
+            // Load the QR code details and display if they exist
+            loadQRCode(eventId);
         } else {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
@@ -72,6 +85,85 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
 
         // Set up delete event button to remove event and its waitlist
         deleteEventButton.setOnClickListener(view -> deleteEvent(eventId));
+
+        // Hide Generate QR code button, and show delete button
+        generateQRCodeButton.setVisibility(View.GONE);
+        deleteQRCodeButton.setVisibility(View.VISIBLE);
+
+        // Set up Delete QR Code button functionality
+        deleteQRCodeButton.setOnClickListener(view -> deleteQRCode(eventId));
+    }
+
+
+    /**
+     * Loads the QR code details for the given event ID and displays it if available.
+     */
+    private void loadQRCode(String eventId) {
+        firestore.collection("QRData")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // QR Code data exists
+                        String qrContent = task.getResult().getDocuments().get(0).getString("qrContent");
+                        if (qrContent != null) {
+                            displayQRCode(qrContent);
+                        }
+                    } else {
+                        Log.d("EventDetailsAdmin", "No QR Code found for this event.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error fetching QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Generates and displays a QR code in the ImageView from the provided content.
+     *
+     * @param qrContent The content to encode in the QR code.
+     */
+    private void displayQRCode(String qrContent) {
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+            qrCodeImageView.setImageBitmap(bitmap);
+            qrCodeImageView.setVisibility(View.VISIBLE); // Ensure it's visible
+        } catch (WriterException e) {
+            Log.e("EventDetailsAdmin", "Error generating QR Code", e);
+            Toast.makeText(this, "Error displaying QR Code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deleteQRCode(String eventId) {
+        if (eventId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            // Query the QR code data collection for the matching event ID
+            db.collection("QRData")
+                    .whereEqualTo("eventId", eventId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            // Delete each document matching the event ID
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                document.getReference()
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "QR Code deleted successfully.", Toast.LENGTH_SHORT).show();
+                                            // Hide the QR Code ImageView
+                                            qrCodeImageView.setVisibility(View.GONE);
+                                        })
+                                        .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        } else {
+                            Toast.makeText(this, "No QR Code found for this event.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(this, "Error querying QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(this, "Invalid event ID.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
