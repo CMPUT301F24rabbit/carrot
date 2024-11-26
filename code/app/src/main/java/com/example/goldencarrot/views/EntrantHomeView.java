@@ -2,9 +2,16 @@ package com.example.goldencarrot.views;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -15,12 +22,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
+
+import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
+import com.example.goldencarrot.data.model.notification.Notification;
+import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.CollectionReference;
@@ -31,9 +49,11 @@ import com.google.zxing.integration.android.IntentResult;
 
 import com.squareup.picasso.Picasso;
 
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 /**
@@ -60,7 +80,10 @@ public class EntrantHomeView extends AppCompatActivity {
     private EventArrayAdapter waitlistedEventsAdapter;
     private ArrayList<Event> upcomingEventsList;
     private ArrayList<Event> waitlistedEventsList;
-
+    private NotificationRepository notificationRepository;
+    private NotificationController notifController;
+    private ArrayList<Notification> notifications;
+    private ActivityResultLauncher<String> resultLauncher;
     /**
      * Called when the activity is first created. Initializes the UI components,
      * loads user data, and sets up event listeners.
@@ -70,9 +93,24 @@ public class EntrantHomeView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_home_view);
 
+        resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Permission Granted
+                        Toast.makeText(EntrantHomeView.this, "You will now receive notifications!", Toast.LENGTH_LONG).show();
+                    } else {
+                        // permission Denied
+                        Toast.makeText(EntrantHomeView.this, "You will not receive notifications", Toast.LENGTH_LONG).show();
+                        ;
+                    }
+                });
+
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "Firestore initialized");
+
+        //request permission to enable notifications
+        requestPermission();
 
         // Set user name
         loadUserData();
@@ -91,6 +129,7 @@ public class EntrantHomeView extends AppCompatActivity {
         waitlistedEventsList = new ArrayList<>();
         upcomingEventsAdapter = new EventArrayAdapter(this, upcomingEventsList);
         waitlistedEventsAdapter = new EventArrayAdapter(this, waitlistedEventsList);
+        notifications = new ArrayList<>();
 
         // Set adapters to listview
         upcomingEventsListView.setAdapter(upcomingEventsAdapter);
@@ -106,10 +145,10 @@ public class EntrantHomeView extends AppCompatActivity {
         });
 
         // Set the click listener for the "Notifications" button
-        notificationsButton.setOnClickListener(view -> {
-            Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
-            startActivity(intent);
-        });
+        //notificationsButton.setOnClickListener(view -> {
+        //    Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
+        //    startActivity(intent);
+        //});
 
         profileImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -126,6 +165,28 @@ public class EntrantHomeView extends AppCompatActivity {
 
         // Load event data
         loadEventData();
+
+        //display all notifications
+        notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
+        notifController = new NotificationController();
+
+        notificationRepository.getNotificationsByUserId(getDeviceId(this),
+                new NotificationRepository.NotificationCallback<List<Notification>>() {
+                    @Override
+                    public void onSuccess(List<Notification> result) {
+                        Log.d(TAG, "Got notifications: " + notifications.toString());
+                        notifications.clear();
+                        notifications.addAll(result);
+                        notifController.displayNotifications(notifications, EntrantHomeView.this);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(EntrantHomeView.this, "Error fetching notifications",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
     private void startQrScanner() {
         new IntentIntegrator(this).initiateScan();  // This will launch the QR scanner
@@ -293,5 +354,24 @@ public class EntrantHomeView extends AppCompatActivity {
                 Log.e("EntrantHomeView", "Error loading waitlisted events", task.getException());
             }
         });
+    }
+    /**
+     * Requests permission from user to enable notifications
+     */
+    public void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                // permission already granted
+                Log.d("EntrantHomeView", "permission already granted for notifications");
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // toast explaining to user that app needs permission to send notifications to them
+                Toast.makeText(EntrantHomeView.this, "Golden Carrot needs permission to send notifications.",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                //request permission
+                resultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        } else {
+        }
     }
 }

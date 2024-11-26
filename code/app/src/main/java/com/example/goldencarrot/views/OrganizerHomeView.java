@@ -105,7 +105,7 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Set an OnClickListener for the button
         manageProfileButton.setOnClickListener(v -> {
             // Start ManageProfileActivity
-            Intent intent = new Intent(OrganizerHomeView.this, OrganizerManageProfileActivity.class);
+            Intent intent = new Intent(OrganizerHomeView.this, FacilityProfileActivity.class);
             intent.putExtra("userId", deviceId);
             startActivity(intent);
         });
@@ -232,8 +232,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                 for (DocumentSnapshot user : listOfUsers) {
                     if (user.getString("userType").equals(PARTICIPANT_TYPE))
                         if (user.getBoolean("organizerNotification")) {
-                        sendNotification(user.getId());
-
+                            sendNotification(user.getId());
                     }
                 }
             }

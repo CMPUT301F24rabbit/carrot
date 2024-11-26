@@ -150,6 +150,7 @@ public class UserImpl implements User {
         return this.notificationOrganizers;
     }
 
+
     /**
      * Returns the unique user profile.
      *

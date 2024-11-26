@@ -1,23 +1,37 @@
 package com.example.goldencarrot;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
 import com.example.goldencarrot.views.OrganizerHomeView;
 import com.example.goldencarrot.views.SignUpActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 
 /**
@@ -26,7 +40,9 @@ import com.google.firebase.FirebaseApp;
  * otherwise it sends the user to their respective home page
  */
 public class MainActivity extends AppCompatActivity {
+
     private String deviceId;
+    private final static String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         UserRepository userRepository = new UserRepository();
+
         FirebaseApp.initializeApp(this);
 
         deviceId = getDeviceId(this);
@@ -57,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         /**
          * Todo, add a loading circle bar
          */
@@ -100,10 +116,12 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Gets the Android device id used to authenticate on device
+     *
      * @param context provided by the View
      * @return the android id
      */
-    private String getDeviceId(Context context){
+    private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
+
 }

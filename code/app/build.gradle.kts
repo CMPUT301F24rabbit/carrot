@@ -49,6 +49,8 @@ dependencies {
     testImplementation(libs.ext.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    testImplementation("org.mockito:mockito-core:4.0.0")
+    androidTestImplementation("org.mockito:mockito-android:4.0.0")
 
     // junit 5
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
@@ -66,8 +68,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
 
     // QR code
-    implementation ("com.google.zxing:core:3.5.2")
-    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.2")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // IMAGE
     implementation("com.squareup.picasso:picasso:2.71828")

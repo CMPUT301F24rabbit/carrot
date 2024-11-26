@@ -67,6 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
                         SignUpActivity.this.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
 
+
                 try {
                     // Verify user inputs before proceeding
                     verifyInputs(
@@ -80,6 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
                         // Add user to Firestore
                         Log.d(TAG, "Default profile picture URL fetched: " + defaultProfileUrl);
                         addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg, defaultProfileUrl);
+                    // Add user to Firestore
 
                         // Proceed to the Entrant home view after sign-up
                         Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
