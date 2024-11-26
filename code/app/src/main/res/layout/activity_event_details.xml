@@ -102,6 +102,15 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"/>
 
+        <Button
+            android:id="@+id/deleteQRCodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete QR Code"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center_horizontal" />
+
         <!-- Select Lottery Users Button -->
         <Button
             android:id="@+id/button_SelectLotteryUsers"
