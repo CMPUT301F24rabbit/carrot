@@ -47,6 +47,13 @@
         <activity android:name=".views.OrganizerChosenView"/>
         <activity android:name=".views.EntrantNotificationsActivity"/>
         <activity android:name=".views.QrCodeScannerActivity"/>
+        <activity android:name=".views.FacilityProfileActivity" />
+
+
+
+    </application>
+
+</manifest>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
