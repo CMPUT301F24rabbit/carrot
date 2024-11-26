@@ -8,46 +8,62 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Facility Name -->
         <EditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Facility Name" />
+            android:hint="Facility Name"
+            android:inputType="text" />
 
+        <!-- Facility Location -->
         <EditText
             android:id="@+id/locationEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Location" />
+            android:hint="Location"
+            android:inputType="text" />
 
+        <!-- Description -->
         <EditText
             android:id="@+id/descriptionEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description"
-            android:minHeight="100dp"
-            android:gravity="top" />
+            android:inputType="textMultiLine"
+            android:lines="3" />
 
+        <!-- Contact Information -->
         <EditText
             android:id="@+id/contactInfoEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Contact Information" />
+            android:hint="Contact Information"
+            android:inputType="textEmailAddress" />
 
-        <ImageView
-            android:id="@+id/facilityImageView"
+        <!-- Map WebView -->
+        <WebView
+            android:id="@+id/mapWebView"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:contentDescription="Facility Image"
-            android:scaleType="centerCrop"
             android:layout_marginTop="16dp"
             android:background="@android:color/darker_gray" />
 
+        <!-- Geolocation Switch -->
+        <Switch
+            android:id="@+id/geolocationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable Geolocation"
+            android:layout_marginTop="16dp" />
+
+        <!-- Save Button -->
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save" />
+            android:layout_marginTop="16dp"
+            android:text="Save and Update Map" />
 
     </LinearLayout>
 </ScrollView>
