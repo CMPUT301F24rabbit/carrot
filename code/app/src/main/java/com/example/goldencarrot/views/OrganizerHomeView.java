@@ -105,7 +105,7 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Set an OnClickListener for the button
         manageProfileButton.setOnClickListener(v -> {
             // Start ManageProfileActivity
-            Intent intent = new Intent(OrganizerHomeView.this, OrganizerManageProfileActivity.class);
+            Intent intent = new Intent(OrganizerHomeView.this, FacilityProfileActivity.class);
             intent.putExtra("userId", deviceId);
             startActivity(intent);
         });
