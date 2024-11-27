@@ -147,4 +147,18 @@ public interface EventConfigurator {
      * @param geolocationEnabled boolean
      */
     void setGeolocationEnabled(boolean geolocationEnabled);
+    /**
+     * Retrieves the poster URL for the event.
+     *
+     * @return the URL of the event poster as a String.
+     */
+    String getPosterUrl();
+
+    /**
+     * Sets the poster URL for the event.
+     *
+     * @param url the URL to set for the event poster.
+     */
+    void setPosterUrl(Object url);
+
 }

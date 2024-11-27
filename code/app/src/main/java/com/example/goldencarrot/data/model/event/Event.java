@@ -329,4 +329,14 @@ public class Event implements EventConfigurator {
     public void setGeolocationEnabled(boolean geolocationEnabled) {
         this.isGeolocationEnabled = geolocationEnabled;
     }
+
+    @Override
+    public String getPosterUrl() {
+        return "";
+    }
+
+    @Override
+    public void setPosterUrl(Object url) {
+
+    }
 }
