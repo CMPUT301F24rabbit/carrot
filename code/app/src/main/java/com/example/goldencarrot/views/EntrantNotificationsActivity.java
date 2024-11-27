@@ -86,6 +86,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                 return;
             }
+            // if chosen by lottery, give option to accept or decline invitation
             if (selectedNotification.getStatus().equals(NotificationUtils.CHOSEN)) {
                 // Show dialog with options to accept or decline the notification
                 new AlertDialog.Builder(EntrantNotificationsActivity.this)
