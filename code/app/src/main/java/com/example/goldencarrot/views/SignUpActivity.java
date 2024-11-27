@@ -21,9 +21,8 @@ import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-
-
 import java.util.Optional;
+
 /**
  * This activity handles the user sign-up process. It allows the user to input their details (email, phone number, and name),
  * verify the input values, and create an account in Firebase. The user type is set to "Participant" by default, but this can
@@ -31,6 +30,7 @@ import java.util.Optional;
  */
 public class SignUpActivity extends AppCompatActivity {
     private String userType;
+
 
     // Repository for managing user data in Firestore
     private UserRepository userDb;
@@ -76,17 +76,19 @@ public class SignUpActivity extends AppCompatActivity {
                             name.getText().toString()
                     );
 
-                    // Fetch default user profile URL from firbecase storage
-                    String imageName = name.getText().toString();
-                    fetchDefaultProfilePictureUrl(imageName, defaultProfileUrl ->{
-                        // Add user to Firestore
-                        Log.d(TAG, "Default profile picture URL fetched: " + defaultProfileUrl);
-                        addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg, defaultProfileUrl);
-                        // Add user to Firestore
+                    // Add user to Firestore with default profilepic1
+                    String defaultProfilePic = "android.resource://" + getPackageName() + "/drawable/profilepic1";
 
-                        // Proceed to the Entrant home view after sign-up
-                        Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
-                        startActivity(intent);
+                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), true, true, defaultProfilePic);
+
+                    // Update profile picture determanistically now:
+                    fetchDefaultProfilePictureUrl(name.getText().toString(), generatedProfilePic -> {
+                        Log.d(TAG, "Generaged Profile Pic URL: " + generatedProfilePic);
+                        updateProfilePictureInFirestore(deviceId, generatedProfilePic, () -> {
+                            Log.d(TAG, "Navigating to EntrantHomeView.");
+                            Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
+                            startActivity(intent);
+                        });
                     });
 
                 } catch (Exception e) {
@@ -156,6 +158,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void fetchDefaultProfilePictureUrl(String name, OnProfilePictureFetched callback) {
+
         // Ensure name isn't empty/null
         if(TextUtils.isEmpty(name)){
             Log.e(TAG, "Name cannot be empty for assigning a profile pciture.");
@@ -189,7 +192,30 @@ public class SignUpActivity extends AppCompatActivity {
                 + ".png?alt=media";
     }
 
+    private void updateProfilePictureInFirestore(String deviceId, String newProfileUrl, OnFirestoreUpdateComplete callback) {
+        userDb.getSingleUser(deviceId, new UserRepository.FirestoreCallbackSingleUser() {
+            @Override
+            public void onSuccess(UserImpl user) {
+                user.setProfileImage(newProfileUrl);
+                userDb.updateUser(user, deviceId);
+                Log.d(TAG, "Updated profile picture in firestore");
+                callback.onComplete();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Failed to update profile image in Firestore: " + e.getMessage());
+                ValidationErrorDialog.show(SignUpActivity.this, "Error", "Failed to update profile picture based on letter");
+            }
+        });
+    }
+
     private interface OnProfilePictureFetched {
         void onSuccess(String url);
     }
+
+    private interface OnFirestoreUpdateComplete {
+        void onComplete();
+    }
+
 }
