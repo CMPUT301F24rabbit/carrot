@@ -27,8 +27,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Events"
         android:backgroundTint="@color/orange"
+        android:text="Events"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
@@ -41,20 +41,19 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/orange"
         android:text="Users"
-        app:layout_constraintBottom_toTopOf="@+id/admin_users_scroll"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/divider" />
 
     <Button
         android:id="@+id/adminAllImagesButton"
-        android:backgroundTint="@color/orange"
-        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
-         android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:backgroundTint="@color/orange"
         android:text="Images"
         android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider2" />
@@ -79,63 +78,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
 
-    <ScrollView
-        android:id="@+id/admin_event_scroll"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/divider"
+    <ListView
+        android:id="@+id/admin_home_events_list"
+        android:layout_width="409dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="1dp"
+        app:layout_constraintBottom_toBottomOf="@+id/divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton">
+        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
-
-    <ScrollView
-        android:id="@+id/admin_users_scroll"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/divider2"
+    <ListView
+        android:id="@+id/admin_home_profiles_list"
+        android:layout_width="409dp"
+        android:layout_height="168dp"
+        app:layout_constraintBottom_toTopOf="@+id/adminAllImagesButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton">
+        app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
-
-    <ScrollView
-        android:id="@+id/admin_images_scroll"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible"
+    <ListView
+        android:id="@+id/admin_home_images_list"
+        android:layout_width="409dp"
+        android:layout_height="151dp"
+        android:layout_marginTop="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminAllImagesButton">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@+id/adminAllImagesButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>
