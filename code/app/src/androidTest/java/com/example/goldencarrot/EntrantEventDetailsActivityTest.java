@@ -24,16 +24,18 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
 public class EntrantEventDetailsActivityTest {
+    private TestDataHelper testDataHelper;
 
     @Rule
     public ActivityScenarioRule<EntrantEventDetailsActivity> activityRule =
             new ActivityScenarioRule<>(EntrantEventDetailsActivity.class);
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         // Initialize Intents for intent verification
         Intents.init();
     }
@@ -64,28 +66,66 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * Test that clicking the "Join Waitlist" button navigates to EntrantHomeView.
+     * Test that clicking the "Join Waitlist" button warns user about navigation enabled
      */
     @Test
-    public void testJoinWaitListNavigatesToEntrantHomeView() throws InterruptedException {
-        // Create an Intent with extras and launch EntrantEventDetailsActivity
+    public void TestJoinEventWithGeoLocationEnabled_WarnsUser() throws Exception {
+        testDataHelper = new TestDataHelper(true);
+        Thread.sleep(5000); // Allow Firestore to populate test data
+
+        String eventId = testDataHelper.getEventId();
+
         Intent intent = new Intent();
-        intent.putExtra("eventId", "ZVhLfmiNmmYtyqsQJHhn");
+        intent.putExtra("eventId", eventId); // add the test event id
         ActivityScenario<EntrantEventDetailsActivity> scenario =
                 ActivityScenario.launch(intent.setClass(getApplicationContext(), EntrantEventDetailsActivity.class));
-
-        // Wait for Firestore data to load
-        Thread.sleep(1000);
 
         // Click the "Join Waitinglist" button
         onView(withId(R.id.entrant_join_waitlist_button)).perform(click());
 
-        // Wait for Firestore data to load
-        Thread.sleep(1000);
+        // Assert that the dialog appears with the correct title or message
+        onView(withText("Geolocation is enabled for this event"))
+                .check(matches(isDisplayed()));
+        onView(withText("Are you sure you want to join?"))
+                .check(matches(isDisplayed()));
 
-        // Verify that an intent to start EntrantHomeView was launched
-        intended(hasComponent(EntrantHomeView.class.getName()));
+        // Optionally, you can interact with the dialog's buttons
+        onView(withText("Yes")).perform(click());
+
+        // Cleanup data
+        testDataHelper.deleteData();
+        Thread.sleep(5000);
     }
+
+    /**
+     * Test that clicking the "Join Waitlist" event with Geolocation disabled.
+     * User will join the waitlist with no warning
+     */
+    @Test
+    public void TestJoinEventWithGeoLocationDisabled() throws Exception {
+        testDataHelper = new TestDataHelper(false);
+        Thread.sleep(5000); // Allow Firestore to populate test data
+
+        String eventId = testDataHelper.getEventId();
+
+        Intent intent = new Intent();
+        intent.putExtra("eventId", eventId); // add the test event id
+        ActivityScenario<EntrantEventDetailsActivity> scenario =
+                ActivityScenario.launch(intent.setClass(getApplicationContext(), EntrantEventDetailsActivity.class));
+
+        // Click the "Join Waitinglist" button
+        onView(withId(R.id.entrant_join_waitlist_button)).perform(click());
+
+        Thread.sleep(5000);
+
+        // Check that user is back at the EntrantHomeVIew
+        intended(hasComponent(EntrantHomeView.class.getName()));
+
+        // Cleanup data
+        testDataHelper.deleteData();
+        Thread.sleep(5000);
+    }
+
 
     /**
      * Test that the back button finishes the activity.

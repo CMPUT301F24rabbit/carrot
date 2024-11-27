@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,8 +15,10 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.ImageView;
 import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -46,6 +49,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     private static final String PREFS_NAME = "UserPreferences";
     private static final String PREF_ORGANIZER_NOTIFICATIONS = "organizer_notifications";
     private static final String PREF_ADMIN_NOTIFICATIONS = "administer_notifications";
+    private String originalProfileImage;
     private String userProfileImage;
     private boolean isOrganizerNotificationsEnabled;
     private boolean isAdminNotificationsEnabled;
@@ -57,6 +61,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     private Switch switchAdminNotifications;
     private ImageView profileImage; // This has to be updated to whatever is in firebase
 
+    private AlertDialog profilePictureDialogue;
     private ActivityResultLauncher<Intent> openGallery;
 
     /**
@@ -85,8 +90,6 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 redirectToLogin();
             }
         });
-
-        userProfileImage = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.profilepic1).toString();
 
         nameInput = findViewById(R.id.edit_user_details_name);
         emailInput = findViewById(R.id.edit_user_details_email_input);
@@ -151,16 +154,16 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
                 // Set profile picture
                 userProfileImage = user.getProfileImage();
-                if(userProfileImage != null && !userProfileImage.isEmpty()){
-                    Picasso.get().load(userProfileImage)
-                            .placeholder(R.drawable.profilepic1) // default while loading
-                            .error(R.drawable.profilepic1)
-                            .into(profileImage);
-                } else{
-                    // use default pic
-                    Picasso.get().load(R.drawable.profilepic1)
-                            .into(profileImage);
+
+                if(userProfileImage == null || userProfileImage.isEmpty()){
+                    userProfileImage = getGenericProfilePictureURL(user.getName());
                 }
+
+                originalProfileImage = userProfileImage;
+
+                Picasso.get().load(userProfileImage)
+                        .error(R.drawable.profilepic1)
+                        .into(profileImage);
             }
 
             @Override
@@ -172,13 +175,8 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
     private void editProfilePictureListener() {
         profileImage.setOnLongClickListener(v -> {
-            // Make intent to opent he image gallery
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            intent.setType("image/*");
-
-            // Now launch intent
-            openGallery.launch(intent);
-            return true; // Indicating long click worked.
+            showProfilePicturePopup();
+            return true;
         });
     }
 
@@ -190,7 +188,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                         // Get our image URI
                         Uri selectedImageUri = result.getData().getData();
                         if(selectedImageUri != null) {
-                            // CROP IT BIIIIITCH
+                            // CROP IT
                             Uri destinationUri = Uri.fromFile(new File(getCacheDir(), "cropped_profile_image.jpg"));
 
                             UCrop.Options options = new UCrop.Options();
@@ -241,8 +239,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     private void sendImagetoFB (Uri imageUri){
         // Get reference to 'profile' folder
         String userId = getDeviceId(this);
-        StorageReference storageRef = FirebaseStorage.getInstance()
-                .getReference("profile/userPictures/" + userId + "_profile.jpg");
+        String storagePath = "profile/userPictures/" + userId + "_profile.png";
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference(storagePath);
 
         // Now upload the image
         storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
@@ -250,57 +249,100 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 userProfileImage = uri.toString(); //SAVE IT
                 Log.d("ProfileImage", "Image uploaded successfully: " + userProfileImage);
-                ValidationErrorDialog.show(this, "Success", "Profileimage uploaded successfully");
+                updateFirestoreImageURL(userProfileImage);
+                Toast.makeText(this, "Profile image was sucessfully updated!", Toast.LENGTH_SHORT).show();
             }).addOnFailureListener(e -> {
                 Log.e("Profile Image", "Failed to get download  URL" + e.getMessage());
-                ValidationErrorDialog.show(this, "Error", "Failed to upload profile picture. Please try again.");
             });
         }).addOnFailureListener(e -> {
             Log.e("ProfileImage", "Image upload failed" + e.getMessage());
-            ValidationErrorDialog.show(this, "Error", "Image upload failed, please try again.");
         });
     }
 
-    private void  saveUserDetailsToFS(){
+    private void  saveUserDetailsToFS() {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String phoneNumber = phoneInput.getText().toString().trim();
 
         try {
             // Validate inputs
-            verifyInputs(email, phoneNumber,name);
+            verifyInputs(email, phoneNumber, name);
 
-            // If no profile picture was uploaded, keep the existing one
-            String finalProfileImage = getExistingProfileImage();
 
+            // CONTROL Z UP TO  HERE
+            // If image is generic, regenerate based on name
+            if (!userProfileImage.equals(originalProfileImage) && userProfileImage.contains("/profile/generic/")) {
+                // Regenerate based on new name
+                fetchDefaultProfilePictureUrl(name, defaultProfileUrl -> {
+                    userProfileImage = defaultProfileUrl;
+                    // Save
+                    saveUserToFirestoreHelper(name, email, phoneNumber);
+                });
+            } else if (!originalProfileImage.equals(getGenericProfilePictureURL(name))) {
+                // NAME HAS CHANGED
+                fetchDefaultProfilePictureUrl(name, defaultProfileUrl ->{
+                    userProfileImage = defaultProfileUrl;
+                    saveUserToFirestoreHelper(name, email, phoneNumber);
+                });
+            } else {
+                // No change
+                saveUserToFirestoreHelper(name, email, phoneNumber);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error: " + e.getMessage());
+            if (!isFinishing()) {
+                ValidationErrorDialog.show(this, "Validation Error", e.getMessage());
+            }
+        }
+    }
+
+    private void saveUserToFirestoreHelper(String name, String email, String phoneNumber) {
+        try {
             Optional<String> optionalPhoneNumber = phoneNumber.isEmpty() ? Optional.empty() : Optional.of(phoneNumber);
-            User user = new UserImpl(email, UserUtils.PARTICIPANT_TYPE, name, optionalPhoneNumber, isAdminNotificationsEnabled, isOrganizerNotificationsEnabled, userProfileImage);
+            User user = new UserImpl(
+                    email,
+                    UserUtils.PARTICIPANT_TYPE,
+                    name,
+                    optionalPhoneNumber,
+                    isAdminNotificationsEnabled,
+                    isOrganizerNotificationsEnabled,
+                    userProfileImage
+            );
 
             // Get device ID
-            String deviceId = getDeviceId(EntrantEditUserDetailsView.this);
+            String deviceId = getDeviceId(this);
 
             // Update details into Firestore
             UserRepository userRepository = new UserRepository();
             userRepository.updateUser(user, deviceId);
 
             // Show success msg
-            ValidationErrorDialog.show(EntrantEditUserDetailsView.this, "Success", "User details updated successfully!");
+            ValidationErrorDialog.show(this, "Success", "User details updated successfully!");
 
             // Navigate to home view
             Intent intent = new Intent(EntrantEditUserDetailsView.this, EntrantHomeView.class);
             startActivity(intent);
             finish();
         } catch (Exception e) {
-            Log.e(TAG, "Error: " + e.getMessage());
-            ValidationErrorDialog.show(EntrantEditUserDetailsView.this, "Validation Error", e.getMessage());
+            Log.e(TAG, "Error while saving user details: " + e.getMessage());
+            ValidationErrorDialog.show(this, "Error", e.getMessage());
         }
     }
 
-    private String getExistingProfileImage() {
-        if(userProfileImage != null && !userProfileImage.startsWith("android.resources://")){
-            return userProfileImage; // Since they have a  valid image already
+    private String getGenericProfilePictureURL(String name) {
+        // Ensure name isn't empty/null
+        if (TextUtils.isEmpty(name)) {
+            Log.e(TAG, "Name cannot be empty for assigning a profile picture.");
+            return "https://firebasestorage.googleapis.com/v0/b/goldencarrotdatabase.appspot.com/o/profile%2Fgeneric%2Fdefault.png?alt=media";
         }
-        return "gs://goldencarrotdatabase.firebasestorage.app/profile/profilepic1.png";
+
+        char firstLetter = Character.toLowerCase(name.charAt(0)); // Convert to lowercase
+        return "https://firebasestorage.googleapis.com/v0/b/goldencarrotdatabase.appspot.com/o/profile%2Fgeneric%2F"
+                + firstLetter + ".png?alt=media";
+    }
+
+    private interface OnProfilePictureFetched {
+        void onSuccess(String url);
     }
 
     private void setupSaveButton() {
@@ -309,6 +351,11 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     }
 
     private void updateFirestoreImageURL(String imageURL) {
+        if(TextUtils.isEmpty(imageURL)){
+            Log.e(TAG,  "Cannot update Firestore withan empty image URL.");
+            return;
+        }
+
         String userId = getDeviceId(this);
         UserRepository userRepository =  new UserRepository();
 
@@ -360,6 +407,110 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
      */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private void showProfilePicturePopup() {
+        // Alert Dialogue
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Profile Picture Options");
+
+        // Options:
+        String[] options = {"Remove Picture", "Upload Picture"};
+
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                // Remove the picture
+                resetToGeneric();
+                loadImageWithFallback(userProfileImage, profileImage);
+                Log.d(TAG, "Profile Picture removed and reverted to generic.");
+            } else if (which == 1){
+                // Make intent to open the image gallery
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("image/*");
+
+                // Now launch intent
+                openGallery.launch(intent);
+            }
+        });
+
+        // Show Dialog
+        profilePictureDialogue = builder.create();
+        profilePictureDialogue.show();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(profilePictureDialogue != null && profilePictureDialogue.isShowing()) {
+            profilePictureDialogue.dismiss();
+        }
+        super.onDestroy();
+    }
+
+    private void resetToGeneric() {
+        String name = nameInput.getText().toString().trim();
+
+        if(TextUtils.isEmpty(name)){
+            Log.e(TAG, "Name cannot be empty to reset profile picture.");
+            loadImageWithFallback(originalProfileImage, profileImage);
+            return;
+        }
+
+        fetchDefaultProfilePictureUrl(name, defaultProfileUrl -> {
+            userProfileImage = defaultProfileUrl;
+
+            // Show generic temporarily in UI
+            loadImageWithFallback(userProfileImage, profileImage);
+
+            Toast.makeText(this, "Profile picture reset to default. Save changes to apply.", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void fetchDefaultProfilePictureUrl(String name, OnProfilePictureFetched callback) {
+        if (TextUtils.isEmpty(name)) {
+            Log.e(TAG, "Name cannot be empty for assigning a profile picture.");
+            callback.onSuccess(getGenericProfilePictureURL(String.valueOf('x'))); // Default fallback
+            return;
+        }
+
+        char firstLetter = Character.toLowerCase(name.charAt(0)); // Convert to lowercase
+        String filePath = "profile/generic/" + firstLetter + ".png";
+
+        Log.d(TAG, "Attempting to fetch profile picture from: " + filePath);
+
+        // Firebase Storage reference
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference(filePath);
+
+        // Fetch the download URL
+        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            Log.d(TAG, "Successfully fetched profile picture URL: " + uri.toString());
+            callback.onSuccess(uri.toString());
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Failed to fetch default profile picture URL", e);
+            callback.onSuccess("android.resource://" + getPackageName() + "/drawable/profilepic1"); // Fallback
+        });
+    }
+
+    private void loadImageWithFallback(String imageUrl, ImageView imageView){
+        Picasso.get()
+                .load(imageUrl)
+                .into(imageView, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Image loaded successfully: " + imageUrl);
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "Failed to load image: " + imageUrl + ", reverting to original");
+
+                        // Go back to letter
+                        String name = nameInput.getText().toString().trim();
+                        String fallbackImageUrl = getGenericProfilePictureURL(nameInput.getText().toString().trim());
+                        Picasso.get().load(fallbackImageUrl).into(imageView);
+                    }
+                });
     }
 
     private void redirectToLogin(){

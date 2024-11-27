@@ -1,20 +1,16 @@
 package com.example.goldencarrot.controller;
 
 import static android.content.ContentValues.TAG;
-import static android.content.Context.NOTIFICATION_SERVICE;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -27,6 +23,7 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.views.EntrantEventDetailsActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
+import com.example.goldencarrot.views.EntrantNotificationsActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -86,7 +83,13 @@ public class NotificationController{
                 NotificationUtils.CHOSEN_MESSAGE, NotificationUtils.CHOSEN
         );
     }
-
+    public Notification getOrCreateCancelledNotification(final String userId,
+                                                        final String eventId,
+                                                        final String waitListId) {
+        return new Notification(userId, eventId, waitListId, null,
+                NotificationUtils.CANCELLED_MESSAGE, NotificationUtils.CANCELLED
+        );
+    }
     public Notification getNotification(){
         return this.notification;
     }
@@ -117,8 +120,9 @@ public class NotificationController{
         Intent intent;
         if (messageTitle.equals(NotificationUtils.SINGLE_USER)) {
             intent = new Intent(context, EntrantHomeView.class);
+            messageTitle = "To All Entrants";
         } else {
-            intent = new Intent(context, EntrantEventDetailsActivity.class);
+            intent = new Intent(context, EntrantNotificationsActivity.class);
             intent.putExtra("eventId", eventId);
             messageBody = "Event: " + eventName + ", " + messageBody;
         }
@@ -179,6 +183,7 @@ public class NotificationController{
      */
     public void displayNotifications(ArrayList<Notification> notifications, Context context) {
         if (!notifications.isEmpty()) {
+            Toast.makeText(context, "You have new notifications!", Toast.LENGTH_SHORT).show();
             for (Notification notification : notifications) {
                 if (notification.getEventId() != null) {
                     eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {
@@ -195,6 +200,7 @@ public class NotificationController{
                 } else {
                     sendNotification(notification.getMessage(), notification.getStatus(), null, null, context);
                 }
+                /*
                 notificationRepository.deleteNotification(notification.getNotificationId(),
                         new NotificationRepository.NotificationCallback<Boolean>() {
                     @Override
@@ -206,6 +212,7 @@ public class NotificationController{
                         Log.d(TAG, "failed to delete notification");
                     }
                 });
+                 */
             }
         }
     }

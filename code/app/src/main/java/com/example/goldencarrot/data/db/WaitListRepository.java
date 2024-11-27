@@ -41,10 +41,9 @@ public class WaitListRepository implements WaitListDb {
      * Creates a new waitlist document in Firestore.
      *
      * @param waitList the waitlist to be created
-     * @param docId    the document ID for this waitlist in Firestore
      */
     @Override
-    public void createWaitList(WaitList waitList, String docId, String eventName) {
+    public void createWaitList(WaitList waitList, String eventName) {
         Log.d("WaitListRepository", "creating waitlist");
         Map<String, Object> waitListData = new HashMap<>();
 
