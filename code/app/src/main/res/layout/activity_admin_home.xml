@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Events"
+        android:backgroundTint="@color/orange"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
@@ -38,6 +39,7 @@
         android:id="@+id/adminAllUsersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/orange"
         android:text="Users"
         app:layout_constraintBottom_toTopOf="@+id/admin_users_scroll"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,6 +48,7 @@
 
     <Button
         android:id="@+id/adminAllImagesButton"
+        android:backgroundTint="@color/orange"
         app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
          android:layout_width="wrap_content"
        android:layout_height="wrap_content"

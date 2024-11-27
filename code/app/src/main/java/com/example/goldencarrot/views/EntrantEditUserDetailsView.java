@@ -111,15 +111,23 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         isAdminNotificationsEnabled = false;
         isOrganizerNotificationsEnabled = false;
 
+        switchOrganizerNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    isOrganizerNotificationsEnabled = true;
+                } else {
+                    isOrganizerNotificationsEnabled = false;
+                }
+            }
+        });
         switchAdminNotifications.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     isAdminNotificationsEnabled = true;
-                    isOrganizerNotificationsEnabled = true;
                 } else {
                     isAdminNotificationsEnabled = false;
-                    isOrganizerNotificationsEnabled = false;
                 }
             }
         });
@@ -151,6 +159,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 nameInput.setText(user.getName());
                 emailInput.setText(user.getEmail());
                 phoneInput.setText(user.getPhoneNumber().orElse(""));
+
+                switchOrganizerNotifications.setChecked(user.getOrganizerNotifications());
+                switchAdminNotifications.setChecked(user.getAdminNotification());
 
                 // Set profile picture
                 userProfileImage = user.getProfileImage();

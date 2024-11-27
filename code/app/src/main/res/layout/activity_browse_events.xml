@@ -31,6 +31,7 @@
         android:layout_width="96dp"
         android:layout_height="39dp"
         android:text="Back"
+        android:backgroundTint="@color/orange"
         app:layout_constraintBottom_toBottomOf="@+id/browse_events_title"
         app:layout_constraintEnd_toStartOf="@+id/browse_events_title"
         app:layout_constraintStart_toStartOf="parent"

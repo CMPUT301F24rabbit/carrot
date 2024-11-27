@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import com.example.goldencarrot.R;
  */
 public class AdminHomeActivity extends AppCompatActivity {
     private Button viewAllEventsButton, viewAllUsersButton, viewAllImagesButton;
+    private ListView userList, eventList, imageList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
