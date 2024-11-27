@@ -23,7 +23,6 @@ public class EventRepository {
     private static final String TAG = "EventRepository";
     private FirebaseFirestore db;
     private CollectionReference eventsCollection;
-    private CollectionReference userCollection;
 
     /**
      * constructs a new {@code EventRepository} with Firebase instance
@@ -31,13 +30,13 @@ public class EventRepository {
     public EventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsCollection = db.collection("events");
-        userCollection = db.collection("users");
     }
+
     /**
      * Creates a new event document in Firestore
      * @param event is the event to be added
      */
-    public void addEvent(Event event, @Nullable Integer waitlistLimit) {
+    public void addEvent(Event event, @Nullable Integer waitlistLimit, EventCallback callback) {
         Map<String, Object> eventData = new HashMap<>();
 
         // Add event attributes to Firestore
@@ -51,29 +50,22 @@ public class EventRepository {
         // Add event document into events collection and capture the generated ID
         eventsCollection.add(eventData)
                 .addOnSuccessListener(documentReference -> {
-                    String generatedId = documentReference.getId();
-                    event.setEventId(generatedId); // Update the event object with the new ID
-                    Log.d(TAG, "Event created successfully with ID: " + generatedId);
-
-                    documentReference.update("eventId", generatedId)
+                    event.setEventId(documentReference.getId()); // Update the event object with the new ID
+                    // Update the event ID in Firestore (use the existing placeholder key)
+                    documentReference.update("eventId", documentReference.getId())
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "Event ID updated in Firestore"))
                             .addOnFailureListener(e -> Log.w(TAG, "Error updating event ID", e));
 
-                    WaitListRepository waitListRepository = new WaitListRepository();
-                    WaitList waitList = new WaitList();
-
-                    // Set the limit only if specified by the organizer; otherwise, leave as null
-                    if (waitlistLimit != null) {
-                        waitList.setLimitNumber(waitlistLimit);
-                    }
-                    waitList.setEventId(event.getEventId());
-                    waitList.setUserMap(new HashMap<String, String>());
-                    waitListRepository.createWaitList(waitList, waitList.getWaitListId(), event.getEventName());
-
+                    // Proceed with creating the waitlist
+                    createWaitlist(waitlistLimit, event, callback);
                 })
-                .addOnFailureListener(e -> Log.w(TAG, "Error creating event", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error creating event", e);
+                    if (callback != null) {
+                        callback.onFailure(e);
+                    }
+                });
     }
-
 
     /**
      * deletes event from Firestore
@@ -127,5 +119,26 @@ public class EventRepository {
     public interface EventCallback {
         void onSuccess(Event event);
         void onFailure(Exception e);
+    }
+
+    private void createWaitlist(@Nullable Integer waitlistLimit, Event event, EventCallback callback) {
+        WaitListRepository waitListRepository = new WaitListRepository();
+        WaitList waitList = new WaitList();
+
+        // Set the limit only if specified by the organizer
+        if (waitlistLimit != null) {
+            waitList.setLimitNumber(waitlistLimit);
+        }
+
+        waitList.setEventName(event.getEventName());
+        waitList.setEventId(event.getEventId());
+        waitList.setUserMap(new HashMap<>());
+
+        waitListRepository.createWaitList(waitList, event.getEventName());
+
+        // Notify the callback of success after waitlist creation
+        if (callback != null) {
+            callback.onSuccess(event);
+        }
     }
 }

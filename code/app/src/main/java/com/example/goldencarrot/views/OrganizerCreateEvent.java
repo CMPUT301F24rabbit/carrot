@@ -155,7 +155,17 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 }
 
                 // Add the event to the repository with the optional waitlist limit
-                eventRepository.addEvent(event, waitlistLimit);
+                eventRepository.addEvent(event, waitlistLimit, new EventRepository.EventCallback() {
+                    @Override
+                    public void onSuccess(Event event) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
 
                 Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();
             }
