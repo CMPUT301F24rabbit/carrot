@@ -33,7 +33,7 @@ public class TestDataHelper {
     WaitList waitListTest;
     Notification notificationTest;
 
-    public TestDataHelper() throws Exception {
+    public TestDataHelper(final boolean isGeoLocationEnabled) throws Exception {
 
 
         userRepository = new UserRepository();
@@ -43,7 +43,20 @@ public class TestDataHelper {
                                                     FirebaseFirestore.getInstance());
 
         createTestUser();
-        createTestEvent();
+        createTestEvent(isGeoLocationEnabled);
+    }
+
+    public TestDataHelper() throws Exception {
+
+
+        userRepository = new UserRepository();
+        eventRepository = new EventRepository();
+        waitListRepository = new WaitListRepository();
+        notificationRepository = new NotificationRepository(
+                FirebaseFirestore.getInstance());
+
+        createTestUser();
+        createTestEvent(true);
     }
 
     private void createTestUser() throws Exception {
@@ -60,7 +73,7 @@ public class TestDataHelper {
         userRepository.addUser(userTest, TEST_USER_ID);
     }
 
-    private void createTestEvent() {
+    private void createTestEvent(final boolean isGeoLocationEnabled) {
         UserImpl organizerUser = new UserImpl();
         organizerUser.setUserId("777");
 
@@ -72,7 +85,7 @@ public class TestDataHelper {
                 "eventDetails",
                 1234
         );
-        eventTest.setGeolocationEnabled(true);
+        eventTest.setGeolocationEnabled(isGeoLocationEnabled);
 
         Log.d(TAG, "Creating Event");
         // Add event to Firestore
@@ -152,5 +165,13 @@ public class TestDataHelper {
                 Log.d(TAG, "Error when creation Notification");
             }
         });
+    }
+
+    public String getEventId() throws Exception {
+        if (eventTest.getEventId() != null) {
+            return eventTest.getEventId();
+        } else {
+            throw new Exception("Event Id is null");
+        }
     }
 }
