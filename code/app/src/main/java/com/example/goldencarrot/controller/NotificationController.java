@@ -23,6 +23,7 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.views.EntrantEventDetailsActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
+import com.example.goldencarrot.views.EntrantNotificationsActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -119,8 +120,9 @@ public class NotificationController{
         Intent intent;
         if (messageTitle.equals(NotificationUtils.SINGLE_USER)) {
             intent = new Intent(context, EntrantHomeView.class);
+            messageTitle = "To All Entrants";
         } else {
-            intent = new Intent(context, EntrantEventDetailsActivity.class);
+            intent = new Intent(context, EntrantNotificationsActivity.class);
             intent.putExtra("eventId", eventId);
             messageBody = "Event: " + eventName + ", " + messageBody;
         }
@@ -198,6 +200,7 @@ public class NotificationController{
                 } else {
                     sendNotification(notification.getMessage(), notification.getStatus(), null, null, context);
                 }
+                /*
                 notificationRepository.deleteNotification(notification.getNotificationId(),
                         new NotificationRepository.NotificationCallback<Boolean>() {
                     @Override
@@ -209,6 +212,7 @@ public class NotificationController{
                         Log.d(TAG, "failed to delete notification");
                     }
                 });
+                 */
             }
         }
     }

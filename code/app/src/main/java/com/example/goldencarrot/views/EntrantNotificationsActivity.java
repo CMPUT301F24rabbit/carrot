@@ -18,6 +18,7 @@ import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationAdapter;
+import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
@@ -85,24 +86,28 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                 return;
             }
+            // if chosen by lottery, give option to accept or decline invitation
+            if (selectedNotification.getStatus().equals(NotificationUtils.CHOSEN)) {
+                // Show dialog with options to accept or decline the notification
+                new AlertDialog.Builder(EntrantNotificationsActivity.this)
+                        .setTitle("Notification")
+                        .setMessage(selectedNotification.getMessage())
+                        .setPositiveButton("ACCEPT", (dialog, which) -> {
+                            handleNotificationAction(notificationId, index);
+                            changeStatusInWaitList(getDeviceId(this), selectedNotification.
+                                    getWaitListId(), UserUtils.ACCEPTED_STATUS);
+                        })
+                        .setNegativeButton("DECLINE", (dialog, which) -> {
+                            handleNotificationAction(notificationId, index);
+                            changeStatusInWaitList(getDeviceId(this), selectedNotification.
+                                    getWaitListId(), UserUtils.DECLINED_STATUS);
+                            drawReplacementFromWaitlist();
 
-            // Show dialog with options to accept or decline the notification
-            new AlertDialog.Builder(EntrantNotificationsActivity.this)
-                    .setTitle("Notification")
-                    .setMessage(selectedNotification.getMessage())
-                    .setPositiveButton("ACCEPT", (dialog, which) -> {
-                        handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.
-                                getWaitListId(), UserUtils.ACCEPTED_STATUS);
-                    })
-                    .setNegativeButton("DECLINE", (dialog, which) -> {
-                        handleNotificationAction(notificationId, index);
-                        changeStatusInWaitList(getDeviceId(this), selectedNotification.
-                                getWaitListId(), UserUtils.DECLINED_STATUS);
-                        drawReplacementFromWaitlist();
-
-                    })
-                    .show();
+                        })
+                        .show();
+            } else {
+                handleNotificationAction(notificationId, index);
+            }
         });
 
         // Handle back button click to navigate back to the home view

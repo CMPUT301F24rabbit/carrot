@@ -313,7 +313,8 @@ public class EntrantHomeView extends AppCompatActivity {
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
 
-                        if (UserUtils.WAITING_STATUS.equals(status)) {
+                        //
+                        if (UserUtils.WAITING_STATUS.equals(status) || UserUtils.ACCEPTED_STATUS.equals(status) || UserUtils.CHOSEN_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
                             String location = document.getString("location");
