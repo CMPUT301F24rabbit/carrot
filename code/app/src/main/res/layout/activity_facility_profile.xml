@@ -8,16 +8,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Facility Name -->
         <EditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Facility Name" />
+            android:hint="Facility Name"
+            android:inputType="text" />
 
+        <!-- Facility Location -->
+            android:hint="Facility Name" />
         <EditText
             android:id="@+id/locationEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Location"
+            android:inputType="text" />
+
+        <!-- Description -->
             android:hint="Location" />
 
         <EditText
@@ -25,6 +33,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description"
+            android:inputType="textMultiLine"
+            android:lines="3" />
+
+        <!-- Contact Information -->
             android:minHeight="100dp"
             android:gravity="top" />
 
@@ -32,6 +44,26 @@
             android:id="@+id/contactInfoEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Contact Information"
+            android:inputType="textEmailAddress" />
+
+        <!-- Map WebView -->
+        <WebView
+            android:id="@+id/mapWebView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/darker_gray" />
+
+        <!-- Geolocation Switch -->
+        <Switch
+            android:id="@+id/geolocationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable Geolocation"
+            android:layout_marginTop="16dp" />
+
+        <!-- Save Button -->
             android:hint="Contact Information" />
 
         <ImageView
@@ -47,6 +79,8 @@
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Save and Update Map" />
             android:text="Save" />
 
     </LinearLayout>
