@@ -101,6 +101,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_explore_events"
         app:layout_constraintTop_toBottomOf="@+id/waitlisted_events" />
+
     <!-- QR Scan Button -->
     <Button
         android:id="@+id/entrant_scan_qr_button"

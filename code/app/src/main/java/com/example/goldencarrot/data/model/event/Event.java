@@ -279,7 +279,7 @@ public class Event implements EventConfigurator {
      */
     @Override
     public String getOrganizerId() {
-        return organizerId;
+        return this.organizer.getUserId();
     }
 
     /**
