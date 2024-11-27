@@ -59,17 +59,11 @@
         <activity android:name=".views.QrCodeScannerActivity"/>
         <activity android:name=".views.FacilityProfileActivity" />
 
-
-
-    </application>
-
-</manifest>
+        <!-- External activity declaration -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-
     </application>
-
 
 </manifest>
