@@ -14,9 +14,8 @@ public interface WaitListDb {
      * Creates a new waitlist document in Firestore.
      *
      * @param waitList the waitlist to be created
-     * @param docId the document ID for this waitlist in Firestore
      */
-    void createWaitList(WaitList waitList, String docId, String eventName);
+    void createWaitList(WaitList waitList, String eventName);
 
     /**
      * Adds a user to the waitlist if there is room.

@@ -298,7 +298,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private void displayQRCode(String qrContent) {
 
         // Encode the event ID as QR code content
-        String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
+
+        qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
 
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();

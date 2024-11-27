@@ -3,13 +3,9 @@ package com.example.goldencarrot.views;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,11 +22,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
 import com.example.goldencarrot.data.db.NotificationRepository;
@@ -38,7 +32,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
 import com.example.goldencarrot.data.model.notification.Notification;
-import com.example.goldencarrot.data.model.notification.NotificationUtils;
+import com.example.goldencarrot.data.model.notification.NotificationPermissionRequester;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.CollectionReference;
@@ -49,13 +43,12 @@ import com.google.zxing.integration.android.IntentResult;
 
 import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
 /**
  * This class handles all the features and interactions for the Entrant's home screen.
  * It displays the user's profile, lists of upcoming and waitlisted events, and allows the user
@@ -63,7 +56,6 @@ import java.util.Optional;
  * The data is loaded from Firestore and displayed in the appropriate UI elements.
  */
 public class EntrantHomeView extends AppCompatActivity {
-
     // UI elements
     private TextView usernameTextView;
     private TextView waitlistedEventsTitle;
@@ -71,7 +63,6 @@ public class EntrantHomeView extends AppCompatActivity {
     private ListView upcomingEventsListView;
     private ListView waitlistedEventsListView;
     private Button exploreEventsButton;
-    private Button goToWaitlistButton;
     private Button notificationsButton;
 
     // Firestore references and data
@@ -84,6 +75,8 @@ public class EntrantHomeView extends AppCompatActivity {
     private NotificationController notifController;
     private ArrayList<Notification> notifications;
     private ActivityResultLauncher<String> resultLauncher;
+    private NotificationPermissionRequester notificationPermissionRequester;
+
     /**
      * Called when the activity is first created. Initializes the UI components,
      * loads user data, and sets up event listeners.
@@ -109,8 +102,11 @@ public class EntrantHomeView extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "Firestore initialized");
 
-        //request permission to enable notifications
-        requestPermission();
+        // This method is decoupled for testing purposes
+        if (notificationPermissionRequester == null) {
+            notificationPermissionRequester = new DefaultPermissionRequester();
+        }
+        notificationPermissionRequester.requestNotificationPermission();
 
         // Set user name
         loadUserData();
@@ -121,8 +117,8 @@ public class EntrantHomeView extends AppCompatActivity {
         upcomingEventsListView = findViewById(R.id.upcoming_events);
         waitlistedEventsListView = findViewById(R.id.waitlisted_events);
         exploreEventsButton = findViewById(R.id.button_explore_events);
-        waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
         notificationsButton = findViewById(R.id.notifications_button);
+        waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
 
         // Event lists and adapter Initialization
         upcomingEventsList = new ArrayList<>();
@@ -144,12 +140,6 @@ public class EntrantHomeView extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Set the click listener for the "Notifications" button
-        //notificationsButton.setOnClickListener(view -> {
-        //    Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
-        //    startActivity(intent);
-        //});
-
         profileImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -157,6 +147,12 @@ public class EntrantHomeView extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             }
+        });
+
+        // Notifications Button
+        notificationsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EntrantHomeView.this, EntrantNotificationsActivity.class);
+            startActivity(intent);
         });
 
         // QR scanner button
@@ -210,8 +206,6 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         }
     }
-
-
 
     /**
      * Sets up listeners to open the WaitlistActivity when a waitlisted event is clicked.
@@ -372,6 +366,31 @@ public class EntrantHomeView extends AppCompatActivity {
                 resultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         } else {
+        }
+    }
+
+    /**
+     * Todo deprecate this private method
+     */
+    public void setPermissionRequester(NotificationPermissionRequester permissionRequester) {
+        this.notificationPermissionRequester = permissionRequester;
+    }
+
+    // Default implementation for production
+    private class DefaultPermissionRequester implements NotificationPermissionRequester {
+        @Override
+        public void requestNotificationPermission() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(
+                        EntrantHomeView.this, Manifest.permission.POST_NOTIFICATIONS) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    // Request the permission
+                    ActivityCompat.requestPermissions(
+                            EntrantHomeView.this,
+                            new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                            1);
+                }
+            }
         }
     }
 }
