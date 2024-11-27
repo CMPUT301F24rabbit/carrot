@@ -21,9 +21,8 @@ import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-
-
 import java.util.Optional;
+
 /**
  * This activity handles the user sign-up process. It allows the user to input their details (email, phone number, and name),
  * verify the input values, and create an account in Firebase. The user type is set to "Participant" by default, but this can
@@ -77,11 +76,12 @@ public class SignUpActivity extends AppCompatActivity {
                     );
 
                     // Fetch default user profile URL from firbecase storage
-                    fetchDefaultProfilePictureUrl(defaultProfileUrl ->{
+                    String imageName = name.getText().toString();
+                    fetchDefaultProfilePictureUrl(imageName, defaultProfileUrl ->{
                         // Add user to Firestore
                         Log.d(TAG, "Default profile picture URL fetched: " + defaultProfileUrl);
                         addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg, defaultProfileUrl);
-                    // Add user to Firestore
+                        // Add user to Firestore
 
                         // Proceed to the Entrant home view after sign-up
                         Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
@@ -154,16 +154,38 @@ public class SignUpActivity extends AppCompatActivity {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    private void fetchDefaultProfilePictureUrl(OnProfilePictureFetched callback) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference("profile/profilepic1.png");
+    private void fetchDefaultProfilePictureUrl(String name, OnProfilePictureFetched callback) {
+        // Ensure name isn't empty/null
+        if(TextUtils.isEmpty(name)){
+            Log.e(TAG, "Name cannot be empty for assigning a profile pciture.");
+            callback.onSuccess(getGenericProfilePictureURL('x'));
+            return;
+        }
+
+        // Now get the first letter of users name
+        char firstLetter = Character.toLowerCase(name.charAt(0)); // Convert to lowercase and grab the first letter
+        String filePath = "profile/generic/" + firstLetter + ".png";
+        Log.d(TAG, "Attempting to fetch profile picture from: " + filePath);
+
+        // Now reference the file in Firebase
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference(filePath);
+
+        // Getting the download URL
         storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
             // Pass URL to callback
+            Log.d(TAG, "Successfully fetched profile picture URL: " + uri.toString());
             callback.onSuccess(uri.toString());
         }).addOnFailureListener(e -> {
             // Failure
             Log.e(TAG, "Failed to fetch default profile picture URL", e);
             callback.onSuccess("android.resource://" + getPackageName() + "/drawable/profilepic1");
         });
+    }
+
+    private String getGenericProfilePictureURL(char firstLetter) {
+        return "https://firebasestorage.googleapis.com/v0/b/goldencarrotdatabase.appspot.com/o/profile%2Fgeneric%2F"
+                + firstLetter
+                + ".png?alt=media";
     }
 
     private interface OnProfilePictureFetched {

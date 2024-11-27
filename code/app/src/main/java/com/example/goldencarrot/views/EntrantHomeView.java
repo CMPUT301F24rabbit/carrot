@@ -34,6 +34,7 @@ import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
 import com.example.goldencarrot.data.db.NotificationRepository;
+import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
 
@@ -41,6 +42,7 @@ import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -256,8 +258,11 @@ public class EntrantHomeView extends AppCompatActivity {
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
+
+                        UserImpl user = null;
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, userProfileImage);
+                            user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, userProfileImage);
+
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());
@@ -267,30 +272,26 @@ public class EntrantHomeView extends AppCompatActivity {
                             }
 
                             // Profile Image set
-                            if(userProfileImage != null && !userProfileImage.isEmpty()){
-                                Picasso.get().load(userProfileImage)
-                                        .placeholder(R.drawable.profilepic1)
-                                        .error(R.drawable.profilepic1)
-                                        .into(profileImageView);
-                                Log.d(TAG, "Profile image loaded: " + userProfileImage);
+                            if (userProfileImage != null && !userProfileImage.isEmpty()) {
+                                loadProfileImage(userProfileImage);
                             } else {
-                                // Set default pic
-                                profileImageView.setImageResource(R.drawable.profilepic1);
-                                Log.w(TAG, "Profile  image URL is missing, using default image");
+                                Log.w(TAG, "Profile  image URL is missing, leaving blank.");
+                                profileImageView.setImageDrawable(null);
                             }
                         } catch (Exception e) {
-                            Log.e(TAG, "Error creating UserImpl object: " + e.getMessage(), e);
+                            Log.e(TAG, "Error creating User Impl object: " + e.getMessage(), e);
                             usernameTextView.setText("Error loading user data");
                         }
                     } else {
                         Log.e(TAG, "Document does not exist");
                         usernameTextView.setText("Error: User not found");
                     }
+
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching user data", e);
                     usernameTextView.setText("Error fetching user data");
-                });
+            });
     }
 
     /**
@@ -374,4 +375,20 @@ public class EntrantHomeView extends AppCompatActivity {
         } else {
         }
     }
+
+    private void loadProfileImage(String imageUrl){
+        Picasso.get().load(imageUrl)
+                .into(profileImageView, new com.squareup.picasso.Callback(){
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Profile image loaded successfully.");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "Failed to load profile image", e);
+                    }
+                });
+    }
+
 }
