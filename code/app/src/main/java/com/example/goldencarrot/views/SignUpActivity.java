@@ -79,7 +79,7 @@ public class SignUpActivity extends AppCompatActivity {
                     // Add user to Firestore with default profilepic1
                     String defaultProfilePic = "android.resource://" + getPackageName() + "/drawable/profilepic1";
 
-                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), true, true, defaultProfilePic);
+                    addUserToFirestore(deviceId, name.getText().toString(), email.getText().toString(), Optional.of(phoneNumber.getText().toString()), nAdmin, nOrg, defaultProfilePic);
 
                     // Update profile picture determanistically now:
                     fetchDefaultProfilePictureUrl(name.getText().toString(), generatedProfilePic -> {

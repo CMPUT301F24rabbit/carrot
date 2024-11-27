@@ -209,7 +209,7 @@ public class UserRepository {
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"),
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
-                                    documentSnapshot.getBoolean("administratiorNotification"),
+                                    documentSnapshot.getBoolean("adminNotification"),
                                     documentSnapshot.getBoolean("organizerNotification"),
                                     documentSnapshot.getString("profileImage")
                             );
