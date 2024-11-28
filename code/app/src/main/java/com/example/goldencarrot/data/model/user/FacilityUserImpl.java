@@ -20,7 +20,7 @@ public class FacilityUserImpl extends UserImpl {
                             final Optional<String> facilityName,
                             final Optional<String> location,
                             final Optional<String> imageURL) throws Exception {
-        super(email, userType, name, phoneNumber, administratorNotification, organizerNotification);
+        super(email, userType, name, phoneNumber, administratorNotification, organizerNotification, String.valueOf(imageURL));
         this.facilityName = facilityName;
         this.location = location;
         this.imageURL = imageURL;

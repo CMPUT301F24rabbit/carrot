@@ -236,7 +236,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(WaitList waitList) {
                 eventWaitList = waitList;
-                checkAndJoinWaitList(user);
+                if (waitList.isFull()) {
+                    showToast("Sorry, the event's waitlist is already full. Check back later!");
+                } else {
+                    checkAndJoinWaitList(user);
+                }
             }
 
             @Override

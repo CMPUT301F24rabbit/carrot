@@ -351,7 +351,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         waitlistedButton.setOnClickListener(v -> openEntrantsView(UserUtils.WAITING_STATUS));
         chosenButton.setOnClickListener(v -> openEntrantsView(UserUtils.CHOSEN_STATUS));
-        declinedButton.setOnClickListener(v -> openEntrantsView(UserUtils.DECLINED_STATUS));
+        declinedButton.setOnClickListener(v -> openEntrantsView(UserUtils.CANCELLED_STATUS));
         acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
     }
 

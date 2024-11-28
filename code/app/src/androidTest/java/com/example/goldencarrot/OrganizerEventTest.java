@@ -34,7 +34,7 @@ public class OrganizerEventTest {
             onView(withId(R.id.eventNameEditText)).perform(typeText("Sample Event"));
             onView(withId(R.id.eventLocationEditText)).perform(typeText("New York"));
             onView(withId(R.id.eventDetailsEditText)).perform(typeText("This is a sample event."));
-            onView(withId(R.id.eventDateEditText)).perform(typeText("2024-12-31"));
+            onView(withId(R.id.eventDateEditText)).perform(typeText("31-12-2024"));
 
             // Close the keyboard
             onView(withId(R.id.eventDateEditText)).perform(ViewActions.closeSoftKeyboard());
