@@ -281,7 +281,6 @@ public class Event implements EventConfigurator {
     public String getOrganizerId() {
         return this.organizerId;
     }
-
     /**
      * Gets the WaitList object associated with the event.
      *
@@ -339,4 +338,5 @@ public class Event implements EventConfigurator {
     public void setPosterUrl(Object url) {
 
     }
+
 }

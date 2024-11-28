@@ -37,7 +37,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.appcompat)
+
+        implementation("com.google.firebase:firebase-auth:21.0.5")  // Use the latest version
+        implementation("com.google.firebase:firebase-firestore:24.2.0")
+        implementation("com.google.firebase:firebase-storage:20.1.0")
+        implementation("com.google.android.gms:play-services-auth:20.3.0")
+        implementation("com.google.android.gms:play-services-base:18.0.1")
+       implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
