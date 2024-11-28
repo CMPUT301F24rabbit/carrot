@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class EventRepository {
     private static final String TAG = "EventRepository";
+    public static EventRepository.EventCallback EventCallback;
     private FirebaseFirestore db;
     private CollectionReference eventsCollection;
 
