@@ -7,10 +7,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:targetApi="30" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -37,33 +36,29 @@
         <activity android:name=".views.SignUpActivity" />
         <activity android:name=".views.SelectUserTypeActivity" />
         <activity android:name=".views.AdminHomeActivity" />
-        <activity android:name=".views.AdminAllProfilesView"/>
+        <activity android:name=".views.AdminAllProfilesView" />
         <activity android:name=".views.OrganizerCreateEvent" />
         <activity android:name=".views.EntrantHomeView" />
-        <activity android:name=".views.OrganizerHomeView"/>
-        <activity android:name=".views.BrowseEventsActivity"/>
+        <activity android:name=".views.OrganizerHomeView" />
+        <activity android:name=".views.BrowseEventsActivity" />
         <activity android:name=".views.OrganizerWaitlistView" />
         <activity android:name=".views.EntrantEditUserDetailsView" />
-        <activity android:name=".views.OrganizerManageProfileActivity"/>
-        <activity android:name=".views.AdminProfileView"/>
+        <activity android:name=".views.OrganizerManageProfileActivity" />
+        <activity android:name=".views.AdminProfileView" />
         <activity android:name=".views.WaitlistActivity" />
         <activity android:name=".views.EventDetailsAdminActivity" />
         <activity android:name=".views.EntrantEventDetailsActivity" />
         <activity android:name=".views.OrganizerEventDetailsActivity" />
-        <activity android:name=".views.OrganizerChosenView"/>
-        <activity android:name=".views.EntrantNotificationsActivity"/>
+        <activity android:name=".views.OrganizerChosenView" />
+        <activity android:name=".views.EntrantNotificationsActivity" />
         <activity android:name=".views.FacilityProfileActivity" />
-    </application>
-
-</manifest>
-        <activity android:name=".views.QrCodeScannerActivity"/>
-        <activity android:name=".views.FacilityProfileActivity" />
+        <activity android:name=".views.QrCodeScannerActivity" />
 
         <!-- External activity declaration -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>
