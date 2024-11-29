@@ -49,11 +49,10 @@
         android:id="@+id/adminAllImagesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:backgroundTint="@color/orange"
         android:text="Images"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/adminViewAllImages"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider2" />
@@ -62,21 +61,30 @@
         android:id="@+id/divider"
         android:layout_width="409dp"
         android:layout_height="1dp"
-        android:layout_marginTop="152dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminAllEventsButton" />
+        app:layout_constraintTop_toBottomOf="@+id/admin_home_events_list" />
 
     <View
         android:id="@+id/divider2"
         android:layout_width="409dp"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintTop_toBottomOf="@+id/admin_home_profiles_list"/>
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="409dp"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/adminAllEventsButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adminHomeHeader"
+        app:layout_constraintVertical_bias="0.516" />
 
     <ListView
         android:id="@+id/admin_home_events_list"
@@ -91,8 +99,9 @@
     <ListView
         android:id="@+id/admin_home_profiles_list"
         android:layout_width="409dp"
-        android:layout_height="168dp"
-        app:layout_constraintBottom_toTopOf="@+id/adminAllImagesButton"
+        android:layout_height="150dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adminAllUsersButton" />
@@ -100,7 +109,7 @@
     <ListView
         android:id="@+id/admin_home_images_list"
         android:layout_width="409dp"
-        android:layout_height="151dp"
+        android:layout_height="150dp"
         android:layout_marginTop="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
