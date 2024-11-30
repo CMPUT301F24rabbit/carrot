@@ -5,7 +5,7 @@
     android:padding="16dp">
 
     <ImageView
-        android:id="@+id/event_DetailPosterView"
+        android:id="@+id/eventPosterImageView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
@@ -19,7 +19,7 @@
         android:text="Event Name"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_below="@+id/event_DetailPosterView"
+        android:layout_below="@+id/eventPosterImageView"
         android:layout_marginBottom="16dp" />
 
     <!-- Scroll View Start -->

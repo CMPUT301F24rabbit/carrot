@@ -335,14 +335,34 @@ public class Event implements EventConfigurator {
         this.isGeolocationEnabled = geolocationEnabled;
     }
 
+    /**
+     * URL of the poster image for the event stored in Firebase Storage.
+     */
+    private String posterUrl;
+
+    /**
+     * Gets the URL of the poster image for the event.
+     *
+     * @return the poster image URL as a string.
+     */
     @Override
     public String getPosterUrl() {
-        return "";
+        return posterUrl;
     }
 
+    /**
+     * Sets the URL of the poster image for the event.
+     *
+     * @param url the URL of the poster image to set.
+     */
     @Override
     public void setPosterUrl(Object url) {
-
+        if (url instanceof String) {
+            this.posterUrl = (String) url;
+        } else {
+            Log.w(TAG, "Invalid poster URL type: " + url);
+        }
     }
+
 
 }

@@ -13,6 +13,7 @@ import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.FacilityRepository;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,11 +73,20 @@ public class FacilityProfileActivity extends AppCompatActivity {
                         String location = documentSnapshot.getString("location");
                         String contactInfo = documentSnapshot.getString("contactInfo");
                         String description = documentSnapshot.getString("description");
+                        String eventPosterUrl = documentSnapshot.getString("eventPosterUrl"); // Fetch the event poster URL
 
                         nameEditText.setText(facilityName != null ? facilityName : "");
                         locationEditText.setText(location != null ? location : "");
                         contactInfoEditText.setText(contactInfo != null ? contactInfo : "");
                         descriptionEditText.setText(description != null ? description : "");
+
+                        // Load event poster image if available
+                        if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                            Picasso.get()
+                                    .load(eventPosterUrl)
+                                    .placeholder(R.drawable.poster_placeholder) // Placeholder image
+                                    .into(facilityImageView);
+                        }
                     } else {
                         Log.e(TAG, "No such document");
                         Toast.makeText(this, "Facility profile not found.", Toast.LENGTH_SHORT).show();
@@ -87,6 +97,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load facility profile.", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void saveFacilityProfile() {
         String facilityName = nameEditText.getText().toString().trim();

@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -152,6 +154,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 String eventDetails = snapshot.getString("eventDetails");
                 String location = snapshot.getString("location");
                 String date = snapshot.getString("date");
+                String eventPosterUrl = snapshot.getString("eventPosterUrl"); // Assuming the poster URL is stored in Firestore
 
                 // Display event details on the UI
                 eventDetailsTextView.setText(String.format(
@@ -161,12 +164,23 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         location,
                         date
                 ));
-                // Optionally, load an image for the event poster if available
+
+                // Load the event poster image using Glide
+                if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                    Glide.with(this)
+                            .load(eventPosterUrl) // URL of the event poster in Firebase Storage
+                            .into((ImageView) findViewById(R.id.entrant_eventPosterImageView));
+                } else {
+                    // Show a default poster or placeholder if no poster URL is available
+                    ((ImageView) findViewById(R.id.entrant_eventPosterImageView))
+                            .setImageResource(R.drawable.poster_placeholder); // default image
+                }
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     /**
      * Loads the waitlist data for the event based on the event ID passed in the intent.

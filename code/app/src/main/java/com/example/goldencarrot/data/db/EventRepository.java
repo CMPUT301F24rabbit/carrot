@@ -20,17 +20,32 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The EventRepository class provides methods for interacting with event-related data in Firestore and Firebase Storage.
+ * It handles operations like adding, deleting, and retrieving events, as well as uploading event posters and managing waitlists.
+ */
 public class EventRepository {
     private static final String TAG = "EventRepository";
 
     private final FirebaseFirestore db;
     private final CollectionReference eventsCollection;
 
+    /**
+     * Initializes the EventRepository by setting up the Firestore instance and events collection.
+     */
     public EventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsCollection = db.collection("events");
     }
 
+    /**
+     * Adds a new event to Firestore, optionally uploading a poster and creating a waitlist.
+     *
+     * @param event The event object containing event details.
+     * @param posterUri URI of the event poster image (optional).
+     * @param waitlistLimit The maximum number of people allowed on the waitlist (optional).
+     * @param callback A callback to handle success or failure of the operation.
+     */
     public void addEvent(Event event, @Nullable Uri posterUri, @Nullable Integer waitlistLimit, EventCallback callback) {
         // Debugging: Log event details before proceeding
         Log.d(TAG, "Event Name: " + event.getEventName());
@@ -79,6 +94,13 @@ public class EventRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Uploads the event poster to Firebase Storage.
+     *
+     * @param imageUri The URI of the image to upload.
+     * @param eventId The ID of the event associated with the poster.
+     * @param callback A callback to handle success or failure of the upload operation.
+     */
     public void uploadEventPoster(Uri imageUri, String eventId, FirebasePosterCallback callback) {
         if (imageUri == null || eventId == null || callback == null) {
             Log.e(TAG, "Image URI, Event ID, or Callback is null");
@@ -96,6 +118,12 @@ public class EventRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Retrieves an event from Firestore by its ID.
+     *
+     * @param eventId The ID of the event to retrieve.
+     * @param callback A callback to handle success or failure of the retrieval operation.
+     */
     public void getBasicEventById(String eventId, EventCallback callback) {
         eventsCollection.document(eventId)
                 .get()
@@ -109,8 +137,7 @@ public class EventRepository {
                         event.setOrganizerId(documentSnapshot.getString("organizerId"));
 
                         // checks if geolocation is enabled
-                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.
-                                getBoolean("isGeolocationEnabled")));
+                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);
                     } else {
                         Log.w(TAG, "No event found with ID: " + eventId);
@@ -123,6 +150,11 @@ public class EventRepository {
                 });
     }
 
+    /**
+     * Deletes an event from Firestore by its ID.
+     *
+     * @param eventId The ID of the event to delete.
+     */
     public void deleteEvent(String eventId) {
         eventsCollection.document(eventId)
                 .delete()
@@ -130,7 +162,13 @@ public class EventRepository {
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));
     }
 
-
+    /**
+     * Creates a waitlist for the event.
+     *
+     * @param waitlistLimit The maximum number of people allowed on the waitlist (optional).
+     * @param event The event for which to create the waitlist.
+     * @param callback A callback to handle success or failure of the waitlist creation.
+     */
     private void createWaitlist(@Nullable Integer waitlistLimit, Event event, EventCallback callback) {
         WaitListRepository waitListRepository = new WaitListRepository();
         WaitList waitList = new WaitList();
@@ -151,11 +189,17 @@ public class EventRepository {
         callback.onSuccess(event);
     }
 
+    /**
+     * Interface for receiving the result of uploading a poster image.
+     */
     public interface FirebasePosterCallback {
         void onSuccess(String url);
         void onFailure(Exception e);
     }
 
+    /**
+     * Interface for receiving the result of event-related operations (add, update, delete).
+     */
     public interface EventCallback {
         void onSuccess(Event event);
         void onFailure(Exception e);

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -39,6 +41,7 @@ public class BrowseEventsActivity extends AppCompatActivity {
     private ArrayAdapter<String> eventsAdapter;
     private ArrayList<String> eventsList;
     private ArrayList<DocumentSnapshot> eventDocuments;
+    private ArrayList<String> posterUrls;  // List to store poster URLs
 
     private Button backButton;
     private String deviceId;
@@ -68,8 +71,9 @@ public class BrowseEventsActivity extends AppCompatActivity {
         eventsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, eventsList);
         eventsListView.setAdapter(eventsAdapter);
 
-        // Initialize list for event documents
+        // Initialize lists for event documents and poster URLs
         eventDocuments = new ArrayList<>();
+        posterUrls = new ArrayList<>();
 
         // Fetch events from Firestore
         loadEventsFromFirestore();
@@ -122,8 +126,8 @@ public class BrowseEventsActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads events from Firestore and updates the ListView.
-     * Fetches documents from the "events" collection and adds event names to the list.
+     * Loads events from Firestore, retrieves poster URLs, and updates the ListView.
+     * Fetches documents from the "events" collection and adds event names and poster URLs to the list.
      * Also stores the document snapshots for later use when the event is selected.
      */
     private void loadEventsFromFirestore() {
@@ -132,13 +136,16 @@ public class BrowseEventsActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         eventsList.clear();
                         eventDocuments.clear(); // Clear previous documents in case of refresh
+                        posterUrls.clear(); // Clear previous URLs in case of refresh
                         QuerySnapshot querySnapshot = task.getResult();
 
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 // Assuming each document has a "name" field for event name
                                 String eventName = document.getString("eventName");
+                                String posterUrl = document.getString("posterUrl"); // Retrieve poster URL
                                 eventsList.add(eventName);
+                                posterUrls.add(posterUrl); // Store poster URL
                                 eventDocuments.add(document); // Store the document snapshot for later access
                             }
                             eventsAdapter.notifyDataSetChanged();

@@ -92,7 +92,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         // UI Initialization
-        eventPosterView = findViewById(R.id.event_DetailPosterView);
+        eventPosterView = findViewById(R.id.eventPosterImageView);
         eventNameTextView = findViewById(R.id.event_DetailNameTitleView);
         eventDateTextView = findViewById(R.id.event_DetailDateView);
         eventLocationTextView = findViewById(R.id.event_DetailLocationView);
@@ -220,7 +220,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     String location = snapshot.getString("location");
                     String date = snapshot.getString("date");
                     String time = snapshot.getString("time");
-                    int posterResId = snapshot.getLong("posterResId") != null ? snapshot.getLong("posterResId").intValue() : R.drawable.default_poster;
+                    int posterResId = snapshot.getLong("posterResId") != null ? snapshot.getLong("posterResId").intValue() : R.drawable.poster_placeholder;
 
                     eventNameTextView.setText(eventName);
                     eventDateTextView.setText("Date: " + date);

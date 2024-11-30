@@ -65,7 +65,7 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         holder.eventDate.setText(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(event.getDate()));
         holder.eventDetails.setText(event.getEventDetails());
 
-        // Load event poster using Glide or Picasso
+        // Load event poster using Glide
         String posterUrl = event.getPosterUrl(); // New method to fetch poster URL
         if (posterUrl != null && !posterUrl.isEmpty()) {
             Glide.with(context)
@@ -73,6 +73,9 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
                     .placeholder(R.drawable.poster_placeholder) // Default placeholder
                     .error(R.drawable.poster_error) // Error image
                     .into(holder.eventImageView);
+        } else {
+            // Fallback to a default image if no URL is available
+            holder.eventImageView.setImageResource(R.drawable.poster_placeholder);
         }
 
         // Set long-click listener

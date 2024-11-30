@@ -332,6 +332,30 @@ public class EntrantHomeView extends AppCompatActivity {
                                 event.setDate(eventDate);
 
                                 waitlistedEventsList.add(event);
+                                // Inside the loadEventData() method after adding event details:
+                                String eventPosterUrl = document.getString("posterUrl");  // Assuming you store the event poster URL in Firestore
+
+                                if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                                    // Load the poster image using Picasso into the ImageView
+                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
+                                    eventPosterImageView.setVisibility(View.VISIBLE);  // Make the poster image visible
+                                    Picasso.get().load(eventPosterUrl).into(eventPosterImageView, new com.squareup.picasso.Callback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Log.d(TAG, "Event poster loaded successfully.");
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e) {
+                                            Log.e(TAG, "Failed to load event poster", e);
+                                        }
+                                    });
+                                } else {
+                                    // If no poster URL is available, hide the ImageView
+                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
+                                    eventPosterImageView.setVisibility(View.GONE);
+                                }
+
                             }
                         }
                     }

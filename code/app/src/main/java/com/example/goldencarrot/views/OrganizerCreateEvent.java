@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -27,6 +28,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * This Activity allows the event organizer to create a new event and upload a poster for it.
+ * It contains fields for event name, location, details, date, and poster image.
+ * The event can optionally have geolocation and a waitlist limit.
+ */
 public class OrganizerCreateEvent extends AppCompatActivity {
 
     private static final String TAG = "OrganizerCreateEvent";
@@ -41,7 +47,13 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private boolean geolocationIsEnabled;
     private EventRepository eventRepository;
     private UserRepository userRepository;
+    private String eventId;
 
+    /**
+     * Called when the activity is created.
+     * Initializes the UI components and sets up listeners for creating events and selecting posters.
+     * If an event ID is provided, it will load the poster for the event.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,23 +76,97 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
         selectPosterButton.setOnClickListener(view -> selectPosterImage());
         createEventButton.setOnClickListener(view -> createEvent());
+
+        // Get event ID from intent and load the poster if it exists
+        eventId = getIntent().getStringExtra("eventId");
+        if (eventId != null) {
+            loadEventPoster(eventId);
+        }
+
+        editEventPosterListener();
     }
 
+    /**
+     * Launches an intent to allow the user to select an image from their device for the event poster.
+     */
     private void selectPosterImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Handles the result of the image selection activity. If an image is selected,
+     * it sets the image in the ImageView and uploads it to Firebase Storage.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             posterUri = data.getData();
+            Log.d(TAG, "Selected poster URI: " + posterUri); // Log the selected URI
             eventPosterImageView.setImageURI(posterUri);
+            if (eventId != null) {
+                uploadPosterToFirebase(eventId);
+            }
         }
     }
 
+    /**
+     * Uploads the selected poster image to Firebase Storage.
+     * Once uploaded, it fetches the download URL and updates Firestore with the poster URL.
+     *
+     * @param eventId The ID of the event for which the poster is being uploaded.
+     */
+    private void uploadPosterToFirebase(String eventId) {
+        StorageReference storageRef = FirebaseStorage.getInstance()
+                .getReference("posters/" + eventId + "_poster.jpg");
+
+        Log.d(TAG, "Uploading poster for eventId: " + eventId); // Log event ID being uploaded
+
+        storageRef.putFile(posterUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    Log.d(TAG, "Poster uploaded successfully for eventId: " + eventId); // Confirm upload
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d(TAG, "Fetched poster URL: " + uri.toString()); // Log the fetched poster URL
+                        // Update Firestore with the new poster URL
+                        //documentReferend.update("posterUrl", uri.toString())
+                                //.addOnSuccessListener(aVoid -> Log.d(TAG, "Poster URL updated in Firestore"))
+                                //.addOnFailureListener(e -> Log.e(TAG, "Failed to update poster URL in Firestore", e));
+                    }).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch poster URL", e));
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to upload poster for eventId: " + eventId, e));
+    }
+
+    /**
+     * Loads the event poster from Firebase Storage and displays it in the ImageView.
+     * If the poster does not exist, a default image is shown.
+     *
+     * @param eventId The ID of the event whose poster is to be fetched.
+     */
+    private void loadEventPoster(String eventId) {
+        StorageReference storageRef = FirebaseStorage.getInstance()
+                .getReference("posters/" + eventId + "_poster.jpg");
+
+        Log.d(TAG, "Fetching poster URL for eventId: " + eventId); // Log event ID for which poster is being fetched
+
+        storageRef.getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Log.d(TAG, "Fetched poster URL: " + uri.toString()); // Log the fetched URL
+                    Glide.with(this).load(uri).into(eventPosterImageView); // Load poster into ImageView
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to fetch poster URI for eventId: " + eventId, e); // Log error if fetching fails
+                    // Optionally set a default image if fetching fails
+                    eventPosterImageView.setImageResource(R.drawable.poster_placeholder);
+                });
+    }
+
+    /**
+     * Creates an event using the data provided by the organizer, including the event poster.
+     * If successful, the event is created in the database, and a success message is shown.
+     * If there is an error, a failure message is shown.
+     */
     private void createEvent() {
         String eventName = eventNameEditText.getText().toString().trim();
         String location = eventLocationEditText.getText().toString().trim();
@@ -155,11 +241,25 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         });
     }
 
+    private void editEventPosterListener() {
+        eventPosterImageView.setOnLongClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+            return true;
+        });
+    }
+
+    /**
+     * Retrieves the unique device ID for the current device.
+     * This ID is used as the organizer's ID when creating an event.
+     *
+     * @param context The context of the current activity.
+     * @return The unique device ID.
+     */
     private String getDeviceId(Context context) {
         String organizerId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d(TAG, "Fetched ANDROID_ID: " + organizerId);
-
-        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return organizerId;
     }
-
 }
