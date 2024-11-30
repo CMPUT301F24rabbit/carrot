@@ -1,5 +1,7 @@
 package com.example.goldencarrot.data.db;
 
+import static java.nio.file.Files.delete;
+
 import android.net.Uri;
 import android.util.Log;
 
@@ -7,6 +9,8 @@ import androidx.annotation.Nullable;
 
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -27,12 +31,11 @@ public class EventRepository {
         eventsCollection = db.collection("events");
     }
 
-    public void addEvent(Event event, @Nullable Uri posterUri, EventCallback callback) {
-        if (event == null || callback == null) {
-            Log.e(TAG, "Event or callback is null");
-            callback.onFailure(new IllegalArgumentException("Invalid input parameters"));
-            return;
-        }
+    public void addEvent(Event event, @Nullable Uri posterUri, @Nullable Integer waitlistLimit, EventCallback callback) {
+        // Debugging: Log event details before proceeding
+        Log.d(TAG, "Event Name: " + event.getEventName());
+        Log.d(TAG, "Organizer ID: " + event.getOrganizerId());
+        Log.d(TAG, "Event Details: " + event.getEventDetails());
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("organizerId", event.getOrganizerId());
@@ -46,7 +49,12 @@ public class EventRepository {
                 .addOnSuccessListener(documentReference -> {
                     String generatedId = documentReference.getId();
                     event.setEventId(generatedId);
-                    documentReference.update("eventId", generatedId);
+                    documentReference.update("eventId", documentReference.getId())
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Event ID updated in Firestore"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Error updating event ID", e));
+
+                    // Debugging: Log after event creation in Firestore
+                    Log.d(TAG, "Event created with ID: " + generatedId);
 
                     createWaitlist(event.getWaitlistLimit(), event, callback);
 
@@ -87,12 +95,8 @@ public class EventRepository {
                         .addOnFailureListener(callback::onFailure))
                 .addOnFailureListener(callback::onFailure);
     }
-    public void getBasicEventById(String eventId, EventCallback callback) {
-        if (eventId == null || callback == null) {
-            Log.e(TAG, "Event ID or callback is null");
-            return;
-        }
 
+    public void getBasicEventById(String eventId, EventCallback callback) {
         eventsCollection.document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -103,7 +107,10 @@ public class EventRepository {
                         event.setLocation(documentSnapshot.getString("location"));
                         event.setWaitListId(documentSnapshot.getString("waitlistId"));
                         event.setOrganizerId(documentSnapshot.getString("organizerId"));
-                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.getBoolean("isGeolocationEnabled")));
+
+                        // checks if geolocation is enabled
+                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.
+                                getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);
                     } else {
                         Log.w(TAG, "No event found with ID: " + eventId);
@@ -116,18 +123,14 @@ public class EventRepository {
                 });
     }
 
-
     public void deleteEvent(String eventId) {
-        if (eventId == null) {
-            Log.e(TAG, "Event ID is null");
-            return; // Handle the error gracefully
-        }
-
         eventsCollection.document(eventId)
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Event deleted successfully"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));
     }
+
+
     private void createWaitlist(@Nullable Integer waitlistLimit, Event event, EventCallback callback) {
         WaitListRepository waitListRepository = new WaitListRepository();
         WaitList waitList = new WaitList();
@@ -141,6 +144,10 @@ public class EventRepository {
         waitList.setUserMap(new HashMap<>());
 
         waitListRepository.createWaitList(waitList, event.getEventName());
+
+        // Debugging: Log waitlist creation
+        Log.d(TAG, "Created waitlist for event: " + event.getEventName() + " with limit: " + (waitlistLimit != null ? waitlistLimit : "No Limit"));
+
         callback.onSuccess(event);
     }
 

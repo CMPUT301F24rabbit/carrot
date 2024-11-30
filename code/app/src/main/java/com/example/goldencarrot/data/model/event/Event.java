@@ -1,5 +1,9 @@
 package com.example.goldencarrot.data.model.event;
 
+import static com.google.firebase.appcheck.internal.util.Logger.TAG;
+
+import android.util.Log;
+
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 
@@ -269,7 +273,9 @@ public class Event implements EventConfigurator {
      */
     @Override
     public void setOrganizerId(String organizerId) {
+
         this.organizerId = organizerId;
+        Log.d(TAG, "Organizer ID set: " + organizerId);
     }
 
     /**

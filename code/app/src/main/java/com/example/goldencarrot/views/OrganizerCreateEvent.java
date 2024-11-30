@@ -82,12 +82,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     }
 
     private void createEvent() {
-        String organizerId = getDeviceId(this);
-        if (organizerId == null || organizerId.isEmpty()) {
-            Toast.makeText(this, "Unable to retrieve Organizer ID", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Organizer ID is null or empty");
-            return;
-        }
         String eventName = eventNameEditText.getText().toString().trim();
         String location = eventLocationEditText.getText().toString().trim();
         String details = eventDetailsEditText.getText().toString().trim();
@@ -107,34 +101,14 @@ public class OrganizerCreateEvent extends AppCompatActivity {
             return;
         }
 
-        Integer waitlistLimit = null;
-        if (!limitString.isEmpty()) {
-            try {
-                waitlistLimit = Integer.parseInt(limitString);
-                if (waitlistLimit < 0) {
-                    Toast.makeText(this, "Waitlist limit must be a positive number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Waitlist limit must be a number", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
         if (posterUri == null) {
             Toast.makeText(this, "Please select a poster image", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        String organizerId = getDeviceId(OrganizerCreateEvent.this);
         Log.d(TAG, "Organizer ID: " + organizerId);
-        if (organizerId == null) {
-            Log.e(TAG, "Organizer ID is null. Cannot proceed.");
-            Toast.makeText(this, "Failed to fetch organizer ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
-// Check the value
 
-        Integer finalWaitlistLimit = waitlistLimit;
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
             public void onSuccess(UserImpl user) {
@@ -143,10 +117,22 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.setLocation(location);
                 event.setEventDetails(details);
                 event.setDate(date);
+                event.setOrganizerId(organizerId);
                 event.setGeolocationEnabled(geolocationIsEnabled);
-                event.setWaitlistLimit(finalWaitlistLimit);
-
-                eventRepository.addEvent(event, posterUri, new EventRepository.EventCallback() {
+                Integer waitlistLimit = null;
+                if (!limitString.isEmpty()) {
+                    try {
+                        waitlistLimit = Integer.parseInt(limitString);
+                        if (waitlistLimit < 0) {
+                            Toast.makeText(OrganizerCreateEvent.this, "Waitlist limit must be a positive number", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(OrganizerCreateEvent.this, "Waitlist limit must be a number", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                eventRepository.addEvent(event, posterUri, waitlistLimit, new EventRepository.EventCallback() {
                     @Override
                     public void onSuccess(Event event) {
                         Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();
@@ -170,6 +156,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     }
 
     private String getDeviceId(Context context) {
+        String organizerId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d(TAG, "Fetched ANDROID_ID: " + organizerId);
+
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 

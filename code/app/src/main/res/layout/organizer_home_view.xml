@@ -38,6 +38,13 @@
         android:text="Manage Profile"
         android:textSize="10sp" />
 
+    <ImageView
+        android:id="@+id/event_poster"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_poster" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_events"
         android:layout_width="match_parent"
