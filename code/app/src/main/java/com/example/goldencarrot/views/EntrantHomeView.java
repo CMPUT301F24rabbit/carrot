@@ -313,7 +313,6 @@ public class EntrantHomeView extends AppCompatActivity {
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
 
-                        //
                         if (UserUtils.WAITING_STATUS.equals(status) || UserUtils.ACCEPTED_STATUS.equals(status) || UserUtils.CHOSEN_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
@@ -332,8 +331,8 @@ public class EntrantHomeView extends AppCompatActivity {
                                 event.setDate(eventDate);
 
                                 waitlistedEventsList.add(event);
-                                // Inside the loadEventData() method after adding event details:
-                                String eventPosterUrl = document.getString("posterUrl");  // Assuming you store the event poster URL in Firestore
+
+                                String eventPosterUrl = document.getString("posterUrl");
 
                                 if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
                                     // Load the poster image using Picasso into the ImageView
@@ -352,10 +351,9 @@ public class EntrantHomeView extends AppCompatActivity {
                                     });
                                 } else {
                                     // If no poster URL is available, hide the ImageView
-                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
+                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);  // Same here
                                     eventPosterImageView.setVisibility(View.GONE);
                                 }
-
                             }
                         }
                     }
@@ -370,6 +368,7 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         });
     }
+
     /**
      * Requests permission from user to enable notifications
      */

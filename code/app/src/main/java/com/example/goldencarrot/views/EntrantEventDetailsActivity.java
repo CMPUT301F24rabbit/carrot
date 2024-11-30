@@ -167,6 +167,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
                 // Load the event poster image using Glide
                 if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                    Log.d("EntrantEventDetails", "Poster URL: " + eventPosterUrl);
                     Glide.with(this)
                             .load(eventPosterUrl) // URL of the event poster in Firebase Storage
                             .into((ImageView) findViewById(R.id.entrant_eventPosterImageView));

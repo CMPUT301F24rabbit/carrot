@@ -18,24 +18,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="16dp"/>
 
-    <!-- Event Poster Image -->
-    <ImageView
-        android:id="@+id/eventPosterImageView"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:contentDescription="Event Poster"
-        android:scaleType="centerCrop"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/browse_events_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <!-- Events ListView -->
     <ListView
         android:id="@+id/eventsListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/eventPosterImageView"
+        app:layout_constraintTop_toBottomOf="@id/browse_events_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
