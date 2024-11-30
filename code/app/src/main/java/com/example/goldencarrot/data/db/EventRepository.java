@@ -1,7 +1,7 @@
 package com.example.goldencarrot.data.db;
 
+import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -9,48 +9,49 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import android.net.Uri;
-import android.util.Log;
-
-import com.example.goldencarrot.data.model.event.Event;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EventRepository {
     private static final String TAG = "EventRepository";
-    public static EventRepository.EventCallback EventCallback;
-    private FirebaseFirestore db;
-    private CollectionReference eventsCollection;
+
+    private final FirebaseFirestore db;
+    private final CollectionReference eventsCollection;
 
     public EventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsCollection = db.collection("events");
     }
 
-    public void addEvent(Event event, String posterUri, EventCallback callback) {
+    public void addEvent(Event event, @Nullable Uri posterUri, EventCallback callback) {
+        if (event == null || callback == null) {
+            Log.e(TAG, "Event or callback is null");
+            callback.onFailure(new IllegalArgumentException("Invalid input parameters"));
+            return;
+        }
+
         Map<String, Object> eventData = new HashMap<>();
-        eventData.put("eventName", event.getEventName());
+        eventData.put("organizerId", event.getOrganizerId());
         eventData.put("eventDetails", event.getEventDetails());
+        eventData.put("eventName", event.getEventName());
         eventData.put("location", event.getLocation());
+        eventData.put("isGeolocationEnabled", event.getGeolocationEnabled());
+        eventData.put("date", new SimpleDateFormat("dd-MM-yyyy").format(event.getDate()));
 
         eventsCollection.add(eventData)
                 .addOnSuccessListener(documentReference -> {
                     String generatedId = documentReference.getId();
                     event.setEventId(generatedId);
+                    documentReference.update("eventId", generatedId);
+
+                    createWaitlist(event.getWaitlistLimit(), event, callback);
 
                     if (posterUri != null) {
-                        uploadEventPoster(Uri.parse(posterUri), generatedId, new FirebasePosterCallback() {
+                        uploadEventPoster(posterUri, generatedId, new FirebasePosterCallback() {
                             @Override
                             public void onSuccess(String url) {
                                 documentReference.update("posterUrl", url)
@@ -70,37 +71,13 @@ public class EventRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    public void updateEvent(Event event, String posterUri, EventCallback callback) {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("eventName", event.getEventName());
-        updates.put("eventDetails", event.getEventDetails());
-        updates.put("location", event.getLocation());
-
-        eventsCollection.document(event.getEventId())
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    if (posterUri != null) {
-                        uploadEventPoster(Uri.parse(posterUri), event.getEventId(), new FirebasePosterCallback() {
-                            @Override
-                            public void onSuccess(String url) {
-                                eventsCollection.document(event.getEventId()).update("posterUrl", url)
-                                        .addOnSuccessListener(aVoid1 -> callback.onSuccess(event))
-                                        .addOnFailureListener(callback::onFailure);
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                callback.onFailure(e);
-                            }
-                        });
-                    } else {
-                        callback.onSuccess(event);
-                    }
-                })
-                .addOnFailureListener(callback::onFailure);
-    }
-
     public void uploadEventPoster(Uri imageUri, String eventId, FirebasePosterCallback callback) {
+        if (imageUri == null || eventId == null || callback == null) {
+            Log.e(TAG, "Image URI, Event ID, or Callback is null");
+            callback.onFailure(new IllegalArgumentException("Invalid input parameters"));
+            return;
+        }
+
         StorageReference storageRef = FirebaseStorage.getInstance()
                 .getReference("posters/" + eventId + "_poster.jpg");
 
@@ -110,18 +87,61 @@ public class EventRepository {
                         .addOnFailureListener(callback::onFailure))
                 .addOnFailureListener(callback::onFailure);
     }
-
     public void getBasicEventById(String eventId, EventCallback callback) {
-        eventsCollection.document(eventId).get()
+        if (eventId == null || callback == null) {
+            Log.e(TAG, "Event ID or callback is null");
+            return;
+        }
+
+        eventsCollection.document(eventId)
+                .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Event event = documentSnapshot.toObject(Event.class);
+                        Event event = new Event();
+                        event.setEventName(documentSnapshot.getString("eventName"));
+                        event.setEventDetails(documentSnapshot.getString("eventDetails"));
+                        event.setLocation(documentSnapshot.getString("location"));
+                        event.setWaitListId(documentSnapshot.getString("waitlistId"));
+                        event.setOrganizerId(documentSnapshot.getString("organizerId"));
+                        event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);
                     } else {
+                        Log.w(TAG, "No event found with ID: " + eventId);
                         callback.onFailure(new Exception("Event not found"));
                     }
                 })
-                .addOnFailureListener(callback::onFailure);
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error fetching event", e);
+                    callback.onFailure(e);
+                });
+    }
+
+
+    public void deleteEvent(String eventId) {
+        if (eventId == null) {
+            Log.e(TAG, "Event ID is null");
+            return; // Handle the error gracefully
+        }
+
+        eventsCollection.document(eventId)
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Event deleted successfully"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting event", e));
+    }
+    private void createWaitlist(@Nullable Integer waitlistLimit, Event event, EventCallback callback) {
+        WaitListRepository waitListRepository = new WaitListRepository();
+        WaitList waitList = new WaitList();
+
+        if (waitlistLimit != null) {
+            waitList.setLimitNumber(waitlistLimit);
+        }
+
+        waitList.setEventName(event.getEventName());
+        waitList.setEventId(event.getEventId());
+        waitList.setUserMap(new HashMap<>());
+
+        waitListRepository.createWaitList(waitList, event.getEventName());
+        callback.onSuccess(event);
     }
 
     public interface FirebasePosterCallback {
@@ -134,5 +154,3 @@ public class EventRepository {
         void onFailure(Exception e);
     }
 }
-
-
