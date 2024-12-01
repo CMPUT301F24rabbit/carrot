@@ -9,12 +9,12 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +22,12 @@ import java.util.Optional;
 
 /**
  * Provides necessary methods to update, delete, and write User model objects into
- * firebase User table. The User Id will be the same as the device ID
+ * Firebase User table. The User Id will be the same as the device ID.
  *
- * Please see firebase for more detatils on the document structure
+ * Please see Firebase for more details on the document structure.
  */
 public class UserRepository {
-    private static final String TAG = "DB" ;
+    private static final String TAG = "DB";
     private FirebaseFirestore db;
     private CollectionReference userCollection;
     private List<DocumentSnapshot> listOfUsers;
@@ -41,8 +41,8 @@ public class UserRepository {
     }
 
     /**
-     * Adds a new User to firebase users table.
-     * Provides on success and on failure listenings to handle the result of the operation.
+     * Adds a new User to Firebase users table.
+     * Provides onSuccess and onFailure listeners to handle the result of the operation.
      * @param user model object to add.
      */
     public void addUser(final User user, final String androidId) {
@@ -69,16 +69,13 @@ public class UserRepository {
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
                     // Successfully added the user
-                    // set user's firebase id
+                    // set user's Firebase ID
                     user.setUserId(androidId);
-                    System.out.println("User added to Firestore");
-
+                    Log.d(TAG, "User added to Firestore");
                 })
                 .addOnFailureListener(e -> {
                     // Handle the error
-                    System.err.println("Error adding user to Firestore: " + e.getMessage());
-                    Log.e(TAG, "Error adding user to Firestore", e);
-
+                    Log.e(TAG, "Error adding user to Firestore: " + e.getMessage());
                 });
     }
 
@@ -105,7 +102,7 @@ public class UserRepository {
                 .addOnFailureListener(e -> {
                     // Fatal Error
                     callback.onResult(false, null);
-                    Log.e(TAG, "Error checking if user exists: " + e.getMessage(), e);
+                    Log.e(TAG, "Error checking if user exists: " + e.getMessage());
                 });
     }
 
@@ -140,55 +137,55 @@ public class UserRepository {
                 .addOnSuccessListener(aVoid -> {
                     // Successfully updated the user
                     Log.d(TAG, "User updated successfully");
-                    System.out.println("User updated successfully");
                 })
                 .addOnFailureListener(e -> {
                     // Handle error
-                    Log.e(TAG, "Error updating user: " + e.getMessage(), e);
-                    System.err.println("Error updating user: " + e.getMessage());
+                    Log.e(TAG, "Error updating user: " + e.getMessage());
                 });
+    }
+
+    /**
+     * Updates additional fields for a user in Firestore using the Android ID as the document ID.
+     *
+     * @param androidId The Android ID used as the document ID.
+     * @param additionalData The additional data to update.
+     */
+    public void updateUserWithAdditionalData(String androidId, Map<String, Object> additionalData) {
+        DocumentReference userRef = db.collection("users").document(androidId);
+
+        userRef.update(additionalData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Additional user data updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update additional user data: " + e.getMessage()));
     }
 
     /**
      * Deletes a user from Firestore using the Android ID as the document ID.
      *
-     * @param androidId The Android device ID used as the document ID to delete
+     * @param androidId The Android device ID used as the document ID to delete.
      */
     public void deleteUser(final String androidId) {
         // Reference to the user document
         DocumentReference userRef = db.collection("users").document(androidId);
 
         userRef.delete()
-                .addOnSuccessListener(aVoid -> {
-                    // Successfully deleted the user
-                    Log.d(TAG, "User deleted successfully");
-                    System.out.println("User deleted successfully");
-                })
-                .addOnFailureListener(e -> {
-                    // Handle the error
-                    Log.e(TAG, "Error deleting user: " + e.getMessage(), e);
-                    System.err.println("Error deleting user: " + e.getMessage());
-                });
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "User deleted successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Error deleting user: " + e.getMessage()));
     }
 
     /**
-     * Retrieves all users from the Firestore user collection
-     * @param callback handles the result of the query
+     * Retrieves all users from the Firestore user collection.
+     *
+     * @param callback handles the result of the query.
      */
     public void getAllUsersFromFirestore(FirestoreCallbackAllUsers callback) {
         userCollection = db.collection("users");
-        // get all documents, code from user TomH, downloaded 24/10/24:
-        // https://stackoverflow.com/questions/50727254/how-to-retrieve-all-documents-from-a-collection-in-firestore
         userCollection.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            listOfUsers = task.getResult().getDocuments();
-                            callback.onSuccess(listOfUsers);
-                        } else {
-                            callback.onFailure(new Exception("No users found"));
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        listOfUsers = task.getResult().getDocuments();
+                        callback.onSuccess(listOfUsers);
+                    } else {
+                        callback.onFailure(new Exception("No users found"));
                     }
                 });
     }
@@ -196,8 +193,8 @@ public class UserRepository {
     /**
      * Queries a user from Firestore by their Android ID.
      *
-     * @param androidId the device Id of the user, assumed to be unique
-     * @param callback handles the result of the query
+     * @param androidId the device ID of the user, assumed to be unique.
+     * @param callback handles the result of the query.
      */
     public void getSingleUser(String androidId, FirestoreCallbackSingleUser callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
@@ -211,11 +208,10 @@ public class UserRepository {
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("adminNotification"),
                                     documentSnapshot.getBoolean("organizerNotification"),
-                                    documentSnapshot.getString("profileImage")
-                            );
-                            callback.onSuccess(user); // Pass the user object to the callback
+                                    documentSnapshot.getString("profileImage"));
+                            callback.onSuccess(user);
                         } catch (Exception e) {
-
+                            Log.e(TAG, "Error parsing user document", e);
                         }
                     } else {
                         callback.onFailure(new Exception("User not found"));
@@ -223,7 +219,7 @@ public class UserRepository {
                 })
                 .addOnFailureListener(e -> {
                     callback.onFailure(e);
-                    Log.e(TAG, "Error fetching user: " + e.getMessage(), e);
+                    Log.e(TAG, "Error fetching user: " + e.getMessage());
                 });
     }
 
@@ -236,16 +232,30 @@ public class UserRepository {
     }
 
     /**
-     * Callback interface to handle Firestore query results for users collection
+     * Callback interface to handle Firestore query results for users collection.
      */
     public interface FirestoreCallbackAllUsers {
         void onSuccess(List<DocumentSnapshot> listOfUsers);
         void onFailure(Exception e);
     }
+
     /**
      * Callback interface to handle the result of the existence check and userType retrieval.
      */
     public interface UserTypeCallback {
         void onResult(boolean exists, String userType);
     }
+
+    public void addUserWithLocation(Map<String, Object> userData, String androidId, Runnable onSuccess) {
+        db.collection("users").document(androidId)
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User added to Firestore with location.");
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding user to Firestore: " + e.getMessage());
+                });
+    }
+
 }

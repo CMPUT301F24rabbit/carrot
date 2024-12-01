@@ -18,6 +18,8 @@ public class UserImpl implements User {
     private Boolean notificationAdministrators;
     private Boolean notificationOrganizers;
     private String profileImage;
+    private Double latitude;
+    private Double longitude;
 
     /**
      * Default constructor for creating an empty UserImpl instance.
@@ -167,6 +169,43 @@ public class UserImpl implements User {
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+    /**
+     * Returns the latitude of the user's location.
+     *
+     * @return the latitude as a Double.
+     */
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * Sets the latitude of the user's location.
+     *
+     * @param latitude the latitude to set.
+     */
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    /**
+     * Returns the longitude of the user's location.
+     *
+     * @return the longitude as a Double.
+     */
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    /**
+     * Sets the longitude of the user's location.
+     *
+     * @param longitude the longitude to set.
+     */
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+    // END: Added Methods for Latitude and Longitude
 
     /**
      * Validates the user type to ensure it is a valid type.

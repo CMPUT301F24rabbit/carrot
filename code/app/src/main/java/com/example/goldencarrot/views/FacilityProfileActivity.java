@@ -188,4 +188,6 @@ public class FacilityProfileActivity extends AppCompatActivity {
             Log.e(TAG, "Geocoder error while saving coordinates: " + e.getMessage(), e);
         }
     }
+
 }
+
