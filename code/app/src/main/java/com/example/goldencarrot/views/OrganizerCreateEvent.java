@@ -76,6 +76,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         Button createEventButton = findViewById(R.id.createEventButton);
         Button backButton = findViewById(R.id.backButtonFromCreateEvent);
 
+        organizerId = getIntent().getStringExtra("userId");
+
         // get facility details
         getFacilityLocation();
 
@@ -97,7 +99,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 }
             }
         });
-        organizerId = getDeviceId(OrganizerCreateEvent.this);
 
         // Set onClickListener for the Create Event button
         createEventButton.setOnClickListener(view -> {
