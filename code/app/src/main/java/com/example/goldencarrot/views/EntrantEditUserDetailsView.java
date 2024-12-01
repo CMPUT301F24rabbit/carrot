@@ -36,6 +36,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import java.io.File;
 import java.util.Optional;
@@ -270,6 +272,18 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    // Checks if an image URL is a generic profile picture
+    private boolean isGenericImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) return false;
+
+        // Use Uri.decode() for decoding URL to handle encoded characters like `%2F`
+        String decodedUrl = Uri.decode(imageUrl);
+        Log.d(TAG, "Decoded URL: " + decodedUrl);
+
+        // Check if the decoded URL contains the "profile/generic/" path
+        return decodedUrl.contains("/profile/generic/");
+    }
+
     private void  saveUserDetailsToFS() {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
@@ -280,30 +294,56 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             verifyInputs(email, phoneNumber, name);
 
 
-            // CONTROL Z UP TO  HERE
+            // Log initial state of profile image and name
+            Log.d(TAG, "==== SAVE OPERATION START ====");
+            Log.d(TAG, "Entered Name: " + name);
+            Log.d(TAG, "Original Profile Picture URL: " + originalProfileImage);
+            Log.d(TAG, "Current Profile Picture URL: " + userProfileImage);
+
+            // Determine if the current profile image is custom or generic
+
+            boolean isGenericImage = isGenericImage(userProfileImage);
+
+            Log.d(TAG, "Is Generic Image: " + isGenericImage);
+
             // If image is generic, regenerate based on name
-            if (!userProfileImage.equals(originalProfileImage) && userProfileImage.contains("/profile/generic/")) {
-                // Regenerate based on new name
-                fetchDefaultProfilePictureUrl(name, defaultProfileUrl -> {
-                    userProfileImage = defaultProfileUrl;
-                    // Save
-                    saveUserToFirestoreHelper(name, email, phoneNumber);
-                });
-            } else if (!originalProfileImage.equals(getGenericProfilePictureURL(name))) {
-                // NAME HAS CHANGED
-                fetchDefaultProfilePictureUrl(name, defaultProfileUrl ->{
-                    userProfileImage = defaultProfileUrl;
-                    saveUserToFirestoreHelper(name, email, phoneNumber);
-                });
+            if (isGenericImage) {
+                // Check if the name has changed and regenerate pic
+                String expectedGenericPic = getGenericProfilePictureURL(name);
+                Log.d(TAG, "Expected Generic Picture URL for new name: " + expectedGenericPic);
+
+                if (!userProfileImage.equals(expectedGenericPic)) {
+                    Log.d(TAG, "Name has changed. Regenerating profile pic URL.");
+                    fetchDefaultProfilePictureUrl(name, defaultProfileURL -> {
+                        Log.d(TAG, "Fetched Default Profile Picture URL: " + defaultProfileURL);
+                        userProfileImage = defaultProfileURL; // Update the profile picture URL
+                        Log.d(TAG, "Updated Profile Picture URL: " + userProfileImage);
+
+                        // Save after updating the URL
+                        saveUserToFirestoreHelper(name, email, phoneNumber);
+                    });
+
+                    Log.d(TAG, "Exiting early after updating the profile picture URL.");
+                    return; // Exit early b/c save happen in callback
+                } else {
+                    Log.d(TAG, "Name has not changed significantly. No need to update profile picture URL.");
+                }
             } else {
-                // No change
-                saveUserToFirestoreHelper(name, email, phoneNumber);
+                Log.d(TAG, "Profile picture is custom. No changes required for profile picture URL.");
             }
+
+            // No change
+            Log.d(TAG, "Proceeding to save user details to Firestore.");
+            saveUserToFirestoreHelper(name, email, phoneNumber);
+
+
         } catch (Exception e) {
             Log.e(TAG, "Error: " + e.getMessage());
             if (!isFinishing()) {
                 ValidationErrorDialog.show(this, "Validation Error", e.getMessage());
             }
+        } finally {
+            Log.d(TAG, "==== SAVE OPERATION END ====");
         }
     }
 
@@ -498,7 +538,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
             callback.onSuccess(uri.toString());
         }).addOnFailureListener(e -> {
             Log.e(TAG, "Failed to fetch default profile picture URL", e);
-            callback.onSuccess("android.resource://" + getPackageName() + "/drawable/profilepic1"); // Fallback
+            callback.onSuccess(getGenericProfilePictureURL(name)); // Fallback
         });
     }
 
