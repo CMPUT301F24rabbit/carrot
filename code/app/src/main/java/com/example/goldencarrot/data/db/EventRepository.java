@@ -12,6 +12,7 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -187,6 +188,47 @@ public class EventRepository {
         Log.d(TAG, "Created waitlist for event: " + event.getEventName() + " with limit: " + (waitlistLimit != null ? waitlistLimit : "No Limit"));
 
         callback.onSuccess(event);
+    }
+
+    /**
+     * Deletes an event with the eventName provided if exists.
+     *
+     * @param eventName The name of the event to search for and delete.
+     * @param callback  A callback to handle the result
+     */
+    public void deleteEventByName(String eventName, DeleteCallback callback) {
+        eventsCollection
+                .whereEqualTo("eventName", eventName)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        Log.d(TAG, "No event found with name: " + eventName);
+                        callback.onFailure(new Exception("No event found with the specified name"));
+                        return;
+                    }
+
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        String eventId = document.getId();
+                        eventsCollection.document(eventId)
+                                .delete()
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "Event with name " + eventName + " deleted successfully"))
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting event with ID: " + eventId, e));
+                    }
+
+                    callback.onSuccess("Deleted all events with name: " + eventName);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error searching for events by name", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Interface for receiving the result of deletion operations.
+     */
+    public interface DeleteCallback {
+        void onSuccess(String message);
+        void onFailure(Exception e);
     }
 
     /**
