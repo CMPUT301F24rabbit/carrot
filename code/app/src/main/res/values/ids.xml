@@ -1,6 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="submitButton" type="id"/>
-    <item name="geolocationSwitch" type="id">igeolocationSwitch</item>
-    <item name="mapWebView" type="id">mapWebView</item>
 </resources>
