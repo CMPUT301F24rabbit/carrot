@@ -51,6 +51,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     testImplementation("org.mockito:mockito-core:4.0.0")
     androidTestImplementation("org.mockito:mockito-android:4.0.0")
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
+
 
     // junit 5
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
@@ -74,5 +76,9 @@ dependencies {
     // IMAGE
     implementation("com.squareup.picasso:picasso:2.71828")
     implementation("com.github.yalantis:ucrop:2.2.9")
+
+    // GEOLOCATION
+    implementation ("org.osmdroid:osmdroid-android:6.1.14")
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.14")
 
 }
