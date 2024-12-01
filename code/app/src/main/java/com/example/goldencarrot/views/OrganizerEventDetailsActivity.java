@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.EventRepository;
@@ -92,7 +93,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         // UI Initialization
-        eventPosterView = findViewById(R.id.event_DetailPosterView);
+        eventPosterView = findViewById(R.id.eventPosterImageView);
         eventNameTextView = findViewById(R.id.event_DetailNameTitleView);
         eventDateTextView = findViewById(R.id.event_DetailDateView);
         eventLocationTextView = findViewById(R.id.event_DetailLocationView);
@@ -208,8 +209,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         DocumentReference eventRef = firestore.collection("events").document(eventId);
         listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
-                Toast.makeText(this, "Error fetching " +
-                        "event details", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error fetching event details", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -222,7 +222,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     String location = snapshot.getString("location");
                     String date = snapshot.getString("date");
                     String time = snapshot.getString("time");
-                    int posterResId = snapshot.getLong("posterResId") != null ? snapshot.getLong("posterResId").intValue() : R.drawable.default_poster;
+                    String posterUrl = snapshot.getString("posterUrl"); // Retrieve the poster URL
 
                     getFacilityInfo(organizerId);
                     eventNameTextView.setText(eventName);
@@ -230,8 +230,17 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     eventLocationTextView.setText("Location: " + location);
                     eventTimeTextView.setText("Time: " + time);
                     eventDetailsTextView.setText(eventDetails);
-                    eventPosterView.setImageResource(posterResId);
 
+                    // Load the poster image from Firebase Storage using Glide
+                    if (posterUrl != null && !posterUrl.isEmpty()) {
+                        Glide.with(this)
+                                .load(posterUrl)
+                                .placeholder(R.drawable.poster_placeholder) // Default placeholder image
+                                .error(R.drawable.poster_placeholder) // Error placeholder
+                                .into(eventPosterView);
+                    } else {
+                        eventPosterView.setImageResource(R.drawable.poster_placeholder);
+                    }
                 } else {
                     Toast.makeText(this, "Access denied: You are not authorized to view this event", Toast.LENGTH_SHORT).show();
                     finish();
@@ -242,6 +251,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
     /**
      * Generates a QR code for the created event, encoding the event's details such as name,
      * location, date, and description. Displays the QR code in an ImageView.

@@ -26,6 +26,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,9 +118,41 @@ public class AdminHomeActivity extends AppCompatActivity {
         viewAllImagesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                fetchAllPosterUrls();
             }
         });
+    }
+    private void fetchAllPosterUrls() {
+        // Reference to Firebase Storage folder named "posters"
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference("posters");
+
+        storageRef.listAll()
+                .addOnSuccessListener(listResult -> {
+                    // List to store poster URLs
+                    List<String> posterUrls = new ArrayList<>();
+
+                    // Loop through items in the "posters" folder
+                    for (StorageReference item : listResult.getItems()) {
+                        item.getDownloadUrl().addOnSuccessListener(uri -> {
+                            posterUrls.add(uri.toString());
+
+                            // Ensure URLs are processed before displaying them
+                            if (posterUrls.size() == listResult.getItems().size()) {
+                                displayPosterUrls(posterUrls);
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to fetch poster URLs", e);
+                    Toast.makeText(AdminHomeActivity.this, "Failed to load posters.", Toast.LENGTH_SHORT).show();
+                });
+    }
+    private void displayPosterUrls(List<String> posterUrls) {
+        // Intent to navigate to AdminPosterGalleryActivity
+        Intent intent = new Intent(this, AdminPosterGalleryActivity.class);
+        intent.putStringArrayListExtra("posterUrls", new ArrayList<>(posterUrls));
+        startActivity(intent);
     }
 
     public void displayProfiles() {
@@ -183,7 +217,6 @@ public class AdminHomeActivity extends AppCompatActivity {
 
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             for (QueryDocumentSnapshot document : querySnapshot) {
-                                // Assuming each document has a "name" field for event name
                                 String eventName = document.getString("eventName");
                                 dataEventsList.add(eventName);
                                 eventDocuments.add(document); // Store the document snapshot for later access
