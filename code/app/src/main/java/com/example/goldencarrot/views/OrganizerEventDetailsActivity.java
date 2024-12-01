@@ -65,7 +65,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     // UI Components
     private ImageView eventPosterView;
-    private TextView eventNameTextView, eventDateTextView, eventLocationTextView, eventTimeTextView,
+    private TextView eventNameTextView, eventDateTextView, eventLocationTextView,
             eventDetailsTextView, facilityNameTextView, facilityContactInfoTextView;
     private PopupWindow entrantsPopup;
     private Button selectLotteryButton;
@@ -97,7 +97,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventNameTextView = findViewById(R.id.event_DetailNameTitleView);
         eventDateTextView = findViewById(R.id.event_DetailDateView);
         eventLocationTextView = findViewById(R.id.event_DetailLocationView);
-        eventTimeTextView = findViewById(R.id.event_DetailTimeView);
         eventDetailsTextView = findViewById(R.id.event_DetailDetailsView);
         facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
         facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
@@ -221,14 +220,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     String eventDetails = snapshot.getString("eventDetails");
                     String location = snapshot.getString("location");
                     String date = snapshot.getString("date");
-                    String time = snapshot.getString("time");
                     String posterUrl = snapshot.getString("posterUrl"); // Retrieve the poster URL
 
                     getFacilityInfo(organizerId);
                     eventNameTextView.setText(eventName);
                     eventDateTextView.setText("Date: " + date);
                     eventLocationTextView.setText("Location: " + location);
-                    eventTimeTextView.setText("Time: " + time);
                     eventDetailsTextView.setText(eventDetails);
 
                     // Load the poster image from Firebase Storage using Glide

@@ -64,15 +64,6 @@
                 android:text="Location"
                 android:textSize="16sp" />
 
-            <!-- Event Time -->
-            <TextView
-                android:id="@+id/event_DetailTimeView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Time"
-                android:textSize="16sp" />
-
             <!-- Event Details -->
             <TextView
                 android:id="@+id/event_DetailDetailsView"

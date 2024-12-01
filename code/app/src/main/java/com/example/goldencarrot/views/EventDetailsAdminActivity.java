@@ -60,7 +60,6 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
         eventDateView = findViewById(R.id.event_DetailDateView);
         eventLocationView = findViewById(R.id.event_DetailLocationView);
-        eventTimeView = findViewById(R.id.event_DetailTimeView);
         eventDetailsView = findViewById(R.id.event_DetailDetailsView);
         facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
         facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
