@@ -16,11 +16,11 @@
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/nameEditText"
+        <TextView
+            android:id="@+id/facilityNameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter facility name"
+            android:hint="facilityName"
             android:inputType="text" />
 
         <!-- Location -->
@@ -32,11 +32,11 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/locationEditText"
+        <TextView
+            android:id="@+id/facilityLocationText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter facility location"
+            android:hint="Location"
             android:inputType="text" />
 
         <!-- Description -->
@@ -48,11 +48,11 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/descriptionEditText"
+        <TextView
+            android:id="@+id/facilityDescriptionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter facility description"
+            android:hint="description"
             android:inputType="text" />
 
         <!-- Contact Info -->
@@ -64,66 +64,29 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/contactInfoEditText"
+        <TextView
+            android:id="@+id/facilityContactInfoText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter contact information"
+            android:hint="contact information"
             android:inputType="text" />
 
-        <!-- Map View -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Map:"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp" />
-
-        <WebView
-            android:id="@+id/mapWebView"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Geolocation Toggle -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enable Geolocation"
-                android:textSize="16sp"
-                android:layout_marginEnd="8dp" />
-
-            <Switch
-                android:id="@+id/geolocationSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <!-- Save Button -->
         <Button
-            android:id="@+id/saveButton"
+            android:id="@+id/adminFacilityBackBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save and Update Map"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+            android:backgroundTint="@color/orange"
+            android:text="Back" />
 
         <!-- Back Button -->
         <Button
-            android:id="@+id/facilityProfileBackBtn"
+            android:id="@+id/adminDeleteFacilityBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Back"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+            android:backgroundTint="@color/orange"
+            android:text="Delete Facility" />
 
     </LinearLayout>
 
