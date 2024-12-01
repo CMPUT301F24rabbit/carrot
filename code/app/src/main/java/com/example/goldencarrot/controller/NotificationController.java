@@ -181,9 +181,11 @@ public class NotificationController{
      * displays all notifications on android system
      * @param notifications arraylist of notifications
      */
-    public void displayNotifications(ArrayList<Notification> notifications, Context context) {
+    public void displayNotifications(ArrayList<Notification> notifications, Context context, boolean notificationPermission) {
         if (!notifications.isEmpty()) {
-            Toast.makeText(context, "You have new notifications!", Toast.LENGTH_SHORT).show();
+            if (notificationPermission) {
+                Toast.makeText(context, "You have new notifications!", Toast.LENGTH_SHORT).show();
+            }
             for (Notification notification : notifications) {
                 if (notification.getEventId() != null) {
                     eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {

@@ -58,12 +58,13 @@
 
         <TextView
             android:id="@+id/text_phone_title"
-            android:layout_width="wrap_content"
+            android:layout_width="99dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="50dp"
             android:text="Phone Number:"
-            android:textSize="10sp" />
+            android:textAlignment="center"
+            android:textSize="25sp" />
 
         <EditText
             android:id="@+id/sign_up_phone_number"
@@ -77,6 +78,7 @@
 
         <Button
             android:id="@+id/sign_up_create_account_button"
+            android:backgroundTint="@color/orange"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"

@@ -22,6 +22,7 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,9 +44,10 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private Switch geolocation;
     private EventRepository eventRepository;
     private UserRepository userRepository;
-    private WaitListRepository waitListRepository;
+    private FirebaseFirestore db;
     private UserImpl organizer;
     private boolean geolocationIsEnabled;
+    private String organizerId, facilityName, location, email, phoneNumber, facilityDescription;
 
     /**
      * Initializes the activity, sets up the UI components, and handles geolocation switch changes.
@@ -61,7 +63,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         // Initialize repositories
         eventRepository = new EventRepository();
         userRepository = new UserRepository();
-        waitListRepository = new WaitListRepository();
+        db = FirebaseFirestore.getInstance();
 
         // Set up UI components
         eventNameEditText = findViewById(R.id.eventNameEditText);
@@ -70,7 +72,16 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventDateEditText = findViewById(R.id.eventDateEditText);
         eventLimitEditText = findViewById(R.id.waitlistLimitEditText);
         geolocation = findViewById(R.id.geolocation);
+
         Button createEventButton = findViewById(R.id.createEventButton);
+        Button backButton = findViewById(R.id.backButtonFromCreateEvent);
+
+        // get facility details
+        getFacilityLocation();
+
+        // location default to facility location
+        eventLocationEditText.setText(location);
+
         geolocation.toggle();
         geolocation.setText("Enable geolocation:");
 
@@ -86,10 +97,15 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 }
             }
         });
+        organizerId = getDeviceId(OrganizerCreateEvent.this);
 
         // Set onClickListener for the Create Event button
         createEventButton.setOnClickListener(view -> {
             createEvent();
+            Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+            startActivity(intent);
+        });
+        backButton.setOnClickListener(view -> {
             Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
             startActivity(intent);
         });
@@ -122,8 +138,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         }
 
         // Get the organizer user details
-        //String organizerId = getIntent().getStringExtra("userId");
-        String organizerId = getDeviceId(OrganizerCreateEvent.this);
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
             public void onSuccess(UserImpl user) {
@@ -158,7 +172,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 eventRepository.addEvent(event, waitlistLimit, new EventRepository.EventCallback() {
                     @Override
                     public void onSuccess(Event event) {
-
+                        Toast.makeText(OrganizerCreateEvent.this, "Successfully created event: " +
+                                event.getEventName(), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -179,5 +194,15 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     }
     private String getDeviceId(Context context){
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private void getFacilityLocation() {
+        db.collection("users").document(organizerId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        location = documentSnapshot.getString("facilityLocation");
+                    }
+                });
     }
 }
