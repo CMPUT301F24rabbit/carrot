@@ -207,4 +207,7 @@ public class SignUpActivity extends AppCompatActivity {
     private interface OnProfilePictureFetched {
         void onSuccess(String url);
     }
+    private interface OnLocationFetchedListener {
+        void onLocationFetched(Location location);
+    }
 }
