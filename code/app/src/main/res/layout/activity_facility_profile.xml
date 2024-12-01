@@ -32,7 +32,6 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Location -->
         <EditText
             android:id="@+id/locationEditText"
             android:layout_width="match_parent"
@@ -49,7 +48,6 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Description -->
         <EditText
             android:id="@+id/descriptionEditText"
             android:layout_width="match_parent"
@@ -66,7 +64,6 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Contact Information -->
         <EditText
             android:id="@+id/contactInfoEditText"
             android:layout_width="match_parent"
@@ -74,9 +71,6 @@
             android:hint="Enter contact information"
             android:inputType="text" />
 
-        <!-- Facility Image -->
-        <ImageView
-            android:id="@+id/facilityImageView"
         <!-- Map View -->
         <TextView
             android:layout_width="wrap_content"
@@ -88,20 +82,9 @@
 
         <WebView
             android:id="@+id/mapWebView"
- 
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="16dp" />
-
-        <!-- Event Poster Image -->
-        <ImageView
-            android:id="@+id/eventPosterImageView"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:contentDescription="Event Poster"
-            android:scaleType="centerCrop"
-            android:layout_marginTop="16dp"
-            android:background="@android:color/darker_gray" />
 
         <!-- Geolocation Toggle -->
         <LinearLayout

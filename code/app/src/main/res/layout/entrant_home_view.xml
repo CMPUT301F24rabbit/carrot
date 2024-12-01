@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        />
+         />
 
     <!-- User Name -->
     <TextView
@@ -56,7 +56,6 @@
         app:layout_constraintTop_toBottomOf="@id/upcoming_events_title" />
 
 
-    <!-- Waitlisted Events Title -->
     <TextView
         android:id="@+id/waitlisted_events_title"
         android:layout_width="match_parent"
@@ -70,7 +69,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/upcoming_events" />
 
-    <!-- Waitlisted Events ListView -->
     <ListView
         android:id="@+id/waitlisted_events"
         android:layout_width="0dp"
@@ -83,7 +81,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/waitlisted_events_title" />
 
-    <!-- Explore Events Button -->
     <Button
         android:id="@+id/button_explore_events"
         android:layout_width="wrap_content"
@@ -95,7 +92,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/waitlisted_events" />
 
-    <!-- Notifications Button -->
     <Button
         android:id="@+id/notifications_button"
         android:layout_width="wrap_content"

@@ -10,13 +10,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -156,28 +154,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 String eventDetails = snapshot.getString("eventDetails");
                 String location = snapshot.getString("location");
                 String date = snapshot.getString("date");
-                String eventPosterUrl = snapshot.getString("eventPosterUrl"); // Assuming the poster URL is stored in Firestore
 
-                // Display event details on the UI
-                eventDetailsTextView.setText(String.format(
-                        "Event Name: %s\nEvent Details: %s\nLocation: %s\nDate: %s",
-                        eventName,
-                        eventDetails,
-                        location,
-                        date
-                ));
-
-                // Load the event poster image using Glide
-                if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
-                    Log.d("EntrantEventDetails", "Poster URL: " + eventPosterUrl);
-                    Glide.with(this)
-                            .load(eventPosterUrl) // URL of the event poster in Firebase Storage
-                            .into((ImageView) findViewById(R.id.entrant_eventPosterImageView));
-                } else {
-                    // Show a default poster or placeholder if no poster URL is available
-                    ((ImageView) findViewById(R.id.entrant_eventPosterImageView))
-                            .setImageResource(R.drawable.poster_placeholder); // default image
-                }
 
                 // get facility profile details
                 firestore.collection("users").document(snapshot.getString("organizerId"))
@@ -206,7 +183,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             }
         });
     }
-
 
     /**
      * Loads the waitlist data for the event based on the event ID passed in the intent.

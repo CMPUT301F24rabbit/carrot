@@ -1,6 +1,5 @@
 package com.example.goldencarrot;
 
-import android.net.Uri;
 import android.util.Log;
 
 import com.example.goldencarrot.data.db.EventRepository;
@@ -90,7 +89,7 @@ public class TestDataHelper {
 
         Log.d(TAG, "Creating Event");
         // Add event to Firestore
-        eventRepository.addEvent(eventTest, Uri.parse("wallpaper.jpg"), 9999, new EventRepository.EventCallback() {
+        eventRepository.addEvent(eventTest, 99999, new EventRepository.EventCallback() {
             @Override
             public void onSuccess(Event updatedEvent) {
                 eventTest = updatedEvent; // Update eventTest with the correct eventId

@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide; // Glide for image loading
 import com.example.goldencarrot.R;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +18,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * RecyclerView.Adapter for displaying a list of Events with poster functionality.
+ * RecyclerView.Adapter for displaying a list of Events.
+ * This adapter binds event data to each item view in the RecyclerView and handles long-click events.
  */
 public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecyclerArrayAdapter.EventViewHolder> {
 
@@ -27,6 +27,11 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
      * Interface to handle long-click events on events.
      */
     public interface OnEventLongClickListener {
+        /**
+         * Called when an event item is long-clicked.
+         *
+         * @param event the event that was long-clicked.
+         */
         void onEventLongClick(Event event);
     }
 
@@ -35,11 +40,11 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
     private final OnEventLongClickListener longClickListener;
 
     /**
-     * Constructor to initialize the adapter.
+     * Constructor to initialize the adapter with context, event list, and long-click listener.
      *
-     * @param context the context in which the adapter is used.
-     * @param eventList the list of Event objects to display.
-     * @param longClickListener listener for long-click events.
+     * @param context the context in which the adapter is used, typically an Activity or Fragment.
+     * @param eventList the list of Event objects to be displayed.
+     * @param longClickListener listener to handle long-click events on event items.
      */
     public EventRecyclerArrayAdapter(Context context, List<Event> eventList, OnEventLongClickListener longClickListener) {
         this.context = context;
@@ -47,6 +52,13 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         this.longClickListener = longClickListener;
     }
 
+    /**
+     * Creates a new ViewHolder by inflating the event list item layout.
+     *
+     * @param parent the parent view that the new view will be attached to.
+     * @param viewType the type of view to be created (not used in this case).
+     * @return a new EventViewHolder instance.
+     */
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -54,29 +66,25 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         return new EventViewHolder(view);
     }
 
+    /**
+     * Binds the event data to the views in the ViewHolder.
+     *
+     * @param holder the ViewHolder to bind the data to.
+     * @param position the position of the event in the list.
+     */
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
-        Log.d("EventRecyclerArrayAdapter", "Binding event: " + event.getEventName());
+        Log.d("EventRecyclerArrayAdapter", "clicked on: " + event.getEventName());
 
         // Set text for each view
         holder.eventName.setText(event.getEventName());
         holder.eventLocation.setText(event.getLocation());
+        holder.eventImageView.setImageResource(event.getImageResId());
+
+        // Format and set the event date and details
         holder.eventDate.setText(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(event.getDate()));
         holder.eventDetails.setText(event.getEventDetails());
-
-        // Load event poster using Glide
-        String posterUrl = event.getPosterUrl(); // New method to fetch poster URL
-        if (posterUrl != null && !posterUrl.isEmpty()) {
-            Glide.with(context)
-                    .load(posterUrl)
-                    .placeholder(R.drawable.poster_placeholder) // Default placeholder
-                    .error(R.drawable.poster_error) // Error image
-                    .into(holder.eventImageView);
-        } else {
-            // Fallback to a default image if no URL is available
-            holder.eventImageView.setImageResource(R.drawable.poster_placeholder);
-        }
 
         // Set long-click listener
         holder.itemView.setOnLongClickListener(v -> {
@@ -85,21 +93,31 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         });
     }
 
+    /**
+     * Returns the total number of events in the list.
+     *
+     * @return the size of the event list.
+     */
     @Override
     public int getItemCount() {
         return eventList.size();
     }
 
     /**
-     * ViewHolder for event items.
+     * ViewHolder class for holding the views of each event item in the list.
      */
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         ImageView eventImageView;
         TextView eventName;
         TextView eventLocation;
-        TextView eventDate;
-        TextView eventDetails;
+        TextView eventDate;     // New TextView for Date
+        TextView eventDetails;  // New TextView for Details
 
+        /**
+         * Constructor to initialize the views for an individual event item.
+         *
+         * @param itemView the view of a single event item.
+         */
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             eventImageView = itemView.findViewById(R.id.eventImageView);
@@ -110,3 +128,6 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         }
     }
 }
+
+
+

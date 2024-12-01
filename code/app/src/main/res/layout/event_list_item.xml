@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop" />
-
-
+    
     <TextView
         android:id="@+id/eventNameView"
         android:layout_width="wrap_content"

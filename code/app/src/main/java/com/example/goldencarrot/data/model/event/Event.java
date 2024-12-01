@@ -1,9 +1,5 @@
 package com.example.goldencarrot.data.model.event;
 
-import static com.google.firebase.appcheck.internal.util.Logger.TAG;
-
-import android.util.Log;
-
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 
@@ -273,9 +269,7 @@ public class Event implements EventConfigurator {
      */
     @Override
     public void setOrganizerId(String organizerId) {
-
         this.organizerId = organizerId;
-        Log.d(TAG, "Organizer ID set: " + organizerId);
     }
 
     /**
@@ -287,6 +281,7 @@ public class Event implements EventConfigurator {
     public String getOrganizerId() {
         return this.organizerId;
     }
+
     /**
      * Gets the WaitList object associated with the event.
      *
@@ -334,35 +329,4 @@ public class Event implements EventConfigurator {
     public void setGeolocationEnabled(boolean geolocationEnabled) {
         this.isGeolocationEnabled = geolocationEnabled;
     }
-
-    /**
-     * URL of the poster image for the event stored in Firebase Storage.
-     */
-    private String posterUrl;
-
-    /**
-     * Gets the URL of the poster image for the event.
-     *
-     * @return the poster image URL as a string.
-     */
-    @Override
-    public String getPosterUrl() {
-        return posterUrl;
-    }
-
-    /**
-     * Sets the URL of the poster image for the event.
-     *
-     * @param url the URL of the poster image to set.
-     */
-    @Override
-    public void setPosterUrl(Object url) {
-        if (url instanceof String) {
-            this.posterUrl = (String) url;
-        } else {
-            Log.w(TAG, "Invalid poster URL type: " + url);
-        }
-    }
-
-
 }
