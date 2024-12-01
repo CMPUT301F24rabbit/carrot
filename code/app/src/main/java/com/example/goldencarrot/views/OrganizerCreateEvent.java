@@ -139,7 +139,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.setOrganizerId(organizerId);
                 event.setGeolocationEnabled(geolocationIsEnabled);
 
-                Integer waitlistLimit = limitString.isEmpty() ? null : Integer.parseInt(limitString);
+                // if left as null, set the waitlist limit as inf
+                Integer waitlistLimit = limitString.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(limitString);
 
                 if (posterUri == null){
                     // Poster is null, create event with no poster
