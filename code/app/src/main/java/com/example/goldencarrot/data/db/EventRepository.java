@@ -71,7 +71,7 @@ public class EventRepository {
                     // Debugging: Log after event creation in Firestore
                     Log.d(TAG, "Event created with ID: " + generatedId);
 
-                    createWaitlist(event.getWaitlistLimit(), event, callback);
+                    createWaitlist(waitlistLimit, event, callback);
 
                     if (posterUri != null) {
                         uploadEventPoster(posterUri, generatedId, new FirebasePosterCallback() {

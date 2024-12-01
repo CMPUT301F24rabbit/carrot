@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -34,7 +33,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private static final String TAG = "OrganizerCreateEvent";
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText, eventDateEditText, eventLimitEditText;
+    private EditText eventNameEditText, eventLocationEditText, eventDetailsEditText,
+            eventDateEditText, eventLimitEditText;
     private Switch geolocationSwitch;
     private ImageView eventPosterImageView;
     private Button createEventButton, selectPosterButton, backButton;
@@ -73,14 +73,11 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         geolocationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> geolocationIsEnabled = isChecked);
         selectPosterButton.setOnClickListener(view -> selectPosterImage());
         createEventButton.setOnClickListener(view -> createEvent());
-        backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
-            startActivity(intent);
-        });
+        backButton.setOnClickListener(view -> goOrganizerHomeView());
     }
 
     private void getFacilityLocation() {
-        organizerId = getIntent().getStringExtra("userId");
+        organizerId = getDeviceId(this);
         db.collection("users").document(organizerId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -91,6 +88,11 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to fetch facility location", e));
     }
+
+    private String getDeviceId(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
     private void selectPosterImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
@@ -106,12 +108,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         }
     }
 
-    /**
-     * Creates a new event based on the details entered by the organizer and adds it to the event repository.
-     * Optionally creates a waitlist if a waitlist limit is provided.
-     *
-     * @throws ParseException If the date format is invalid.
-     */
     private void createEvent() {
         String eventName = eventNameEditText.getText().toString().trim();
         String location = eventLocationEditText.getText().toString().trim();
@@ -119,7 +115,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         String dateString = eventDateEditText.getText().toString().trim();
         String limitString = eventLimitEditText.getText().toString().trim();
 
-        if (eventName.isEmpty() || location.isEmpty() || details.isEmpty() || dateString.isEmpty() || posterUri == null) {
+        if (eventName.isEmpty() || location.isEmpty() || details.isEmpty() || dateString.isEmpty()) {
             Toast.makeText(this, "Please fill out all fields and select a poster image.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -132,7 +128,6 @@ public class OrganizerCreateEvent extends AppCompatActivity {
             return;
         }
 
-        // Get the organizer user details
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
             public void onSuccess(UserImpl user) {
@@ -145,7 +140,14 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.setGeolocationEnabled(geolocationIsEnabled);
 
                 Integer waitlistLimit = limitString.isEmpty() ? null : Integer.parseInt(limitString);
-                uploadPosterAndCreateEvent(event, waitlistLimit);
+
+                if (posterUri == null){
+                    // Poster is null, create event with no poster
+                    saveEventToFirestore(event, waitlistLimit);
+                } else {
+                    // Add Poster to FireStore and write event into events docRef
+                    uploadPosterAndCreateEvent(event, waitlistLimit);
+                }
             }
 
             @Override
@@ -172,8 +174,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
             @Override
             public void onSuccess(Event event) {
                 Toast.makeText(OrganizerCreateEvent.this, "Event created successfully!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
-                startActivity(intent);
+                goOrganizerHomeView();
             }
 
             @Override
@@ -181,5 +182,10 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 Toast.makeText(OrganizerCreateEvent.this, "Event creation failed.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void goOrganizerHomeView(){
+        Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+        startActivity(intent);
     }
 }
