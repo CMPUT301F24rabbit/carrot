@@ -1,5 +1,7 @@
 package com.example.goldencarrot.views;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -35,7 +37,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
     private EventRepository eventRepository;
     private WaitListRepository waitListRepository;
     private ListenerRegistration listenerRegistration;
-    private TextView eventNameTitleView, eventDateView, eventLocationView, eventTimeView, eventDetailsView;
+    private TextView eventNameTitleView, eventDateView, eventLocationView, eventTimeView, eventDetailsView,
+            facilityNameTextView, facilityContactInfoTextView;;
     private ImageView eventPosterView;
     private Button backButton, deleteEventButton;
     private String waitlistId;
@@ -59,6 +62,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         eventLocationView = findViewById(R.id.event_DetailLocationView);
         eventTimeView = findViewById(R.id.event_DetailTimeView);
         eventDetailsView = findViewById(R.id.event_DetailDetailsView);
+        facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
+        facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
         backButton = findViewById(R.id.back_DetailButton);
         deleteEventButton = findViewById(R.id.delete_DetailEventBtn);
         generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
@@ -187,11 +192,12 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 String date = snapshot.getString("date");
                 String time = snapshot.getString("time");
 
+                getFacilityInfo(snapshot.getString("organizerId"));
                 // Display event details on the UI
                 eventNameTitleView.setText(eventName);
-                eventDateView.setText(date);
-                eventLocationView.setText(location);
-                eventTimeView.setText(time);
+                eventDateView.setText("Date: " + date);
+                eventLocationView.setText("Location: " + location);
+                eventTimeView.setText("Time: " + time);
                 eventDetailsView.setText(eventDetails);
                 // Optionally, load an image for the event poster if available
             } else {
@@ -238,6 +244,20 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             Intent intent = new Intent(EventDetailsAdminActivity.this, BrowseEventsActivity.class);
             startActivity(intent);
         }
+    }
+    private void getFacilityInfo(String organizerId) {
+        firestore.collection("users").document(organizerId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String facilityName = documentSnapshot.getString("facilityName");
+                        String contactInfo = documentSnapshot.getString("contactInfo");
+
+                        // set facility info in textview
+                        facilityNameTextView.setText("Facility: " + facilityName);
+                        facilityContactInfoTextView.setText("Contact Info: \n" + contactInfo);
+                    }
+                });
     }
 
     /**
