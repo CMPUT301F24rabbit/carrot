@@ -63,7 +63,35 @@ public class OrganizerEventTest {
 
             // Input waitlist limit and toggle geolocation switch
             onView(withId(R.id.waitlistLimitEditText)).perform(typeText("10"), closeSoftKeyboard());
-            onView(withId(R.id.geolocation)).perform(click());  // Toggle geolocation switch
+
+            // SET GEOLOCATION ENABLED
+            onView(withId(R.id.geolocation)).perform(click());
+
+            // Click on the "Create Event" button
+            onView(withId(R.id.createEventButton)).perform(click());
+
+            Thread.sleep(4000);
+
+            onView(withText("New Event")).check(matches(isDisplayed()));
+
+            // Verify if the success message or a related UI component is displayed
+            //onView(withText("Event created successfully")).check(matches(isDisplayed()));
+        }
+    }
+    
+    @Test
+    public void testEventCreation_NoLimit() throws InterruptedException{
+        // Launch activity using the scenario
+        try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
+
+            // Input event details
+            onView(withId(R.id.eventNameEditText)).perform(typeText(EVENT_NAME), closeSoftKeyboard());
+            onView(withId(R.id.eventLocationEditText)).perform(typeText("New York"), closeSoftKeyboard());
+            onView(withId(R.id.eventDetailsEditText)).perform(typeText("This is a sample event."), closeSoftKeyboard());
+            onView(withId(R.id.eventDateEditText)).perform(typeText("31-12-2024"), closeSoftKeyboard());
+
+            // SET GEOLOCATION ENABLED
+            onView(withId(R.id.geolocation)).perform(click());
 
             // Click on the "Create Event" button
             onView(withId(R.id.createEventButton)).perform(click());
