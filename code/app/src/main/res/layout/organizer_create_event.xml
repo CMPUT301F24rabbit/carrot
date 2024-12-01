@@ -21,7 +21,8 @@
         android:id="@+id/eventDetailsEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Details"/>
+        android:fontFamily="sans-serif"
+        android:hint="Event Details" />
 
     <EditText
         android:id="@+id/eventDateEditText"
