@@ -76,7 +76,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ArrayList<Notification> notifications;
     private ActivityResultLauncher<String> resultLauncher;
     private NotificationPermissionRequester notificationPermissionRequester;
-
+    private boolean notificationPermission;
     /**
      * Called when the activity is first created. Initializes the UI components,
      * loads user data, and sets up event listeners.
@@ -90,11 +90,16 @@ public class EntrantHomeView extends AppCompatActivity {
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
                         // Permission Granted
-                        Toast.makeText(EntrantHomeView.this, "You will now receive notifications!", Toast.LENGTH_LONG).show();
+                        notificationPermission = true;
+                        Log.i(TAG, "permission granted for notifications");
                     } else {
                         // permission Denied
-                        Toast.makeText(EntrantHomeView.this, "You will not receive notifications", Toast.LENGTH_LONG).show();
-                        ;
+                        notificationPermission = false;
+                        Toast.makeText(EntrantHomeView.this, "You currently have app notifications off", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EntrantHomeView.this, "Turn on notifications to receive messages " +
+                                "about your waitlist status", Toast.LENGTH_LONG).show();
+
+
                     }
                 });
 
@@ -173,7 +178,7 @@ public class EntrantHomeView extends AppCompatActivity {
                         Log.d(TAG, "Got notifications: " + notifications.toString());
                         notifications.clear();
                         notifications.addAll(result);
-                        notifController.displayNotifications(notifications, EntrantHomeView.this);
+                        notifController.displayNotifications(notifications, EntrantHomeView.this, notificationPermission);
                     }
 
                     @Override
@@ -404,12 +409,22 @@ public class EntrantHomeView extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(
                         EntrantHomeView.this, Manifest.permission.POST_NOTIFICATIONS) !=
                         PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "permission not granted for notifications");
                     // Request the permission
+                    ActivityCompat.shouldShowRequestPermissionRationale(EntrantHomeView.this, Manifest.permission.POST_NOTIFICATIONS);
                     ActivityCompat.requestPermissions(
                             EntrantHomeView.this,
                             new String[]{Manifest.permission.POST_NOTIFICATIONS},
                             1);
+                    resultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                } else if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        EntrantHomeView.this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    Toast.makeText(EntrantHomeView.this, "Golden Carrot needs permission to send notifications.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    resultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
                 }
+
             }
         }
     }

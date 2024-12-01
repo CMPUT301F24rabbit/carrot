@@ -32,7 +32,6 @@ public class AdminAllProfilesView extends AppCompatActivity {
     private ArrayList<User> dataUserList;
     private ListView userList;
     private ArrayAdapter<User> userArrayAdapter;
-    private FirebaseFirestore db;
     private Button backBtn;
     private UserRepository userRepository;
     private ArrayList<DocumentSnapshot> userListFromDb;
@@ -42,7 +41,6 @@ public class AdminAllProfilesView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_all_users);
         dataUserList = new ArrayList<>();
-        db = FirebaseFirestore.getInstance();
         userRepository = new UserRepository();
 
         // retrieve all users from firestore
@@ -79,12 +77,9 @@ public class AdminAllProfilesView extends AppCompatActivity {
         });
         // back button navigates to admin home
         backBtn = findViewById(R.id.admin_all_users_back_btn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminAllProfilesView.this, AdminHomeActivity.class);
-                startActivity(intent);
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(AdminAllProfilesView.this, AdminHomeActivity.class);
+            startActivity(intent);
         });
     }
     public void getUsersFromFirestore(List<DocumentSnapshot> listOfUsers) {

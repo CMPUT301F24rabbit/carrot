@@ -1,5 +1,7 @@
 package com.example.goldencarrot.views;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -56,17 +58,15 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private EventRepository eventRepository;
     private String deviceID;
     private String eventId;
+    private String facilityName, email, phoneNumber;
     private WaitListRepository waitListRepository;
     private WaitListController waitListController;
     private WaitList waitList;
 
     // UI Components
     private ImageView eventPosterView;
-    private TextView eventNameTextView;
-    private TextView eventDateTextView;
-    private TextView eventLocationTextView;
-    private TextView eventTimeTextView;
-    private TextView eventDetailsTextView;
+    private TextView eventNameTextView, eventDateTextView, eventLocationTextView, eventTimeTextView,
+            eventDetailsTextView, facilityNameTextView, facilityContactInfoTextView;
     private PopupWindow entrantsPopup;
     private Button selectLotteryButton;
     private ImageView qrCodeImageView;
@@ -99,6 +99,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventLocationTextView = findViewById(R.id.event_DetailLocationView);
         eventTimeTextView = findViewById(R.id.event_DetailTimeView);
         eventDetailsTextView = findViewById(R.id.event_DetailDetailsView);
+        facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
+        facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
 
         deviceID = getDeviceId(this);
 
@@ -222,6 +224,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     String time = snapshot.getString("time");
                     String posterUrl = snapshot.getString("posterUrl"); // Retrieve the poster URL
 
+                    getFacilityInfo(organizerId);
                     eventNameTextView.setText(eventName);
                     eventDateTextView.setText("Date: " + date);
                     eventLocationTextView.setText("Location: " + location);
@@ -393,5 +396,18 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             Toast.makeText(OrganizerEventDetailsActivity.this,
                     "Not enough users in the waiting list", Toast.LENGTH_SHORT).show();
         }
+    }
+    private void getFacilityInfo(String organizerId) {
+        firestore.collection("users").document(organizerId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String facilityName = documentSnapshot.getString("facilityName");
+                        String contactInfo = documentSnapshot.getString("contactInfo");
+
+                        facilityNameTextView.setText("Facility: " + facilityName);
+                        facilityContactInfoTextView.setText("Contact Info:\n" + contactInfo);
+                    }
+                });
     }
 }

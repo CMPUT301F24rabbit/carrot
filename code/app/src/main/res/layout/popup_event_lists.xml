@@ -9,6 +9,7 @@
     <!-- Waitlisted Entrants Button -->
     <Button
         android:id="@+id/button_EventDetailWaitlistedEntrants"
+        android:backgroundTint="@color/orange"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Waitlisted Participants"
@@ -27,6 +28,7 @@
     <!-- Rejected Entrants Button -->
     <Button
         android:id="@+id/button_EventDetailRejectedEntrants"
+        android:backgroundTint="@color/orange"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cancelled Participants"
@@ -35,6 +37,7 @@
 
     <Button
         android:id="@+id/button_EventDetailAcceptedEntrants"
+        android:backgroundTint="@color/orange"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Accepted Participants" />

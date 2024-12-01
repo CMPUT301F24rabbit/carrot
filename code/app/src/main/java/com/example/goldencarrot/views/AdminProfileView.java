@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -17,6 +18,7 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.Optional;
 
@@ -26,7 +28,7 @@ import java.util.Optional;
 public class AdminProfileView extends AppCompatActivity {
     private String userId;
     private FirebaseFirestore db;
-
+    private ImageView profileImageView;
     private Button backBtn, deleteBtn;
     private TextView nameText, emailText, userTypeText, phoneNumberText;
     private UserRepository userRepository;
@@ -47,7 +49,28 @@ public class AdminProfileView extends AppCompatActivity {
         emailText = findViewById(R.id.profileEmailText);
         userTypeText = findViewById(R.id.profileUserTypeText);
         phoneNumberText = findViewById(R.id.profilePhoneNumber);
+        profileImageView = findViewById(R.id.adminProfileImageView);
+
         // use id to find user on firestore
+        loadProfileData();
+
+        // back button
+        backBtn = findViewById(R.id.adminViewProfileBackBtn);
+        backBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
+            startActivity(intent);
+        });
+
+        //delete button
+        deleteBtn = findViewById(R.id.deleteProfileBtn);
+        deleteBtn.setOnClickListener(view -> {
+            userRepository.deleteUser(userId);
+            Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
+            startActivity(intent);
+        });
+    }
+
+    private void loadProfileData() {
         db.collection("users")
                 .document(userId)
                 .get()
@@ -60,12 +83,13 @@ public class AdminProfileView extends AppCompatActivity {
                                     documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("administratorNotification"),
                                     documentSnapshot.getBoolean("organizerNotification"),
-                                    documentSnapshot.getString("userProfileImage")
+                                    documentSnapshot.getString("profileImage")
                             );
                             nameText.setText(currentUser.getName());
                             emailText.setText(currentUser.getEmail());
                             userTypeText.setText(currentUser.getUserType());
                             phoneNumberText.setText(currentUser.getPhoneNumber().get());
+                            loadProfileImage(currentUser.getProfileImage());
 
                         } catch (Exception e) {
 
@@ -74,29 +98,19 @@ public class AdminProfileView extends AppCompatActivity {
                         Log.e(TAG,"error getting current user");
                     }
                 });
-        // displaying user details
-        //usernameText.setText(currentUser.getUsername());
-        //emailText.setText(currentUser.getEmail());
+    }
+    private void loadProfileImage(String imageUrl){
+        Picasso.get().load(imageUrl)
+                .into(profileImageView, new com.squareup.picasso.Callback(){
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Profile image loaded successfully.");
+                    }
 
-        //back button
-        backBtn = findViewById(R.id.adminViewProfileBackBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
-                startActivity(intent);
-            }
-        });
-
-        //delete button
-        deleteBtn = findViewById(R.id.deleteProfileBtn);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                userRepository.deleteUser(userId);
-                Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
-                startActivity(intent);
-            }
-        });
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "Failed to load profile image", e);
+                    }
+                });
     }
 }

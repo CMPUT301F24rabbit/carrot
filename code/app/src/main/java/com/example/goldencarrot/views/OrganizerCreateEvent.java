@@ -23,6 +23,9 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.example.goldencarrot.data.db.EventRepository;
+import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +52,11 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private UserRepository userRepository;
     private String eventId;
 
+    private FirebaseFirestore db;
+    private UserImpl organizer;
+    private boolean geolocationIsEnabled;
+    private String organizerId, facilityName, location, email, phoneNumber, facilityDescription;
+
     /**
      * Called when the activity is created.
      * Initializes the UI components and sets up listeners for creating events and selecting posters.
@@ -62,6 +70,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventRepository = new EventRepository();
         userRepository = new UserRepository();
 
+        db = FirebaseFirestore.getInstance();
+ 
+
         eventNameEditText = findViewById(R.id.eventNameEditText);
         eventLocationEditText = findViewById(R.id.eventLocationEditText);
         eventDetailsEditText = findViewById(R.id.eventDetailsEditText);
@@ -71,6 +82,19 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         eventPosterImageView = findViewById(R.id.eventPosterImageView);
         createEventButton = findViewById(R.id.createEventButton);
         selectPosterButton = findViewById(R.id.selectPosterButton);
+        geolocation = findViewById(R.id.geolocation);
+
+        Button createEventButton = findViewById(R.id.createEventButton);
+        Button backButton = findViewById(R.id.backButtonFromCreateEvent);
+
+        // get facility details
+        getFacilityLocation();
+
+        // location default to facility location
+        eventLocationEditText.setText(location);
+
+        geolocation.toggle();
+        geolocation.setText("Enable geolocation:");
 
         geolocationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> geolocationIsEnabled = isChecked);
 
@@ -136,6 +160,20 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch poster URL", e));
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to upload poster for eventId: " + eventId, e));
+
+        });
+        organizerId = getDeviceId(OrganizerCreateEvent.this);
+
+        // Set onClickListener for the Create Event button
+        createEventButton.setOnClickListener(view -> {
+            createEvent();
+            Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+            startActivity(intent);
+        });
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+            startActivity(intent);
+        });
     }
 
     /**
@@ -195,6 +233,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         String organizerId = getDeviceId(OrganizerCreateEvent.this);
         Log.d(TAG, "Organizer ID: " + organizerId);
 
+        // Get the organizer user details
+ 
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
             public void onSuccess(UserImpl user) {
@@ -223,6 +263,8 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                     public void onSuccess(Event event) {
                         Toast.makeText(OrganizerCreateEvent.this, "Event created successfully", Toast.LENGTH_SHORT).show();
                         finish();
+                        Toast.makeText(OrganizerCreateEvent.this, "Successfully created event: " +
+                                event.getEventName(), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -263,3 +305,16 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         return organizerId;
     }
 }
+
+
+    private void getFacilityLocation() {
+        db.collection("users").document(organizerId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        location = documentSnapshot.getString("facilityLocation");
+                    }
+                });
+    }
+}
+ 
