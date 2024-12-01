@@ -34,7 +34,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -79,7 +78,7 @@ public class OrganizerHomeView extends AppCompatActivity {
 
 
         // Initialize the views from layout file
-        manageProfileButton = findViewById(R.id.button_manage_profile);
+        manageProfileButton = findViewById(R.id.manageFacilityProfileBtn);
         createEventButton = findViewById(R.id.button_create_event);
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
         sendAllNotifsBtn = findViewById(R.id.sendNotificationToAllEntrantsButton);
