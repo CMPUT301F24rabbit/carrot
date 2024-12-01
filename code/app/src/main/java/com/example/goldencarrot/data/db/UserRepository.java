@@ -168,8 +168,16 @@ public class UserRepository {
         DocumentReference userRef = db.collection("users").document(androidId);
 
         userRef.delete()
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "User deleted successfully"))
-                .addOnFailureListener(e -> Log.e(TAG, "Error deleting user: " + e.getMessage()));
+                .addOnSuccessListener(aVoid -> {
+                    // Successfully deleted the user
+                    Log.d(TAG, "User deleted successfully");
+                    System.out.println("User deleted successfully");
+                })
+                .addOnFailureListener(e -> {
+                    // Handle the error
+                    Log.e(TAG, "Error deleting user: " + e.getMessage(), e);
+                    System.err.println("Error deleting user: " + e.getMessage());
+                });
     }
 
     /**
@@ -179,15 +187,20 @@ public class UserRepository {
      */
     public void getAllUsersFromFirestore(FirestoreCallbackAllUsers callback) {
         userCollection = db.collection("users");
+        // get all documents, code from user TomH, downloaded 24/10/24:
+        // https://stackoverflow.com/questions/50727254/how-to-retrieve-all-documents-from-a-collection-in-firestore
         userCollection.get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        listOfUsers = task.getResult().getDocuments();
-                        callback.onSuccess(listOfUsers);
-                    } else {
-                        callback.onFailure(new Exception("No users found"));
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            listOfUsers = task.getResult().getDocuments();
+                            callback.onSuccess(listOfUsers);
+                        } else {
+                            callback.onFailure(new Exception("No users found"));
+                        }
                     }
-                });
+                    });
     }
 
     /**

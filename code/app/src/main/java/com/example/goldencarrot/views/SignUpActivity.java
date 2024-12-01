@@ -49,6 +49,12 @@ public class SignUpActivity extends AppCompatActivity {
 
     private UserRepository userDb;
 
+    /**
+     * Called when the activity is created. Sets up the UI elements, and the button listeners for the sign-up process.
+     * Initializes necessary services and handles input verification and user account creation.
+     *
+     * @param savedInstanceState The saved instance state if the activity is being re-initialized.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,14 +71,17 @@ public class SignUpActivity extends AppCompatActivity {
                 EditText email = findViewById(R.id.sign_up_email_input);
                 EditText phoneNumber = findViewById(R.id.sign_up_phone_number);
                 EditText name = findViewById(R.id.sign_up_name);
-                Boolean nAdmin = true;
-                Boolean nOrg = true;
+                Boolean nAdmin = true; // Admin status placeholder
+                Boolean nOrg = true;   // Organizer status placeholder
 
+                // Get device ID
                 String deviceId = Settings.Secure.getString(
                         SignUpActivity.this.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
 
+
                 try {
+                    // Verify user inputs before proceeding
                     verifyInputs(
                             email.getText().toString(),
                             phoneNumber.getText().toString(),
@@ -93,12 +102,23 @@ public class SignUpActivity extends AppCompatActivity {
                     });
 
                 } catch (Exception e) {
+                    // Show error message in case of invalid input
                     ValidationErrorDialog.show(SignUpActivity.this, "Validation Error", e.getMessage());
                 }
             }
         });
     }
-
+    /**
+     * Adds the new user to Firestore after validation.
+     *
+     * @param deviceId The unique device ID of the user's phone.
+     * @param name The name of the user.
+     * @param email The email address of the user.
+     * @param phoneNumber The phone number of the user (optional).
+     * @param nAdmin The admin status of the user.
+     * @param nOrg The organizer status of the user.
+     * @param defaultProfileUrl The default profile users get assigned
+     */
     private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber, Boolean nAdmin, Boolean nOrg, String defaultProfileUrl) {
         try {
             getLocation(location -> {
@@ -151,6 +171,12 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Validates the email format using Android's built-in pattern matcher.
+     *
+     * @param email The email address to validate.
+     * @return true if the email format is valid, false otherwise.
+     */
     private void verifyInputs(final String email, final String phoneNumber, final String name) throws Exception {
         if (TextUtils.isEmpty(email) || !isValidEmail(email)) {
             throw new Exception("Invalid email format");
