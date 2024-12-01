@@ -54,9 +54,10 @@ public class OrganizerHomeView extends AppCompatActivity {
     // Firestore
     private FirebaseFirestore firestore;
     private String deviceId;
+    private boolean facilityProfileExists;
     private List<Event> eventList = new ArrayList<>();
     private UserRepository userRepository;
-    NotificationRepository notifRepo;
+    private NotificationRepository notifRepo;
 
     /**
      * Called when the activity is created. Initializes Firestore, UI components, and loads user data.
@@ -102,6 +103,8 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Set user name
         loadUserData();
 
+        checkFacilityProfile(deviceId);
+
         // Set an OnClickListener for the button
         manageProfileButton.setOnClickListener(v -> {
             // Start ManageProfileActivity
@@ -111,9 +114,14 @@ public class OrganizerHomeView extends AppCompatActivity {
         });
 
         createEventButton.setOnClickListener(v -> {
-            Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
-            intent.putExtra("userId", deviceId);
-            startActivity(intent);
+            if (facilityProfileExists) {
+                Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
+                intent.putExtra("userId", deviceId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "To create an event, first create a facility profile!",
+                        Toast.LENGTH_SHORT).show();
+            }
         });
         sendAllNotifsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -257,5 +265,19 @@ public class OrganizerHomeView extends AppCompatActivity {
                 Toast.makeText(OrganizerHomeView.this, "Notification not added", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void checkFacilityProfile(String userId) {
+        firestore.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        if (documentSnapshot.getString("facilityName") != null) {
+                            facilityProfileExists = true;
+                        } else {
+                            facilityProfileExists = false;
+                        }
+                    } else {
+                        Log.e(TAG,"error getting current user");
+                    }
+                });
     }
 }

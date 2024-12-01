@@ -1,5 +1,7 @@
 package com.example.goldencarrot.views;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -153,14 +155,28 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 String location = snapshot.getString("location");
                 String date = snapshot.getString("date");
 
-                // Display event details on the UI
-                eventDetailsTextView.setText(String.format(
-                        "Event Name: %s\nEvent Details: %s\nLocation: %s\nDate: %s",
-                        eventName,
-                        eventDetails,
-                        location,
-                        date
-                ));
+
+                // get facility profile details
+                firestore.collection("users").document(snapshot.getString("organizerId"))
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                String facilityName = documentSnapshot.getString("facilityName");
+                                String contactInfo = documentSnapshot.getString("contactInfo");
+
+                                // Display event details on the UI
+                                eventDetailsTextView.setText(String.format(
+                                        "%s\nFacility: %s\nEvent Details: %s\nLocation: %s\nDate: %s\nContact Info:\n%s",
+                                        eventName,
+                                        facilityName,
+                                        eventDetails,
+                                        location,
+                                        date,
+                                        contactInfo
+                                ));
+                            }
+                        });
+
                 // Optionally, load an image for the event poster if available
             } else {
                 Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();

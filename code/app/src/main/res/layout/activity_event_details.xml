@@ -37,13 +37,22 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Facility Name -->
+            <TextView
+                android:id="@+id/event_DetailFacilityName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Facility"
+                android:textSize="16sp" />
+
             <!-- Event Date -->
             <TextView
                 android:id="@+id/event_DetailDateView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Date:"
+                android:text="Date"
                 android:textSize="16sp" />
 
             <!-- Event Location -->
@@ -70,13 +79,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Details:"
+                android:text="Details"
+                android:textSize="16sp" />
+            <!-- Contact Info -->
+            <TextView
+                android:id="@+id/event_DetailContactInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Contact Info"
                 android:textSize="16sp" />
 
             <ImageView
                 android:id="@+id/qrCodeImageView"
-                android:layout_width="400dp"
-                android:layout_height="400dp"
+                android:layout_width="350dp"
+                android:layout_height="350dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="visible" />
 
