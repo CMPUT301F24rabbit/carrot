@@ -76,7 +76,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ArrayList<Notification> notifications;
     private ActivityResultLauncher<String> resultLauncher;
     private NotificationPermissionRequester notificationPermissionRequester;
-
+    private boolean notificationPermission;
     /**
      * Called when the activity is first created. Initializes the UI components,
      * loads user data, and sets up event listeners.
@@ -90,11 +90,13 @@ public class EntrantHomeView extends AppCompatActivity {
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
                         // Permission Granted
+                        notificationPermission = true;
                         Toast.makeText(EntrantHomeView.this, "You will now receive notifications!", Toast.LENGTH_LONG).show();
                     } else {
                         // permission Denied
+                        notificationPermission = false;
                         Toast.makeText(EntrantHomeView.this, "You will not receive notifications", Toast.LENGTH_LONG).show();
-                        ;
+
                     }
                 });
 

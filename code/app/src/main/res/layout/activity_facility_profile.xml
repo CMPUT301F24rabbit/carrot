@@ -115,6 +115,9 @@
             android:layout_height="wrap_content"
             android:text="Save and Update Map"
             android:layout_marginTop="16dp" />
+            android:backgroundTint="@color/orange"
+            android:text="Save" />
+
     </LinearLayout>
 
 </ScrollView>
