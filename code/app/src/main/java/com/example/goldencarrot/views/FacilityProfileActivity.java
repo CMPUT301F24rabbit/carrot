@@ -1,6 +1,9 @@
 package com.example.goldencarrot.views;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -12,6 +15,8 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.R;
 import com.google.firebase.firestore.DocumentReference;
@@ -48,8 +53,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         contactInfoEditText = findViewById(R.id.contactInfoEditText);
         mapWebView = findViewById(R.id.mapWebView);
-        saveButton = findViewById(R.id.saveFacilityButton);
         backButton = findViewById(R.id.facilityProfileBackBtn);
+        saveButton = findViewById(R.id.saveFacilityButton);
         geolocationSwitch = findViewById(R.id.geolocationSwitch);
 
         // Get userId from Intent

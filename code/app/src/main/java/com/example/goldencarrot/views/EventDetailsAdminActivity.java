@@ -56,7 +56,7 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         waitListRepository = new WaitListRepository();
 
         // Initialize Views
-        eventPosterView = findViewById(R.id.event_DetailPosterView);
+        eventPosterView = findViewById(R.id.eventPosterImageView);
         eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
         eventDateView = findViewById(R.id.event_DetailDateView);
         eventLocationView = findViewById(R.id.event_DetailLocationView);

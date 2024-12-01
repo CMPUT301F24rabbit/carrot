@@ -318,7 +318,6 @@ public class EntrantHomeView extends AppCompatActivity {
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
 
-                        //
                         if (UserUtils.WAITING_STATUS.equals(status) || UserUtils.ACCEPTED_STATUS.equals(status) || UserUtils.CHOSEN_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
@@ -337,6 +336,29 @@ public class EntrantHomeView extends AppCompatActivity {
                                 event.setDate(eventDate);
 
                                 waitlistedEventsList.add(event);
+
+                                String eventPosterUrl = document.getString("posterUrl");
+
+                                if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                                    // Load the poster image using Picasso into the ImageView
+                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
+                                    eventPosterImageView.setVisibility(View.VISIBLE);  // Make the poster image visible
+                                    Picasso.get().load(eventPosterUrl).into(eventPosterImageView, new com.squareup.picasso.Callback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Log.d(TAG, "Event poster loaded successfully.");
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e) {
+                                            Log.e(TAG, "Failed to load event poster", e);
+                                        }
+                                    });
+                                } else {
+                                    // If no poster URL is available, hide the ImageView
+                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);  // Same here
+                                    eventPosterImageView.setVisibility(View.GONE);
+                                }
                             }
                         }
                     }
@@ -351,6 +373,7 @@ public class EntrantHomeView extends AppCompatActivity {
             }
         });
     }
+
     /**
      * Requests permission from user to enable notifications
      */
