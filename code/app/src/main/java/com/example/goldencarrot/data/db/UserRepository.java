@@ -202,26 +202,40 @@ public class UserRepository {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         try {
-                            UserImpl user = new UserImpl(documentSnapshot.getString("email"),
+                            // Parse user fields explicitly, including latitude and longitude
+                            UserImpl user = new UserImpl(
+                                    documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"),
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("adminNotification"),
                                     documentSnapshot.getBoolean("organizerNotification"),
-                                    documentSnapshot.getString("profileImage"));
+                                    documentSnapshot.getString("profileImage")
+                            );
+
+                            // Set latitude and longitude
+                            Double latitude = documentSnapshot.getDouble("latitude");
+                            Double longitude = documentSnapshot.getDouble("longitude");
+                            user.setLatitude(latitude);
+                            user.setLongitude(longitude);
+
+                            Log.d(TAG, "Fetched user: " + user.getName() + ", Latitude: " + latitude + ", Longitude: " + longitude);
                             callback.onSuccess(user);
                         } catch (Exception e) {
                             Log.e(TAG, "Error parsing user document", e);
+                            callback.onFailure(e);
                         }
                     } else {
+                        Log.e(TAG, "User document not found");
                         callback.onFailure(new Exception("User not found"));
                     }
                 })
                 .addOnFailureListener(e -> {
-                    callback.onFailure(e);
                     Log.e(TAG, "Error fetching user: " + e.getMessage());
+                    callback.onFailure(e);
                 });
     }
+
 
     /**
      * Callback interface for querying for a single user.
