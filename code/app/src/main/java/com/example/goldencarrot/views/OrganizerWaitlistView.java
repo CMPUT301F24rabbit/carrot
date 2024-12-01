@@ -118,6 +118,15 @@ public class OrganizerWaitlistView extends AppCompatActivity {
             }
         });
 
+        Button mapViewButton = findViewById(R.id.mapViewButton);
+        mapViewButton.setOnClickListener(v -> {
+            // Create intent to launch MapViewActivity
+            Intent intent = new Intent(OrganizerWaitlistView.this, MapViewActivity.class);
+            intent.putExtra("waitlistId", waitlistId); // Pass waitlistId to fetch locations
+            startActivity(intent);
+        });
+
+
         waitlistedUserListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
