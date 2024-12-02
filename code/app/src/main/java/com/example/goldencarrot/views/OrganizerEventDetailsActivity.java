@@ -200,7 +200,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                         .setView(numberInput) // Add the EditText to the dialog
                         .setPositiveButton("OK", (dialog, which) -> {
                             String input = numberInput.getText().toString();
-                            if (!input.isEmpty()) {
+                            if (!input.isEmpty() && Integer.parseInt(input) != 0) {
                                 try {
                                     int pickedNumberToSample = Integer.parseInt(input);
                                     Log.d("LotteryPicker", "Picked number: "
@@ -213,7 +213,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                                     Log.e("LotteryPicker", "Invalid number entered");
                                 }
                             } else {
-                                Log.e("LotteryPicker", "No number entered");
+                                Toast.makeText(OrganizerEventDetailsActivity.this, "No " +
+                                        "number entered", Toast.LENGTH_SHORT).show();
+                                Log.e("LotteryPicker", "Invalid Number entered, lottery " +
+                                        "number has to be greater than 0");
                             }
                             openEntrantHomeView();
                         })
