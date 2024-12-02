@@ -7,23 +7,47 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+/**
+ * Activity that allows the user to scan a QR code and navigate to the details of an event.
+ * The QR code is expected to contain a URL with an event ID. Upon successful scan,
+ * the event details screen is displayed using the extracted event ID.
+ */
 public class QrCodeScannerActivity extends AppCompatActivity {
 
+    /**
+     * Called when the activity is created. Starts the QR scanner to allow the user
+     * to scan a QR code.
+     *
+     * @param savedInstanceState the saved instance state for the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startQrScanner();
     }
 
-    // Start the QR scanner
+    /**
+     * Starts the QR scanner using the {@link IntentIntegrator} to initiate a scan.
+     */
     private void startQrScanner() {
         new IntentIntegrator(this).initiateScan();
     }
 
-    // Handle the result of the QR scan
+    /**
+     * Handles the result of the QR scan. If the scanned content is a valid URL that
+     * starts with "golden carrot://eventDetails", the event ID is extracted and used
+     * to navigate to the {@link EntrantEventDetailsActivity}.
+     *
+     * If the QR code does not contain a valid event ID, a toast message is shown.
+     *
+     * @param requestCode the request code associated with the activity result
+     * @param resultCode the result code of the activity
+     * @param data the data returned from the activity
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

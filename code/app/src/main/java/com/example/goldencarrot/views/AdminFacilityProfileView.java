@@ -28,15 +28,24 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Activity that allows an admin to view and manage a facility profile.
+ * Includes functionality to load facility data, and delete the facility profile along with its associated events.
+ */
 public class AdminFacilityProfileView extends AppCompatActivity {
 
     private TextView nameText, locationText, descriptionText,
-    contactInfoText;
+            contactInfoText;
     private Button backButton, deleteButton;
     private String organizerId;
     private FirebaseFirestore db;
     private EventRepository eventRepo;
 
+    /**
+     * Called when the activity is created. Initializes the view and sets up event listeners.
+     *
+     * @param savedInstanceState the saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +69,7 @@ public class AdminFacilityProfileView extends AppCompatActivity {
             intent.putExtra("currentUserId", organizerId);
             startActivity(intent);
         });
+
         deleteButton = findViewById(R.id.adminDeleteFacilityBtn);
         deleteButton.setOnClickListener(view -> {
             deleteFacilityProfile();
@@ -68,9 +78,11 @@ public class AdminFacilityProfileView extends AppCompatActivity {
             intent.putExtra("currentUserId", organizerId);
             startActivity(intent);
         });
-
     }
 
+    /**
+     * Loads the facility data from Firestore and populates the views with the data.
+     */
     private void loadFacilityData() {
         db.collection("users").document(organizerId)
                 .get()
@@ -85,6 +97,11 @@ public class AdminFacilityProfileView extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * Deletes the facility profile from Firestore, including its associated fields (name, location, description, contact info).
+     * Also changes the user type to "PARTICIPANT".
+     */
     private void deleteFacilityProfile() {
         DocumentReference userSnapshot = db.collection("users").document(organizerId);
         Map<String,Object> facilityProfileDelete = new HashMap<>();
@@ -101,10 +118,15 @@ public class AdminFacilityProfileView extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         });
     }
+
+    /**
+     * Deletes all events associated with the facility, based on the organizer's ID.
+     * The events are removed from the "events" collection in Firestore.
+     */
     private void deleteFacilityEvents() {
         db.collection("events")
                 .get()
-                .addOnCompleteListener( task -> {
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         QuerySnapshot allEvents = task.getResult();
                         // delete all events created from facility

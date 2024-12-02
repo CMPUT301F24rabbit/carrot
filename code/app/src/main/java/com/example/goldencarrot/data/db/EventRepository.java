@@ -137,6 +137,16 @@ public class EventRepository {
                         event.setWaitListId(documentSnapshot.getString("waitlistId"));
                         event.setOrganizerId(documentSnapshot.getString("organizerId"));
 
+
+                        // Handle poster URL or default to a placeholder
+                        String posterUrl = documentSnapshot.getString("posterUrl");
+                        if (posterUrl != null && !posterUrl.isEmpty()) {
+                            event.setPosterUrl(posterUrl);
+                        } else {
+                            // Set a default placeholder image URL
+                            event.setPosterUrl("drawable/poster_placeholder");
+                        }
+
                         // checks if geolocation is enabled
                         event.setGeolocationEnabled(Boolean.TRUE.equals(documentSnapshot.getBoolean("isGeolocationEnabled")));
                         callback.onSuccess(event);

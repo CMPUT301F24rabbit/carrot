@@ -1,5 +1,6 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -64,15 +65,6 @@
                 android:text="Location"
                 android:textSize="16sp" />
 
-            <!-- Event Time -->
-            <TextView
-                android:id="@+id/event_DetailTimeView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Time"
-                android:textSize="16sp" />
-
             <!-- Event Details -->
             <TextView
                 android:id="@+id/event_DetailDetailsView"
@@ -113,12 +105,21 @@
         <!-- Generate QR Code Button -->
         <Button
             android:id="@+id/generateQRCodeButton"
-            android:layout_width="wrap_content"
+            android:layout_width="106dp"
             android:layout_height="wrap_content"
-            android:text="Generate QR Code"
-            android:backgroundTint="@color/orange"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="QR Code" />
+
+        <Button
+            android:id="@+id/UploadEventPoster"
+            android:layout_width="106dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="Upload Poster" />
 
         <Button
             android:id="@+id/deleteQRCodeButton"
@@ -133,12 +134,12 @@
         <!-- Select Lottery Users Button -->
         <Button
             android:id="@+id/button_SelectLotteryUsers"
-            android:layout_width="wrap_content"
+            android:layout_width="106dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
-            android:text="Select Users for Lottery"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="Lottery" />
 
     </LinearLayout>
 

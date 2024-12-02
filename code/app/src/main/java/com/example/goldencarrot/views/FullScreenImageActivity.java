@@ -22,12 +22,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+ /**
+ * Activity that displays a poster image in full-screen mode and allows the user to delete it.
+ *
+ * <p> This activity allows users to view a poster image in full-screen, go back to the poster gallery,
+ * and delete the image from Firebase Storage. When the image is deleted successfully, the poster gallery
+ * is updated, and the list of poster URLs is passed back to the AdminHomeActivity.
+ */
 public class FullScreenImageActivity extends AppCompatActivity {
 
     private ImageView fullScreenImageView;
     private Button backButton, deleteButton;
     private String imageUrl;
 
+    /**
+     * Called when the activity is created.
+     *
+     * <p> This method initializes the UI components, retrieves the image URL passed through the intent,
+     * loads the image into the ImageView, and sets up the back and delete buttons' functionality.
+     *
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +72,14 @@ public class FullScreenImageActivity extends AppCompatActivity {
         // Set up the delete button
         deleteButton.setOnClickListener(v -> deletePoster());
     }
+
+    /**
+     * Deletes the poster image from Firebase Storage and updates the list of posters.
+     *
+     * <p> This method attempts to decode the image URL, extract the image name, and delete the corresponding
+     * image file from Firebase Storage. Upon successful deletion, the updated poster list is fetched and passed
+     * to the AdminHomeActivity.
+     */
     private void deletePoster() {
         @SuppressLint({"NewApi", "LocalSuppress"})
         String decodedUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8);
@@ -82,6 +105,14 @@ public class FullScreenImageActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Retrieves the updated list of poster URLs from Firebase Storage.
+     *
+     * <p> This method fetches the list of posters stored in Firebase Storage, retrieves their download URLs,
+     * and adds them to a list. Once all URLs are retrieved, the list is passed to the AdminHomeActivity.
+     *
+     * @return A list of updated poster URLs.
+     */
     private List<String> getUpdatedPosterList() {
         // Placeholder for logic to fetch updated poster list from Firebase Storage or Firestore
         List<String> updatedList = new ArrayList<>();
@@ -109,6 +140,11 @@ public class FullScreenImageActivity extends AppCompatActivity {
         return updatedList;
     }
 
+    /**
+     * Redirects to the AdminHomeActivity and passes the updated list of poster URLs.
+     *
+     * @param posterUrls The updated list of poster URLs to pass to the AdminHomeActivity.
+     */
     private void redirectToAdminHomeActivity(List<String> posterUrls) {
         // Intent to navigate to AdminHomeActivity and pass the updated list of posters (if needed)
         Intent intent = new Intent(FullScreenImageActivity.this, AdminHomeActivity.class);
