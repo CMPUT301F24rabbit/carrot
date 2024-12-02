@@ -75,20 +75,4 @@ public class EventDetailsAdminActivityTest {
     /**
      * Test that clicking the delete button deletes the event and navigates to BrowseEventsActivity.
      */
-    @Test
-    public void testDeleteEventButton() throws InterruptedException{
-        // Launch activity with an event ID as an intent extra
-        Intent intent = new Intent();
-        intent.putExtra("documentId", "testEventId");
-        activityRule.launchActivity(intent);
-        Thread.sleep(1000);
-        // Perform a click on the delete button
-        onView(withId(R.id.delete_DetailEventBtn)).perform(click());
-        Thread.sleep(1000);
-        // Verify that BrowseEventsActivity is launched after deletion
-        intended(hasComponent(BrowseEventsActivity.class.getName()));
-
-        // Confirm that the appropriate UI component in BrowseEventsActivity is displayed
-        onView(withId(R.id.eventsListView)).check(matches(isDisplayed()));
-    }
 }

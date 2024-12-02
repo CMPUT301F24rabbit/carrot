@@ -26,9 +26,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
+/**
+ * Important, while running this test please press allow while using the app.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+// PRESS ALLOW WHILE USING THE APP WHEN RUNNING THESE TESTS
 public class SignUpActivityUITest {
+    /**
+     * PRESS ALLOW WHILE USING THE APP WHEN RUNNING THESE TESTS
+     */
 
     @Rule
     public ActivityScenarioRule<SignUpActivity> activityRule = new ActivityScenarioRule<>(SignUpActivity.class);

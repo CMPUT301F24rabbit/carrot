@@ -3,12 +3,14 @@ package com.example.goldencarrot;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import com.example.goldencarrot.views.EntrantHomeView;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
@@ -23,8 +25,12 @@ import static org.hamcrest.Matchers.not;
  * EntrantHomeViewTest will test if the EntrantHomeView will open up all its navagatability
  * by clicking all the buttons
  */
+// PRESS ALLOW WHEN RUNNING THESE TESTS [IMPORTANT!]
 @RunWith(AndroidJUnit4.class)
+// PRESS  ALLOW WHEN RUNNING THESE TESTS [IMPORTANT!]
 public class EntrantHomeViewTest {
+    // PRESS ALLOW WHEN RUNNING THESE TESTS [IMPORTANT!]
+
     @Rule
     // Make a new scenario to test in
     public ActivityScenarioRule<EntrantHomeView> activityScenarioRule = new ActivityScenarioRule<>(EntrantHomeView.class);
@@ -98,10 +104,16 @@ public class EntrantHomeViewTest {
         // Step 1: Navigate to EditUserDetailsView
         onView(withId(R.id.entrant_home_view_image_view)).perform(longClick());
 
-        // Step 2: Enter new profile information
-        onView(withId(R.id.edit_user_details_name)).perform(typeText("Updated Name"));
-        onView(withId(R.id.edit_user_details_email_input)).perform(typeText("updatedemail@example.com"));
-        onView(withId(R.id.edit_user_details_phone_number)).perform(typeText("1234567890"));
+        // Clear the fields and then type in the new values
+        onView(withId(R.id.edit_user_details_name))
+                .perform(clearText(), typeText("Updated Name"));
+
+        onView(withId(R.id.edit_user_details_email_input))
+                .perform(clearText(), typeText("updatedemail@example.com"));
+
+        onView(withId(R.id.edit_user_details_phone_number))
+                .perform(clearText(), typeText("1234567890"));
+
 
         // Close the keyboard
         onView(withId(R.id.edit_user_details_phone_number)).perform(ViewActions.closeSoftKeyboard());

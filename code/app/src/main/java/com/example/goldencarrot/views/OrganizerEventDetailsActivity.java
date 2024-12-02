@@ -213,8 +213,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                                     Log.e("LotteryPicker", "Invalid number entered");
                                 }
                             } else {
-                                Toast.makeText(OrganizerEventDetailsActivity.this, "No " +
-                                        "number entered", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(OrganizerEventDetailsActivity.this, "Invalid " +
+                                        "number entered, lottery number has to be " +
+                                        "greater than 0.", Toast.LENGTH_SHORT).show();
                                 Log.e("LotteryPicker", "Invalid Number entered, lottery " +
                                         "number has to be greater than 0");
                             }
