@@ -38,6 +38,7 @@ import com.example.goldencarrot.data.model.notification.NotificationPermissionRe
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -46,11 +47,15 @@ import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This class handles all the features and interactions for the Entrant's home screen.
@@ -93,6 +98,15 @@ public class EntrantHomeView extends AppCompatActivity {
         ConstraintLayout rootLayout = findViewById(R.id.root_layout);
         rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
+        // Initialize the views from layout file
+        profileImageView = findViewById(R.id.entrant_home_view_image_view);
+        usernameTextView = findViewById(R.id.entrant_home_view_user_name);
+        upcomingEventsListView = findViewById(R.id.upcoming_events);
+        waitlistedEventsListView = findViewById(R.id.waitlisted_events);
+        exploreEventsButton = findViewById(R.id.button_explore_events);
+        notificationsButton = findViewById(R.id.notifications_button);
+        waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
+
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
@@ -120,18 +134,6 @@ public class EntrantHomeView extends AppCompatActivity {
         }
         notificationPermissionRequester.requestNotificationPermission();
 
-        // Set user name
-        loadUserData();
-
-        // Initialize the views from layout file
-        profileImageView = findViewById(R.id.entrant_home_view_image_view);
-        usernameTextView = findViewById(R.id.entrant_home_view_user_name);
-        upcomingEventsListView = findViewById(R.id.upcoming_events);
-        waitlistedEventsListView = findViewById(R.id.waitlisted_events);
-        exploreEventsButton = findViewById(R.id.button_explore_events);
-        notificationsButton = findViewById(R.id.notifications_button);
-        waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
-
         // Event lists and adapter Initialization
         upcomingEventsList = new ArrayList<>();
         waitlistedEventsList = new ArrayList<>();
@@ -142,6 +144,9 @@ public class EntrantHomeView extends AppCompatActivity {
         // Set adapters to listview
         upcomingEventsListView.setAdapter(upcomingEventsAdapter);
         waitlistedEventsListView.setAdapter(waitlistedEventsAdapter);
+
+        // Set user name
+        loadUserData();
 
         // Open WaitlistActivity
         setListenersForWaitlistActivity(waitlistedEventsListView, waitlistedEventsTitle, WaitlistActivity.class);
@@ -311,48 +316,111 @@ public class EntrantHomeView extends AppCompatActivity {
     private void loadEventData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
         Log.d("EntrantHomeView", "DeviceID: " + deviceId);
+
         // Load the first 4 waitlisted events from Firestore
-        CollectionReference waitlistRef = firestore.collection("waitlist");
-        waitlistRef.get().addOnCompleteListener(task -> {
+        Set<String> processedEventIds = new HashSet<>(); // Track them because for some reason
+        // THEY ARE ADDING DOUBLE
+        waitlistedEventsList.clear();
+
+        firestore.collection("waitlist").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                waitlistedEventsList.clear(); // Clears the existing list
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    // Check if device id is in the user map with waiting status
-                    Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
-                    if (usersMap != null && usersMap.containsKey(deviceId)) {
-                        String status = (String) usersMap.get(deviceId);
-                        if (UserUtils.WAITING_STATUS.equals(status)) {
-                            // Get event details and add it to the list
-                            String eventName = document.getString("eventName");
-                            String location = document.getString("location");
-                            String details = document.getString("details");
-                            Date eventDate = document.getDate("date");
-                            String posterUrl = document.getString("posterUrl");
-                            if (eventName != null) {
-                                Log.d("EntrantHomeView", "Adding event: " + eventName);
-                                // Create event object and add it to the list
-                                Event event = new Event(new UserImpl());
-                                event.setEventName(eventName);
-                                event.setLocation(location);
-                                event.setEventDetails(details);
-                                event.setDate(eventDate);
-                                event.setPosterUrl(posterUrl);
-
-                                Log.d("loadEventData", "Poster URL for event " + eventName + ": " + posterUrl);
-
-
-                                waitlistedEventsList.add(event);
-                            }
-                        }
-                    }
+                for (QueryDocumentSnapshot waitlistDoc : task.getResult()) {
+                    processWaitlistDocument(waitlistDoc, deviceId, processedEventIds);
                 }
-                Log.d("EntrantHomeView", "Total waitlisted events for user: " + waitlistedEventsList.size());
-                // Notify data has changed
-                waitlistedEventsAdapter.notifyDataSetChanged();
             } else {
                 Log.e("EntrantHomeView", "Error loading waitlisted events", task.getException());
             }
         });
+    }
+
+    private void processWaitlistDocument(QueryDocumentSnapshot waitlistDoc, String deviceId, Set<String> processedEventIds) {
+        // Check if device id is in the user map with waiting status
+        Map<String, Object> usersMap = (Map<String, Object>) waitlistDoc.get("users");
+
+        if (usersMap != null && usersMap.containsKey(deviceId)) {
+            String status = (String) usersMap.get(deviceId);
+
+            if (UserUtils.WAITING_STATUS.equals(status)) {
+                // Get EVENT ID!!!!!!!!!!!!!!!!!!!!!!!!!!
+                String eventId = waitlistDoc.getString("eventId");
+
+                if (eventId != null && processedEventIds.add(eventId)) {
+                    fetchEventDetails(eventId);
+                } else {
+                Log.d("loadEventData", "User is in a waitlist for evenId: " + eventId);
+                }
+            }
+        }
+    }
+
+    private void fetchEventDetails(String eventId) {
+        // GET DEM EVENT DETAILS!!!!!
+        firestore.collection("events").document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    if (eventDoc.exists()) {
+                        Event event = getEventDetailsFromDoc(eventDoc);
+                        if (event != null && !isEventDuplicate(event)) {
+                            // Only add if not already in the list
+                            waitlistedEventsList.add(event);
+                            waitlistedEventsAdapter.notifyDataSetChanged();
+                            Log.d("fetchEventDetails", "Event added: " + event.getEventName());
+                        } else {
+                            Log.d("fetchEventDetials", "Duplicate event ignored: " + event.getEventName());
+                        }
+                    } else {
+                        Log.e("fetchEventDetaisl", "Event document does not exist for event Id: " + eventId);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("fetchEventDetaisl", "Error fetching event detils", e));
+    }
+
+    private boolean isEventDuplicate(Event event) {
+        // Check if event already exists in the list
+        for(Event existingEvent : waitlistedEventsList) {
+            if(existingEvent.getEventName().equals(event.getEventName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Event getEventDetailsFromDoc(DocumentSnapshot eventDoc) {
+        try {
+            String eventName = eventDoc.getString("eventName");
+            String location = eventDoc.getString("location");
+            String details = eventDoc.getString("details");
+            String posterUrl = eventDoc.getString("posterUrl");
+
+
+            Date eventDate = datesMakeMeCry(eventDoc.get("date"));
+
+            Event event = new Event(new UserImpl());
+            event.setEventName(eventName);
+            event.setLocation(location);
+            event.setEventDetails(details);
+            event.setDate(eventDate);
+            event.setPosterUrl(posterUrl);
+
+            Log.d("getEventDetailsFromDoc", "Got details of event: " + eventName);
+            return event;
+        } catch (Exception e) {
+            Log.e("getEventDetialsFromDoc", "Failed to get details of efent: ", e);
+            return null;
+        }
+    }
+
+    private Date datesMakeMeCry(Object rawDate) {
+
+        if (rawDate instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) rawDate).toDate();
+        } else if (rawDate instanceof String) {
+            try {
+                return new SimpleDateFormat("dd-MM-yyyy", Locale.US).parse((String) rawDate);
+            } catch (Exception e) {
+                Log.e("loadEventData", "Failed to parse date string", e);
+            }
+        }
+        return null;
     }
 
     /**
