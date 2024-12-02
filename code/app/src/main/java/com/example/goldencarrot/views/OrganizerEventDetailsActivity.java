@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
@@ -41,6 +42,8 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -62,6 +65,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private WaitListRepository waitListRepository;
     private WaitListController waitListController;
     private WaitList waitList;
+    private static final int UPDATE_POSTER_REQUEST = 2;
+    private Uri newPosterUri;
+
 
     // UI Components
     private ImageView eventPosterView;
@@ -71,7 +77,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private Button selectLotteryButton;
     private ImageView qrCodeImageView;
     private Button generateQRCodeButton;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,6 +111,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // QR code button and image view
         qrCodeImageView = findViewById(R.id.qrCodeImageView);
         generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
+        Button updatePosterButton = findViewById(R.id.UploadEventPoster);
+        updatePosterButton.setOnClickListener(v -> selectNewPosterImage());
+
 
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
@@ -199,6 +207,43 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             }
         });
     }
+    private void selectNewPosterImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, UPDATE_POSTER_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_POSTER_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            newPosterUri = data.getData();
+            eventPosterView.setImageURI(newPosterUri); // Update the preview
+            uploadUpdatedPoster();
+        }
+    }
+    private void uploadUpdatedPoster() {
+        if (newPosterUri == null || eventId == null) {
+            Toast.makeText(this, "No poster selected or event ID is missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String newPosterPath = "posters/" + eventId + "_updated_poster.jpg";
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference(newPosterPath);
+
+        storageRef.putFile(newPosterUri)
+                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String updatedPosterUrl = uri.toString();
+
+                    // Update the Firestore document
+                    firestore.collection("events").document(eventId)
+                            .update("posterUrl", updatedPosterUrl)
+                            .addOnSuccessListener(aVoid -> Toast.makeText(this, "Poster updated successfully!", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Toast.makeText(this, "Failed to update poster in Firestore.", Toast.LENGTH_SHORT).show());
+                }))
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to upload poster.", Toast.LENGTH_SHORT).show());
+    }
+
+
 
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
