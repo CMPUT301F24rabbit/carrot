@@ -119,8 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save and Update Map"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+            android:layout_marginTop="16dp"></Button>
 
         <!-- Back Button -->
         <Button
@@ -128,8 +127,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Back"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+            android:layout_marginTop="16dp"></Button>
 
     </LinearLayout>
 

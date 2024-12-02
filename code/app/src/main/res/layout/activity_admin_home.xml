@@ -45,7 +45,6 @@
                 android:id="@+id/adminAllEventsButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/orange"
                 android:text="Events"
                 android:visibility="visible"
                 android:layout_gravity="center_horizontal" />
@@ -82,7 +81,6 @@
                 android:id="@+id/adminAllUsersButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/orange"
                 android:text="Users"
                 android:layout_gravity="center_horizontal" />
 
@@ -118,7 +116,6 @@
                 android:id="@+id/adminAllImagesButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/orange"
                 android:text="Images"
                 android:visibility="visible"
                 android:layout_gravity="center_horizontal" />

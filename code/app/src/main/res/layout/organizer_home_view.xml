@@ -15,9 +15,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
-        android:background="#91FFFFFF"
+        android:background="#8DFFFFFF"
         android:backgroundTintMode="add"
         android:text="Welcome back "
+        android:textColor="@color/black"
         android:textSize="38sp"
         android:textStyle="bold" />
 
@@ -26,9 +27,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:background="#8DFFFFFF"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:background="#91FFFFFF"
         tools:text="poop" />
 
     <!-- Recycle view  for the events!!! -->
@@ -37,7 +39,6 @@
         android:id="@+id/manageFacilityProfileBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/orange"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="32dp"
         android:text="Manage Facility"
@@ -59,7 +60,6 @@
         android:id="@+id/button_create_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/orange"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="32dp"
@@ -68,7 +68,6 @@
     <Button
         android:id="@+id/sendNotificationToAllEntrantsButton"
         android:layout_width="wrap_content"
-        android:backgroundTint="@color/orange"
         android:layout_height="wrap_content"
         android:text="Send To All" />
 
