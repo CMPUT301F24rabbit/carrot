@@ -60,7 +60,6 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         eventNameTitleView = findViewById(R.id.event_DetailNameTitleView);
         eventDateView = findViewById(R.id.event_DetailDateView);
         eventLocationView = findViewById(R.id.event_DetailLocationView);
-        eventTimeView = findViewById(R.id.event_DetailTimeView);
         eventDetailsView = findViewById(R.id.event_DetailDetailsView);
         facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
         facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
@@ -245,6 +244,11 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+    /**
+     * Gets information of the facility that organized the event.
+     * @param organizerId to associate id with facility
+     */
     private void getFacilityInfo(String organizerId) {
         firestore.collection("users").document(organizerId)
                 .get()

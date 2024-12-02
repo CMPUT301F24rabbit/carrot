@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.WaitListController;
@@ -22,6 +23,8 @@ import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.controller.RanBackground;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -44,6 +47,10 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_notifications_view);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         // Initialize the NotificationRepository to fetch notifications from Firestore
         notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());

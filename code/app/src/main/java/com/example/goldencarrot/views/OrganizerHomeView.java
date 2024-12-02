@@ -36,7 +36,6 @@ import com.google.firebase.storage.StorageReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -81,7 +80,7 @@ public class OrganizerHomeView extends AppCompatActivity {
 
 
         // Initialize the views from layout file
-        manageProfileButton = findViewById(R.id.button_manage_profile);
+        manageProfileButton = findViewById(R.id.manageFacilityProfileBtn);
         createEventButton = findViewById(R.id.button_create_event);
         usernameTextView = findViewById(R.id.organizer_user_name_textView);
         sendAllNotifsBtn = findViewById(R.id.sendNotificationToAllEntrantsButton);
@@ -100,10 +99,6 @@ public class OrganizerHomeView extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(eventAdapter);
-
-        // Set user name
-        loadUserData();
-
         // Set an OnClickListener for the button
         manageProfileButton.setOnClickListener(v -> {
             // Start ManageProfileActivity
@@ -115,13 +110,67 @@ public class OrganizerHomeView extends AppCompatActivity {
         createEventButton.setOnClickListener(v -> {
             createEvent();
         });
-        sendAllNotifsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendAllEntrantsNotification();
-            }
-        });
+        sendAllNotifsBtn.setOnClickListener(view -> sendAllEntrantsNotification());
+
+        // Set user name
+        loadUserData();
+
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchEventData(); // Refresh event data when returning to the activity
+    }
+
+    private void fetchEventData() {
+        firestore.collection("events").whereEqualTo("organizerId", deviceId)
+                .get().addOnSuccessListener(querySnapshot -> {
+                    eventList.clear();
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        String eventId = document.getId();
+                        String eventName = document.getString("eventName");
+                        String location = document.getString("location");
+                        String eventDetails = document.getString("eventDetails");
+                        String dateString = document.getString("date");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+
+                        try {
+                            Date eventDate = dateFormat.parse(dateString);
+                            Event event = new Event(null, eventName, location, eventDate, eventDetails, R.drawable.poster_placeholder);
+                            event.setEventId(eventId);
+                            loadPoster(event, eventId);
+                            eventList.add(event);
+                        } catch (ParseException e) {
+                            Log.e(TAG, "Date parsing error: " + e.getMessage(), e);
+                        }
+                    }
+                    eventAdapter.notifyDataSetChanged();
+                }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading events", e);
+                    Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
+                });
+    }
+    private void loadPoster(Event event, String eventId) {
+        String posterPath = "posters/" + eventId + "_poster.jpg";
+        String updatedPosterPath = "posters/" + eventId + "_updated_poster.jpg";
+        StorageReference updatedPosterRef = FirebaseStorage.getInstance().getReference(updatedPosterPath);
+
+        updatedPosterRef.getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    event.setPosterUrl(uri.toString());
+                    eventAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    StorageReference posterRef = FirebaseStorage.getInstance().getReference(posterPath);
+                    posterRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                event.setPosterUrl(uri.toString());
+                                eventAdapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e1 -> Log.w(TAG, "Failed to fetch poster URL", e1));
+                });
+    }
+
 
     /**
      * Loads user data from Firestore based on the device ID.
@@ -187,7 +236,8 @@ public class OrganizerHomeView extends AppCompatActivity {
                         String location = document.getString("location");
                         String eventDetails = document.getString("eventDetails");
                         String dateString = document.getString("date");
-                        String posterPath = "posters/" + eventId + "_poster.jpg"; // Firebase Storage path for the poster
+                        String posterPath = "posters/" + eventId + "_poster.jpg"; // Firebase Storage path for the original poster
+                        String updatedPosterPath = "posters/" + eventId + "_updated_poster.jpg"; // Firebase Storage path for the updated poster
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
                         try {
@@ -195,12 +245,23 @@ public class OrganizerHomeView extends AppCompatActivity {
                             Event event = new Event(organizer, eventName, location, eventDate, eventDetails, R.drawable.poster_placeholder);
                             event.setEventId(eventId);
 
-                            // Fetch the poster URL
-                            StorageReference posterRef = FirebaseStorage.getInstance().getReference(posterPath);
-                            posterRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                event.setPosterUrl(uri.toString());
-                                eventAdapter.notifyDataSetChanged(); // Notify adapter of the changes
-                            }).addOnFailureListener(e -> Log.w(TAG, "Failed to fetch poster URL for event: " + eventName, e));
+                            // Try fetching the updated poster URL first
+                            StorageReference updatedPosterRef = FirebaseStorage.getInstance().getReference(updatedPosterPath);
+                            updatedPosterRef.getDownloadUrl()
+                                    .addOnSuccessListener(uri -> {
+                                        event.setPosterUrl(uri.toString());
+                                        eventAdapter.notifyDataSetChanged(); // Notify adapter of the changes
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        // If the updated poster doesn't exist, fall back to the original one
+                                        StorageReference posterRef = FirebaseStorage.getInstance().getReference(posterPath);
+                                        posterRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                            event.setPosterUrl(uri.toString());
+                                            eventAdapter.notifyDataSetChanged(); // Notify adapter of the changes
+                                        }).addOnFailureListener(e1 -> {
+                                            Log.w(TAG, "Failed to fetch poster URL for event: " + eventName, e1);
+                                        });
+                                    });
 
                             eventList.add(event);
                         } catch (ParseException e) {
@@ -215,6 +276,7 @@ public class OrganizerHomeView extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     /**
      * Retrieves the Android device ID.
@@ -262,6 +324,7 @@ public class OrganizerHomeView extends AppCompatActivity {
             }
         });
     }
+
 
     private void createEvent() {
         firestore.collection("users").document(deviceId).get()

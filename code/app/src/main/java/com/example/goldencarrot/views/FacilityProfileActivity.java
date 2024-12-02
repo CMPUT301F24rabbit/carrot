@@ -28,7 +28,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Activity class for managing the facility profile.
+ * Allows the user to view, edit, and update facility information such as name, location, contact details, and description.
+ * Also enables toggling of geolocation settings and displays the facility location on a map.
+ */
 public class FacilityProfileActivity extends AppCompatActivity {
+
     private static final String TAG = "FacilityProfileActivity";
 
     private EditText nameEditText, locationEditText, descriptionEditText, contactInfoEditText;
@@ -39,6 +45,13 @@ public class FacilityProfileActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String userId;
 
+    /**
+     * Initializes the activity and sets up UI components.
+     * Fetches the user ID from the intent and loads the corresponding facility profile.
+     * Sets up listeners for the save and back buttons.
+     *
+     * @param savedInstanceState Bundle object containing the previous activity's state (if any).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +66,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         contactInfoEditText = findViewById(R.id.contactInfoEditText);
         mapWebView = findViewById(R.id.mapWebView);
-        saveButton = findViewById(R.id.saveButton);
         backButton = findViewById(R.id.facilityProfileBackBtn);
+        saveButton = findViewById(R.id.saveFacilityButton);
         geolocationSwitch = findViewById(R.id.geolocationSwitch);
 
         // Get userId from Intent
@@ -79,6 +92,10 @@ public class FacilityProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the facility profile data from Firestore and populates the UI fields.
+     * Fetches the facility name, location, description, contact info, and geolocation settings.
+     */
     private void loadFacilityProfile() {
         DocumentReference docRef = firestore.collection("users").document(userId);
         docRef.get()
@@ -111,6 +128,10 @@ public class FacilityProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Saves the updated facility profile data to Firestore.
+     * This includes the facility name, location, contact info, description, and geolocation settings.
+     */
     private void saveFacilityProfile() {
         String facilityName = nameEditText.getText().toString().trim();
         String location = locationEditText.getText().toString().trim();
@@ -136,7 +157,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
                     saveLocationCoordinates(location);
 
                     // Close the activity and return to the previous screen
-                    finish();
+                    Intent intent = new Intent(FacilityProfileActivity.this, OrganizerHomeView.class);
+                    startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating facility profile", e);
@@ -144,6 +166,12 @@ public class FacilityProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Updates the map WebView with the facility location by using the location's latitude and longitude.
+     * The map is fetched from OpenStreetMap.
+     *
+     * @param location The address of the facility.
+     */
     private void updateMapWithLocation(String location) {
         mapWebView.getSettings().setJavaScriptEnabled(true);
 
@@ -166,6 +194,12 @@ public class FacilityProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Saves the latitude and longitude coordinates of the location to Firestore.
+     * This method is called when the facility profile is updated.
+     *
+     * @param location The address of the facility to retrieve coordinates for.
+     */
     private void saveLocationCoordinates(String location) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -190,4 +224,3 @@ public class FacilityProfileActivity extends AppCompatActivity {
     }
 
 }
-
