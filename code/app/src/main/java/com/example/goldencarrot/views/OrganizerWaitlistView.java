@@ -290,5 +290,4 @@ public class OrganizerWaitlistView extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
 }
