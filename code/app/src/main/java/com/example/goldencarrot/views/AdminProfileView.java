@@ -29,7 +29,7 @@ public class AdminProfileView extends AppCompatActivity {
     private String userId;
     private FirebaseFirestore db;
     private ImageView profileImageView;
-    private Button backBtn, deleteBtn;
+    private Button backBtn, deleteBtn, facilityProfileBtn;
     private TextView nameText, emailText, userTypeText, phoneNumberText;
     private UserRepository userRepository;
 
@@ -51,6 +51,8 @@ public class AdminProfileView extends AppCompatActivity {
         phoneNumberText = findViewById(R.id.profilePhoneNumber);
         profileImageView = findViewById(R.id.adminProfileImageView);
 
+        facilityProfileBtn = findViewById(R.id.viewFacilityProfileBtn);
+
         // use id to find user on firestore
         loadProfileData();
 
@@ -66,6 +68,12 @@ public class AdminProfileView extends AppCompatActivity {
         deleteBtn.setOnClickListener(view -> {
             userRepository.deleteUser(userId);
             Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
+            startActivity(intent);
+        });
+        // facility profile button
+        facilityProfileBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(AdminProfileView.this, AdminFacilityProfileView.class);
+            intent.putExtra("userId", userId);
             startActivity(intent);
         });
     }
@@ -90,6 +98,13 @@ public class AdminProfileView extends AppCompatActivity {
                             userTypeText.setText(currentUser.getUserType());
                             phoneNumberText.setText(currentUser.getPhoneNumber().get());
                             loadProfileImage(currentUser.getProfileImage());
+
+                            // hide facility buttons if not organizer, or organizer with no facility profile
+                            if (documentSnapshot.getString("userType").equals("PARTICIPANT") ||
+                                    documentSnapshot.getString("userType").equals("ADMIN") ||
+                                    documentSnapshot.getString("facilityName") == null) {
+                                facilityProfileBtn.setVisibility(View.GONE);
+                            }
 
                         } catch (Exception e) {
 

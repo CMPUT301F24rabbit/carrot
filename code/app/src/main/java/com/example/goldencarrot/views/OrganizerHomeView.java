@@ -30,6 +30,8 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +56,6 @@ public class OrganizerHomeView extends AppCompatActivity {
     // Firestore
     private FirebaseFirestore firestore;
     private String deviceId;
-    private boolean facilityProfileExists;
     private List<Event> eventList = new ArrayList<>();
     private UserRepository userRepository;
     private NotificationRepository notifRepo;
@@ -103,8 +104,6 @@ public class OrganizerHomeView extends AppCompatActivity {
         // Set user name
         loadUserData();
 
-        checkFacilityProfile(deviceId);
-
         // Set an OnClickListener for the button
         manageProfileButton.setOnClickListener(v -> {
             // Start ManageProfileActivity
@@ -114,14 +113,7 @@ public class OrganizerHomeView extends AppCompatActivity {
         });
 
         createEventButton.setOnClickListener(v -> {
-            if (facilityProfileExists) {
-                Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
-                intent.putExtra("userId", deviceId);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "To create an event, first create a facility profile!",
-                        Toast.LENGTH_SHORT).show();
-            }
+            createEvent();
         });
         sendAllNotifsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,8 +179,7 @@ public class OrganizerHomeView extends AppCompatActivity {
     private void loadEventsForOrganizer(UserImpl organizer) {
         firestore.collection("events").whereEqualTo("organizerId", deviceId)
                 .get().addOnSuccessListener(querySnapshot -> {
-                    // Clear previous events (if necessary)
-                    // eventList.clear();
+                    eventList.clear(); // Clear the list to avoid duplicates
 
                     for (QueryDocumentSnapshot document : querySnapshot) {
                         String eventId = document.getId();
@@ -196,23 +187,28 @@ public class OrganizerHomeView extends AppCompatActivity {
                         String location = document.getString("location");
                         String eventDetails = document.getString("eventDetails");
                         String dateString = document.getString("date");
-                        int imageResId = document.contains("imageResId") ? document.getLong("imageResId").intValue() : R.drawable.default_poster;
-
-                        // Turning date into Date object
+                        String posterPath = "posters/" + eventId + "_poster.jpg"; // Firebase Storage path for the poster
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+
                         try {
                             Date eventDate = dateFormat.parse(dateString);
-                            Event event = new Event(organizer, eventName, location, eventDate, eventDetails, imageResId);
+                            Event event = new Event(organizer, eventName, location, eventDate, eventDetails, R.drawable.poster_placeholder);
                             event.setEventId(eventId);
+
+                            // Fetch the poster URL
+                            StorageReference posterRef = FirebaseStorage.getInstance().getReference(posterPath);
+                            posterRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                event.setPosterUrl(uri.toString());
+                                eventAdapter.notifyDataSetChanged(); // Notify adapter of the changes
+                            }).addOnFailureListener(e -> Log.w(TAG, "Failed to fetch poster URL for event: " + eventName, e));
+
                             eventList.add(event);
                         } catch (ParseException e) {
-                            Log.e("OrganizerHomeview", "Date parsing error: " + e.getMessage(), e);
+                            Log.e(TAG, "Date parsing error: " + e.getMessage(), e);
                         }
                     }
 
-                    eventAdapter.notifyDataSetChanged();
-                    recyclerView.setAdapter(eventAdapter);
-
+                    eventAdapter.notifyDataSetChanged(); // Notify adapter of the updates
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error loading events for organizer", e);
@@ -266,14 +262,18 @@ public class OrganizerHomeView extends AppCompatActivity {
             }
         });
     }
-    private void checkFacilityProfile(String userId) {
-        firestore.collection("users").document(userId).get()
+
+    private void createEvent() {
+        firestore.collection("users").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         if (documentSnapshot.getString("facilityName") != null) {
-                            facilityProfileExists = true;
+                            Intent intent = new Intent(OrganizerHomeView.this, OrganizerCreateEvent.class);
+                            intent.putExtra("userId", deviceId);
+                            startActivity(intent);
                         } else {
-                            facilityProfileExists = false;
+                            Toast.makeText(this, "To create an event, first create a facility profile!",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.e(TAG,"error getting current user");

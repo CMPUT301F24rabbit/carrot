@@ -33,7 +33,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
 
     private EditText nameEditText, locationEditText, descriptionEditText, contactInfoEditText;
     private WebView mapWebView;
-    private Button saveButton;
+    private Button saveButton, backButton;
     private Switch geolocationSwitch;
 
     private FirebaseFirestore firestore;
@@ -54,6 +54,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
         contactInfoEditText = findViewById(R.id.contactInfoEditText);
         mapWebView = findViewById(R.id.mapWebView);
         saveButton = findViewById(R.id.saveButton);
+        backButton = findViewById(R.id.facilityProfileBackBtn);
         geolocationSwitch = findViewById(R.id.geolocationSwitch);
 
         // Get userId from Intent
@@ -72,6 +73,10 @@ public class FacilityProfileActivity extends AppCompatActivity {
 
         // Save button functionality
         saveButton.setOnClickListener(view -> saveFacilityProfile());
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(FacilityProfileActivity.this, OrganizerHomeView.class);
+            startActivity(intent);
+        });
     }
 
     private void loadFacilityProfile() {
