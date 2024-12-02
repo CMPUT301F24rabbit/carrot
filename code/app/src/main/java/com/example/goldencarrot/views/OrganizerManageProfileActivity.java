@@ -17,6 +17,5 @@ public class OrganizerManageProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_profile);
 
-        // You can add logic here to manage profile details
     }
 }

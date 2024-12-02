@@ -1,49 +1,57 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
     <!-- Event Poster -->
     <ImageView
-        android:id="@+id/entrant_eventPosterImageView"
+        android:id="@+id/eventPosterView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:contentDescription="Event Poster"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp" />
 
     <!-- Event Details -->
     <TextView
         android:id="@+id/entrant_eventDetailsTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/entrant_eventPosterImageView"
+        android:layout_below="@id/eventPosterView"
         android:layout_marginTop="16dp"
         android:text="Event Details"
-        android:textSize="18sp" />
-
-    <!-- Back Button -->
-    <Button
-        android:id="@+id/entrant_backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        android:textColor="@android:color/white"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"/>
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:background="#CCFFFFFF"
+        android:textColor="#000000" />
 
     <!-- Join Waitlist Button -->
     <Button
         android:id="@+id/entrant_join_waitlist_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/entrant_eventDetailsTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="14dp"
-        android:layout_marginTop="393dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Join Waitinglist" />
+        android:backgroundTint="@color/orange"
+        android:text="Join Waitinglist"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/entrant_backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/orange"
+        android:text="Back"
+        android:textColor="@android:color/white"
+        android:padding="10dp" />
 
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package com.example.goldencarrot.data.model.event;
 
 import android.content.Context;
+import android.nfc.Tag;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 /**
  * Adapter to populate a ListView or GridView with event data, including dynamic poster loading.
@@ -79,16 +81,39 @@ public class EventArrayAdapter extends android.widget.ArrayAdapter<Event> {
             eventDate.setText(formattedDate);
 
             eventDetails.setText(event.getEventDetails());
+            Log.d("EventArrayAdapter", "Event Name: " + event.getEventName());
+            Log.d("EventArrayAdapter", "Event Location: " + event.getLocation());
+            Log.d("EventArrayAdapter", "Event Date: " + formattedDate);
+            Log.d("EventArrayAdapter", "Event Details: " + event.getEventDetails());
+            Log.d("EventArrayAdapter", "Event Poster URL: " + event.getPosterUrl());
 
-            // Load event poster dynamically using Glide
-            String posterUrl = event.getPosterUrl(); // Fetch poster URL
-            if (posterUrl != null && !posterUrl.isEmpty()) {
-                Glide.with(context)
-                        .load(posterUrl)
+
+            // Load event poster
+            String eventPosterUrl = event.getPosterUrl(); // Fetch poster URL
+            if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                Log.d("EventArrayAdapter", "Loading poster for event: " + event.getEventName() + " | URL: " + eventPosterUrl);
+                Picasso.get()
+                        .load(eventPosterUrl)
                         .placeholder(R.drawable.poster_placeholder) // Placeholder while loading
                         .error(R.drawable.poster_error) // Error image if loading fails
-                        .into(eventImage);
+                        .into(eventImage, new com.squareup.picasso.Callback(){
+                            @Override
+                            public void onSuccess() {
+                                Log.d("EventArrayAdpter", "Successfully loaded poster for event: " + event.getEventName());
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("EventArrayAdapter", "Failed to load poster for event: " + event.getEventName(), e);
+                            }
+                        });
+            } else {
+                // Log missing poster URL
+                Log.e("EventArrayAdapter", "Poster URL is missing or empty for event: " + event.getEventName());
+                eventImage.setImageResource(R.drawable.movie);
             }
+        } else {
+            Log.e("EventArrayAdapter", "Event is null at position: " + position);
         }
 
         return view;

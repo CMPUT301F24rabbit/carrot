@@ -14,11 +14,21 @@ import com.example.goldencarrot.views.PosterAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity for displaying a gallery of posters in a grid layout.
+ * The posters are shown using a RecyclerView with a grid layout manager.
+ */
 public class AdminPosterGalleryActivity extends AppCompatActivity {
     private RecyclerView posterRecyclerView;
     private PosterAdapter posterAdapter;
     private List<String> posterUrls;
 
+    /**
+     * Called when the activity is created. Initializes the RecyclerView and adapter,
+     * and loads the poster URLs passed via the Intent.
+     *
+     * @param savedInstanceState the saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,5 +48,4 @@ public class AdminPosterGalleryActivity extends AppCompatActivity {
         posterAdapter = new PosterAdapter(this, posterUrls);
         posterRecyclerView.setAdapter(posterAdapter);
     }
-
 }

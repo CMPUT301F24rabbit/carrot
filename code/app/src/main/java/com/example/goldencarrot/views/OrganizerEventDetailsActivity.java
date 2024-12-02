@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
@@ -41,6 +42,8 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -62,17 +65,25 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private WaitListRepository waitListRepository;
     private WaitListController waitListController;
     private WaitList waitList;
+    private static final int UPDATE_POSTER_REQUEST = 2;
+    private Uri newPosterUri;
+
 
     // UI Components
     private ImageView eventPosterView;
-    private TextView eventNameTextView, eventDateTextView, eventLocationTextView, eventTimeTextView,
+    private TextView eventNameTextView, eventDateTextView, eventLocationTextView,
             eventDetailsTextView, facilityNameTextView, facilityContactInfoTextView;
     private PopupWindow entrantsPopup;
     private Button selectLotteryButton;
     private ImageView qrCodeImageView;
     private Button generateQRCodeButton;
 
-
+    /**
+     * This method is triggered when the activity is created.
+     * It initializes the UI components, sets up Firestore and EventRepository,
+     * and retrieves the event ID to load the event details.
+     * It also sets up listeners for various buttons and actions in the UI.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +108,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventNameTextView = findViewById(R.id.event_DetailNameTitleView);
         eventDateTextView = findViewById(R.id.event_DetailDateView);
         eventLocationTextView = findViewById(R.id.event_DetailLocationView);
-        eventTimeTextView = findViewById(R.id.event_DetailTimeView);
         eventDetailsTextView = findViewById(R.id.event_DetailDetailsView);
         facilityNameTextView = findViewById(R.id.event_DetailFacilityName);
         facilityContactInfoTextView = findViewById(R.id.event_DetailContactInfo);
@@ -107,6 +117,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         // QR code button and image view
         qrCodeImageView = findViewById(R.id.qrCodeImageView);
         generateQRCodeButton = findViewById(R.id.generateQRCodeButton);
+        Button updatePosterButton = findViewById(R.id.UploadEventPoster);
+        updatePosterButton.setOnClickListener(v -> selectNewPosterImage());
+
 
         // Set up back button
         Button backButton = findViewById(R.id.back_DetailButton);
@@ -200,11 +213,89 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             }
         });
     }
+    /**
+     * This method allows the organizer to select a new event poster image.
+     * It opens the file picker to choose an image from the device storage.
+     */
+    private void selectNewPosterImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, UPDATE_POSTER_REQUEST);
+    }
 
+    /**
+     * This method handles the result of the image selection activity.
+     * It updates the preview of the event poster and uploads the selected poster to Firebase Storage.
+     *
+     * @param requestCode The request code used to identify the activity result.
+     * @param resultCode The result code indicating the success or failure of the activity.
+     * @param data The data containing the URI of the selected image.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_POSTER_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            newPosterUri = data.getData();
+            eventPosterView.setImageURI(newPosterUri); // Update the preview
+            uploadUpdatedPoster();
+        }
+    }
+
+    /**
+     * This method uploads the selected event poster to Firebase Storage.
+     * It deletes the old poster from storage and uploads the new one, updating the Firestore event document with the new poster URL.
+     */
+    private void uploadUpdatedPoster() {
+        if (newPosterUri == null || eventId == null) {
+            Toast.makeText(this, "No poster selected or event ID is missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Define paths
+        String oldPosterPath = "posters/" + eventId + "_poster.jpg"; // Old poster path
+        String newPosterPath = "posters/" + eventId + "_updated_poster.jpg"; // New poster path
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference oldPosterRef = storageRef.child(oldPosterPath);
+        StorageReference newPosterRef = storageRef.child(newPosterPath);
+
+        // Delete old poster
+        oldPosterRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("PosterUpdate", "Old poster deleted successfully.");
+        }).addOnFailureListener(e -> {
+            Log.w("PosterUpdate", "Old poster not found or couldn't be deleted.", e);
+        });
+
+        // Upload new poster
+        newPosterRef.putFile(newPosterUri)
+                .addOnSuccessListener(taskSnapshot -> newPosterRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String updatedPosterUrl = uri.toString();
+
+                    // Update Firestore document with new poster URL
+                    firestore.collection("events").document(eventId)
+                            .update("posterUrl", updatedPosterUrl)
+                            .addOnSuccessListener(aVoid -> Toast.makeText(this, "Poster updated successfully!", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Toast.makeText(this, "Failed to update poster in Firestore.", Toast.LENGTH_SHORT).show());
+                }))
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to upload new poster.", Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * This method retrieves the device ID of the current device.
+     *
+     * @param context The context of the current activity.
+     * @return The device ID as a string.
+     */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * This method loads the event details from Firestore based on the provided event ID.
+     * It listens for changes to the event document and updates the UI accordingly.
+     *
+     * @param eventId The ID of the event to load.
+     */
     private void loadEventDetails(String eventId) {
         DocumentReference eventRef = firestore.collection("events").document(eventId);
         listenerRegistration = eventRef.addSnapshotListener((snapshot, e) -> {
@@ -221,14 +312,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     String eventDetails = snapshot.getString("eventDetails");
                     String location = snapshot.getString("location");
                     String date = snapshot.getString("date");
-                    String time = snapshot.getString("time");
                     String posterUrl = snapshot.getString("posterUrl"); // Retrieve the poster URL
 
                     getFacilityInfo(organizerId);
                     eventNameTextView.setText(eventName);
                     eventDateTextView.setText("Date: " + date);
                     eventLocationTextView.setText("Location: " + location);
-                    eventTimeTextView.setText("Time: " + time);
                     eventDetailsTextView.setText(eventDetails);
 
                     // Load the poster image from Firebase Storage using Glide
@@ -236,7 +325,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                         Glide.with(this)
                                 .load(posterUrl)
                                 .placeholder(R.drawable.poster_placeholder) // Default placeholder image
-                                .error(R.drawable.poster_placeholder) // Error placeholder
+                                .error(R.drawable.poster_error) // Error placeholder
                                 .into(eventPosterView);
                     } else {
                         eventPosterView.setImageResource(R.drawable.poster_placeholder);
@@ -261,8 +350,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Please create an event first or ensure it has an ID", Toast.LENGTH_SHORT).show();
             return;
         }
-
-
 
         // Check if a QR code for this event already exists
         firestore.collection("QRData")
@@ -289,6 +376,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * This method creates and saves a new QR code for the event.
+     * It generates a unique QR code content, stores it in Firestore, and then displays it.
+     *
+     * @param firestore The Firestore instance used for saving the QR data.
+     */
     private void createAndSaveQRCode(FirebaseFirestore firestore) {
         // Generate new QR content
         String qrContent = "goldencarrot://eventDetails?eventId=" + eventId;
@@ -310,6 +403,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * This method displays the generated QR code in the QR Code ImageView.
+     *
+     * @param qrContent The content of the QR code to display.
+     */
     private void displayQRCode(String qrContent) {
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
@@ -320,6 +418,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method fetches and displays the QR code for the event from Firestore if it exists.
+     * If no QR code is found, it notifies the user and allows them to generate a new one.
+     */
     private void fetchAndDisplayQRCode() {
         if (eventId == null) {
             Toast.makeText(this, "No event ID provided.", Toast.LENGTH_SHORT).show();
@@ -350,7 +452,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * This method shows a popup with buttons for viewing the different types of entrants for the event.
+     * It provides options to view waitlisted, chosen, declined, and accepted entrants.
+     */
     private void showEntrantsPopup() {
         View popupView = LayoutInflater.from(this).inflate(R.layout.popup_event_lists, null);
 
@@ -368,6 +473,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         acceptedButton.setOnClickListener(v -> openEntrantsView(UserUtils.ACCEPTED_STATUS));
     }
 
+    /**
+     * This method opens a new activity to view the entrants of a specific status.
+     * It passes the status (e.g., WAITING, CHOSEN) and the event ID to the next screen.
+     *
+     * @param status The status of entrants to be displayed (e.g., WAITING, CHOSEN).
+     */
     private void openEntrantsView(String status) {
         Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistView.class);
         intent.putExtra("entrantStatus", status);
@@ -376,12 +487,21 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * This method opens the entrant home view activity for the organizer.
+     */
     private void openEntrantHomeView(){
         Intent intent = new Intent(OrganizerEventDetailsActivity.this,
                 OrganizerHomeView.class);
         startActivity(intent);
     }
 
+    /**
+     * This method selects random winners from the waitlist for the event based on the specified count.
+     * It updates the status of the selected winners and updates the waitlist in the database.
+     *
+     * @param count The number of random winners to select.
+     */
     private void selectLottery(int count){
         try {
             // select random winners from waitlist object
@@ -397,6 +517,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     "Not enough users in the waiting list", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /**
+     *This method gets the information about facility profile
+     * @param organizerId The organizer ID of user who created with facility profile
+     */
     private void getFacilityInfo(String organizerId) {
         firestore.collection("users").document(organizerId)
                 .get()

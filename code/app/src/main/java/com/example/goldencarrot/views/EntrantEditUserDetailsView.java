@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
@@ -29,7 +30,7 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
-import com.example.goldencarrot.views.EntrantHomeView;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.views.ValidationErrorDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,6 +77,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_edit_user_details);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         // Validate User and deviceID
         String deviceId = getDeviceId(this);
@@ -249,6 +254,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sends the Image from user to firebase
+     * @param imageUri the url of image generated from user
+     */
     private void sendImagetoFB (Uri imageUri){
         // Get reference to 'profile' folder
         String userId = getDeviceId(this);
@@ -272,7 +281,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
-    // Checks if an image URL is a generic profile picture
+    /**
+     * Checks if image url is generic profile picture
+     */
     private boolean isGenericImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) return false;
 
@@ -284,6 +295,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         return decodedUrl.contains("/profile/generic/");
     }
 
+    /**
+     * saves user details to firebase
+     */
     private void  saveUserDetailsToFS() {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
@@ -380,6 +394,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retrieves url of generic profile picture
+     * @param name username to determine what profile picture to assign
+     */
     private String getGenericProfilePictureURL(String name) {
         // Ensure name isn't empty/null
         if (TextUtils.isEmpty(name)) {
@@ -498,6 +516,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /**
+     * On removal of uploaded profile picture set it to generic profile picture
+     */
     private void resetToGeneric() {
         String name = nameInput.getText().toString().trim();
 
@@ -517,6 +538,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    /**
+     * deterministically generates profile picture based on name of user
+     * @param name to see what profile picture to assign
+     */
     private void fetchDefaultProfilePictureUrl(String name, OnProfilePictureFetched callback) {
         if (TextUtils.isEmpty(name)) {
             Log.e(TAG, "Name cannot be empty for assigning a profile picture.");
