@@ -1,8 +1,9 @@
 package com.example.goldencarrot;
 
 import com.example.goldencarrot.data.model.user.FacilityUserImpl;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public class FacilityUserImplTest {
 
     private FacilityUserImpl facilityUser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // Initialize a FacilityUserImpl object with test data
         facilityUser = new FacilityUserImpl(
