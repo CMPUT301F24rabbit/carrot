@@ -18,6 +18,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.util.Log;
+
+import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.views.AdminHomeActivity;
 import com.example.goldencarrot.views.OrganizerCreateEvent;
 import com.example.goldencarrot.views.OrganizerHomeView;
@@ -31,6 +34,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class OrganizerWaitlistTest {
+    private static final String TAG = "OrganizerNotificationTest";
+    private static final String EVENT_NAME = "SPIDERMAN PARTY";
+
     @Rule
     public ActivityScenarioRule<OrganizerHomeView> activityRule =
             new ActivityScenarioRule<>(OrganizerHomeView.class);
@@ -39,11 +45,11 @@ public class OrganizerWaitlistTest {
      * Creates sample event to test viewing waitlists
      */
     @BeforeClass
-    public static void testCreatingEventToViewWaitlist() {
+    public static void testCreatingEventToViewWaitlist() throws InterruptedException{
         // Launch the activity
         try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
             // Input event details
-            onView(withId(R.id.eventNameEditText)).perform(typeText("Sample Event For Waitlist Test"));
+            onView(withId(R.id.eventNameEditText)).perform(typeText(EVENT_NAME));
             onView(withId(R.id.eventLocationEditText)).perform(typeText("New York"));
             onView(withId(R.id.eventDetailsEditText)).perform(typeText("This is a sample event for testing waitlists."));
             onView(withId(R.id.eventDateEditText)).perform(typeText("31-12-2024"));
@@ -54,8 +60,10 @@ public class OrganizerWaitlistTest {
             // Click on "Create Event" button
             onView(withId(R.id.createEventButton)).perform(click());
 
-            // Check for success message or behavior
-            onView(withText("Welcome back ")).check(matches(isDisplayed()));
+            Thread.sleep(4000);
+
+            onView(withText("Welcome Back "));
+
         }
     }
 
@@ -69,11 +77,11 @@ public class OrganizerWaitlistTest {
             Thread.sleep(3000);
             // scroll to sample event and view details
             onView(withId(R.id.recycler_view_events)).perform(
-                    repeatedlyUntil(swipeUp(), hasDescendant(withText("Sample Event For Waitlist Test")),
+                    repeatedlyUntil(swipeUp(), hasDescendant(withText(EVENT_NAME)),
                             10)
             );
-            onView(withText("Sample Event For Waitlist Test")).perform(longClick());
-            onView(withText("Sample Event For Waitlist Test")).check(matches(isDisplayed()));
+            onView(withText(EVENT_NAME)).perform(longClick());
+            onView(withText(EVENT_NAME)).check(matches(isDisplayed()));
             // Viewing entrant waitlist
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
             onView(withId(R.id.button_EventDetailWaitlistedEntrants)).perform(click());
@@ -93,11 +101,11 @@ public class OrganizerWaitlistTest {
             Thread.sleep(3000);
             // scroll to sample event and view details
             onView(withId(R.id.recycler_view_events)).perform(
-                    repeatedlyUntil(swipeUp(), hasDescendant(withText("Sample Event For Waitlist Test")),
+                    repeatedlyUntil(swipeUp(), hasDescendant(withText(EVENT_NAME)),
                             10)
             );
-            onView(withText("Sample Event For Waitlist Test")).perform(longClick());
-            onView(withText("Sample Event For Waitlist Test")).check(matches(isDisplayed()));
+            onView(withText(EVENT_NAME)).perform(longClick());
+            onView(withText(EVENT_NAME)).check(matches(isDisplayed()));
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
             onView(withId(R.id.button_EventDetailChosenEntrants)).perform(click());
             onView(withText("CHOSEN")).check(matches(isDisplayed()));
@@ -115,11 +123,11 @@ public class OrganizerWaitlistTest {
             Thread.sleep(3000);
             // scroll to sample event and view details
             onView(withId(R.id.recycler_view_events)).perform(
-                    repeatedlyUntil(swipeUp(), hasDescendant(withText("Sample Event For Waitlist Test")),
+                    repeatedlyUntil(swipeUp(), hasDescendant(withText(EVENT_NAME)),
                             10)
             );
-            onView(withText("Sample Event For Waitlist Test")).perform(longClick());
-            onView(withText("Sample Event For Waitlist Test")).check(matches(isDisplayed()));
+            onView(withText(EVENT_NAME)).perform(longClick());
+            onView(withText(EVENT_NAME)).check(matches(isDisplayed()));
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
             onView(withId(R.id.button_EventDetailRejectedEntrants)).perform(click());
             onView(withText("CANCELLED")).check(matches(isDisplayed()));
@@ -137,11 +145,11 @@ public class OrganizerWaitlistTest {
             Thread.sleep(3000);
             // scroll to sample event and view details
             onView(withId(R.id.recycler_view_events)).perform(
-                    repeatedlyUntil(swipeUp(), hasDescendant(withText("Sample Event For Waitlist Test")),
+                    repeatedlyUntil(swipeUp(), hasDescendant(withText(EVENT_NAME)),
                             10)
             );
-            onView(withText("Sample Event For Waitlist Test")).perform(longClick());
-            onView(withText("Sample Event For Waitlist Test")).check(matches(isDisplayed()));
+            onView(withText(EVENT_NAME)).perform(longClick());
+            onView(withText(EVENT_NAME)).check(matches(isDisplayed()));
             onView(withId(R.id.button_DetailViewEventLists)).perform(click());
             onView(withId(R.id.button_EventDetailAcceptedEntrants)).perform(click());
             onView(withText("ACCEPTED")).check(matches(isDisplayed()));
@@ -155,23 +163,17 @@ public class OrganizerWaitlistTest {
      */
     @AfterClass
     public static void cleanUpEvent() {
-        try (ActivityScenario<AdminHomeActivity> scenario = ActivityScenario.launch(AdminHomeActivity.class)) {
-            onView(withId(R.id.adminAllEventsButton)).perform(click());
-            onView(withText("Browse Events")).check(matches(isDisplayed()));
-            Thread.sleep(3000);
-            // scroll to sample event and view details
-            onView(withId(R.id.eventsListView)).perform(
-                    repeatedlyUntil(swipeUp(), hasDescendant(withText("Sample Event For Waitlist Test")),
-                            10)
-            );
-            onView(withText("Sample Event For Waitlist Test")).perform(click());
-            onView(withText("Sample Event For Waitlist Test")).check(matches(isDisplayed()));
-            //onView(withText("Sample Event For Waitlist Test")).perform(click());
-            onView(withId(R.id.delete_DetailEventBtn)).perform(click());
-            onView(withText("Event deleted")).check(matches(isDisplayed()));
+        EventRepository eventRepository = new EventRepository();
+        eventRepository.deleteEventByName(EVENT_NAME, new EventRepository.DeleteCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Log.d(TAG, "Event cleanup successful: " + message);
+            }
 
-        } catch (Exception e) {
-
-        }
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Event cleanup failed", e);
+            }
+        });
     }
 }

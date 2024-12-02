@@ -20,6 +20,7 @@
         android:id="@+id/button_EventDetailChosenEntrants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/orange"
         android:text="Chosen Participants"
         android:layout_marginBottom="8dp"
         />

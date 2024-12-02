@@ -24,21 +24,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.CircleTransform;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.controller.RanBackground;
-import com.example.goldencarrot.views.ValidationErrorDialog;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
 import com.yalantis.ucrop.UCrop;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 import java.io.File;
 import java.util.Optional;
@@ -179,9 +176,16 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
                 originalProfileImage = userProfileImage;
 
-                Picasso.get().load(userProfileImage)
-                        .error(R.drawable.profilepic1)
-                        .into(profileImage);
+                if(!isGenericImage(userProfileImage)) {
+                    Picasso.get().load(userProfileImage)
+                            .transform(new CircleTransform())
+                            .error(R.drawable.profilepic1)
+                            .into(profileImage);
+                } else {
+                    Picasso.get().load(userProfileImage)
+                            .error(R.drawable.profilepic1)
+                            .into(profileImage);
+                }
             }
 
             @Override
@@ -191,6 +195,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sets up a listener for a long-press on the profile picture, enabling the user to edit it
+     */
     private void editProfilePictureListener() {
         profileImage.setOnLongClickListener(v -> {
             showProfilePicturePopup();
@@ -198,6 +205,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Configures the activity result launcher for handling image selection and cropping
+     */
     private void setupActivityResultLauncher(){
         openGallery = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -227,6 +237,17 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         );
     }
 
+    /**
+     * Handles the result of the image selecting and cropping
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -237,6 +258,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
             if(croppedImageUri != null) {
                 // Set to the Image View and upload to FB
+                Picasso.get()
+                                .load(croppedImageUri)
+                                .transform(new CircleTransform())
+                                .into(profileImage);
                 Log.d("UCROP", "Cropped Image  URI: " + croppedImageUri.toString());
                 profileImage.setImageURI(croppedImageUri);
                 sendImagetoFB(croppedImageUri);
@@ -255,7 +280,7 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     }
 
     /**
-     * Sends the Image from user to firebase
+     * Sends the Image from user to firebase storage and updates user's profile image
      * @param imageUri the url of image generated from user
      */
     private void sendImagetoFB (Uri imageUri){
@@ -282,7 +307,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     }
 
     /**
-     * Checks if image url is generic profile picture
+     * Checks whether the current profile image is determanistically generated
+     * @param imageUrl The URL of the profile image
+     * @return True if the image is generic, false otherwise
      */
     private boolean isGenericImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) return false;
@@ -361,6 +388,12 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Helps to save the user data to Firestore, creating or updating the user document
+     * @param name The users name
+     * @param email The users email
+     * @param phoneNumber The users phone number
+     */
     private void saveUserToFirestoreHelper(String name, String email, String phoneNumber) {
         try {
             Optional<String> optionalPhoneNumber = phoneNumber.isEmpty() ? Optional.empty() : Optional.of(phoneNumber);
@@ -395,8 +428,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     }
 
     /**
-     * Retrieves url of generic profile picture
+     * Retrieves a determanistically generated profile picture based on the users name
      * @param name username to determine what profile picture to assign
+     * @return The default profile picture URL
      */
     private String getGenericProfilePictureURL(String name) {
         // Ensure name isn't empty/null
@@ -410,15 +444,25 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
                 + firstLetter + ".png?alt=media";
     }
 
+    /**
+     * Interface forhandling the callback when a default profile picture URL is fetched.
+     */
     private interface OnProfilePictureFetched {
         void onSuccess(String url);
     }
 
+    /**
+     * Configures save button to save user's details when clicked.
+     */
     private void setupSaveButton() {
         Button saveButton = findViewById(R.id.edit_user_details_save_button);
         saveButton.setOnClickListener(v -> saveUserDetailsToFS());
     }
 
+    /**
+     * Updates the users profile image URL in Firestore
+     * @param imageURL The new profile image URL
+     */
     private void updateFirestoreImageURL(String imageURL) {
         if(TextUtils.isEmpty(imageURL)){
             Log.e(TAG,  "Cannot update Firestore withan empty image URL.");
@@ -478,6 +522,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * Displays dialog with options to remove or upload a new profile picture
+     */
     private void showProfilePicturePopup() {
         // Alert Dialogue
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -508,6 +555,9 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
     }
 
+    /**
+     * Clean up the resources when activity is destroyed
+     */
     @Override
     protected void onDestroy() {
         if(profilePictureDialogue != null && profilePictureDialogue.isShowing()) {
@@ -567,6 +617,11 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Load image into an ImageView, falling back to determanistically generated if fails toload
+     * @param imageUrl Image URL we are loading
+     * @param imageView ImageView to display the image in
+     */
     private void loadImageWithFallback(String imageUrl, ImageView imageView){
         Picasso.get()
                 .load(imageUrl)
