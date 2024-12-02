@@ -66,8 +66,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         contactInfoEditText = findViewById(R.id.contactInfoEditText);
         mapWebView = findViewById(R.id.mapWebView);
-        saveButton = findViewById(R.id.saveButton);
         backButton = findViewById(R.id.facilityProfileBackBtn);
+        saveButton = findViewById(R.id.saveFacilityButton);
         geolocationSwitch = findViewById(R.id.geolocationSwitch);
 
         // Get userId from Intent
@@ -157,7 +157,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
                     saveLocationCoordinates(location);
 
                     // Close the activity and return to the previous screen
-                    finish();
+                    Intent intent = new Intent(FacilityProfileActivity.this, OrganizerHomeView.class);
+                    startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating facility profile", e);

@@ -119,7 +119,7 @@ public class NotificationController{
     public void sendNotification(String messageBody, String messageTitle, String eventId, String eventName, Context context) {
         Intent intent;
         if (messageTitle.equals(NotificationUtils.SINGLE_USER)) {
-            intent = new Intent(context, EntrantHomeView.class);
+            intent = new Intent(context, EntrantNotificationsActivity.class);
             messageTitle = "To All Entrants";
         } else {
             intent = new Intent(context, EntrantNotificationsActivity.class);

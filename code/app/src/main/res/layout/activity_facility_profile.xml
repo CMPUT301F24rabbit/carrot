@@ -111,7 +111,7 @@
 
         <!-- Save Button -->
         <Button
-            android:id="@+id/saveButton"
+            android:id="@+id/saveFacilityButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save and Update Map"

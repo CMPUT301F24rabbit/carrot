@@ -278,7 +278,7 @@ public class EntrantHomeView extends AppCompatActivity {
                             if(userProfileImage != null && !userProfileImage.isEmpty()){
                                 loadProfileImage(userProfileImage);
                             } else {
-                                Log.w(TAG, "Profile  image URL is missing, leaving blank.");
+                                Log.w(TAG, "Profile image URL is missing, leaving blank.");
                                 profileImageView.setImageDrawable(null);
                             }
                         } catch (Exception e) {
