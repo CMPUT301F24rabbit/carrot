@@ -62,6 +62,7 @@ public class EntrantHomeView extends AppCompatActivity {
     private ImageView profileImageView;
     private ListView upcomingEventsListView;
     private ListView waitlistedEventsListView;
+    private ImageView eventPosterImageView;
     private Button exploreEventsButton;
     private Button notificationsButton;
 
@@ -124,6 +125,7 @@ public class EntrantHomeView extends AppCompatActivity {
         exploreEventsButton = findViewById(R.id.button_explore_events);
         notificationsButton = findViewById(R.id.notifications_button);
         waitlistedEventsTitle = findViewById(R.id.waitlisted_events_title);
+        //eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
 
         // Event lists and adapter Initialization
         upcomingEventsList = new ArrayList<>();
@@ -238,7 +240,6 @@ public class EntrantHomeView extends AppCompatActivity {
      */
     private void loadUserData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
-        loadEventData();
         firestore.collection("users").document(deviceId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -250,6 +251,7 @@ public class EntrantHomeView extends AppCompatActivity {
                         Boolean notificationAdministrator = documentSnapshot.getBoolean("administratorNotification");
                         Boolean notificationOrganizer = documentSnapshot.getBoolean("organizerNotification");
                         String userProfileImage = documentSnapshot.getString("profileImage");
+                        Log.i(TAG, "profile pic url: " + userProfileImage);
 
                         // Phone number to optional string
                         Optional<String> optionalPhoneNumber = (phoneNumber != null && !phoneNumber.isEmpty())
@@ -266,16 +268,26 @@ public class EntrantHomeView extends AppCompatActivity {
                                 usernameTextView.setText("Error: Username not found");
                             }
 
+                            /*
                             // Profile Image set
-                            if(userProfileImage != null && !userProfileImage.isEmpty()){
+                            if (userProfileImage != null && !userProfileImage.isEmpty()){
                                 loadProfileImage(userProfileImage);
                             } else {
-                                Log.w(TAG, "Profile  image URL is missing, leaving blank.");
+                                Log.w(TAG, "Profile image URL is missing, leaving blank.");
                                 profileImageView.setImageDrawable(null);
                             }
+
+                             */
                         } catch (Exception e) {
                             Log.e(TAG, "Error creating UserImpl object: " + e.getMessage(), e);
                             usernameTextView.setText("Error loading user data");
+                        }
+                        // Profile Image set
+                        if (userProfileImage != null && !userProfileImage.isEmpty()){
+                            loadProfileImage(userProfileImage);
+                        } else {
+                            Log.w(TAG, "Profile image URL is missing, leaving blank.");
+                            profileImageView.setImageDrawable(null);
                         }
                     } else {
                         Log.e(TAG, "Document does not exist");
@@ -340,8 +352,8 @@ public class EntrantHomeView extends AppCompatActivity {
                                 String eventPosterUrl = document.getString("posterUrl");
 
                                 if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
+                                    Log.d(TAG, "event poster url: " + eventPosterUrl);
                                     // Load the poster image using Picasso into the ImageView
-                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
                                     eventPosterImageView.setVisibility(View.VISIBLE);  // Make the poster image visible
                                     Picasso.get().load(eventPosterUrl).into(eventPosterImageView, new com.squareup.picasso.Callback() {
                                         @Override

@@ -136,7 +136,8 @@ public class FacilityProfileActivity extends AppCompatActivity {
                     saveLocationCoordinates(location);
 
                     // Close the activity and return to the previous screen
-                    finish();
+                    Intent intent = new Intent(FacilityProfileActivity.this, OrganizerHomeView.class);
+                    startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating facility profile", e);
