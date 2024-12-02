@@ -46,6 +46,8 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        eventRepository = new EventRepository();
+
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.notification_list, parent, false);
         }
@@ -60,7 +62,7 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
         statusView.setText(notification.getStatus());
 
         // get event name
-        if (notification.getNotificationId() != null) {
+        if (notification.getEventId() != null) {
             eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {
                 @Override
                 public void onSuccess(Event event) {
