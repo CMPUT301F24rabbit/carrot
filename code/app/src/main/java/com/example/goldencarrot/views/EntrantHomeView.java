@@ -320,13 +320,21 @@ public class EntrantHomeView extends AppCompatActivity {
         // Load the first 4 waitlisted events from Firestore
         Set<String> processedEventIds = new HashSet<>(); // Track them because for some reason
         // THEY ARE ADDING DOUBLE
+        Set<String> upcomingEventIds = new HashSet<>(); // Track them because for some reason
+
         waitlistedEventsList.clear();
 
         firestore.collection("waitlist").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot waitlistDoc : task.getResult()) {
                     processWaitlistDocument(waitlistDoc, deviceId, processedEventIds);
+
                 }
+
+                for (QueryDocumentSnapshot upcomingDoc : task.getResult()) {
+                    processUpcomingDocument(upcomingDoc, deviceId, upcomingEventIds);
+                }
+
             } else {
                 Log.e("EntrantHomeView", "Error loading waitlisted events", task.getException());
             }
@@ -345,7 +353,8 @@ public class EntrantHomeView extends AppCompatActivity {
                 String eventId = waitlistDoc.getString("eventId");
 
                 if (eventId != null && processedEventIds.add(eventId)) {
-                    fetchEventDetails(eventId);
+                    String docType = "waitlist";
+                    fetchEventDetails(eventId, docType);
                 } else {
                 Log.d("loadEventData", "User is in a waitlist for evenId: " + eventId);
                 }
@@ -353,17 +362,42 @@ public class EntrantHomeView extends AppCompatActivity {
         }
     }
 
-    private void fetchEventDetails(String eventId) {
+    private void processUpcomingDocument(QueryDocumentSnapshot upcomingDoc, String deviceId, Set<String> processedEventIds) {
+        // Check if device id is in the user map with waiting status
+        Map<String, Object> usersMap = (Map<String, Object>) upcomingDoc.get("users");
+
+        if (usersMap != null && usersMap.containsKey(deviceId)) {
+            String status = (String) usersMap.get(deviceId);
+
+            if (UserUtils.ACCEPTED_STATUS.equals(status) || UserUtils.CHOSEN_STATUS.equals(status)) {
+                // Get EVENT ID!!!!!!!!!!!!!!!!!!!!!!!!!!
+                String eventId = upcomingDoc.getString("eventId");
+
+                if (eventId != null && processedEventIds.add(eventId)) {
+                    String docType = "upcoming";
+                    fetchEventDetails(eventId, docType);
+                } else {
+                    Log.d("loadEventData", "User is in a upcoming for evenId: " + eventId);
+                }
+            }
+        }
+    }
+
+    private void fetchEventDetails(String eventId, String docType) {
         // GET DEM EVENT DETAILS!!!!!
         firestore.collection("events").document(eventId).get()
                 .addOnSuccessListener(eventDoc -> {
                     if (eventDoc.exists()) {
                         Event event = getEventDetailsFromDoc(eventDoc);
-                        if (event != null && !isEventDuplicate(event)) {
+                        if (event != null && !isEventDuplicate(event, docType) && docType.equals("waitlist")) {
                             // Only add if not already in the list
                             waitlistedEventsList.add(event);
                             waitlistedEventsAdapter.notifyDataSetChanged();
-                            Log.d("fetchEventDetails", "Event added: " + event.getEventName());
+                            Log.d("fetchEventDetails", "Event added to waitlist: " + event.getEventName());
+                        } else if(event != null && !isEventDuplicate(event, docType) && docType.equals("upcoming")){
+                            upcomingEventsList.add(event);
+                            upcomingEventsAdapter.notifyDataSetChanged();
+                            Log.d("fetchEventDetials", "Event added to upcoming: " + event.getEventName());
                         } else {
                             Log.d("fetchEventDetials", "Duplicate event ignored: " + event.getEventName());
                         }
@@ -374,15 +408,24 @@ public class EntrantHomeView extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("fetchEventDetaisl", "Error fetching event detils", e));
     }
 
-    private boolean isEventDuplicate(Event event) {
+    private boolean isEventDuplicate(Event event, String docType) {
         // Check if event already exists in the list
-        for(Event existingEvent : waitlistedEventsList) {
-            if(existingEvent.getEventName().equals(event.getEventName())) {
-                return true;
+        if (docType.equals("waitlist")) {
+            for (Event existingEvent : waitlistedEventsList) {
+                if (existingEvent.getEventName().equals(event.getEventName())) {
+                    return true;
+                }
+            }
+        } else if (docType.equals("upcoming")) {
+            for (Event eventExists : upcomingEventsList) {
+                if (eventExists.getEventName().equals(event.getEventName())) {
+                    return true;
+                }
             }
         }
         return false;
     }
+
 
     private Event getEventDetailsFromDoc(DocumentSnapshot eventDoc) {
         try {
