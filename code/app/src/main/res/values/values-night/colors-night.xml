@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="font_color">#000000</color>  <!-- Black font for dark mode -->
+    <color name="gray_background">#2F2F2F</color>  <!-- Dark gray background -->
+</resources>

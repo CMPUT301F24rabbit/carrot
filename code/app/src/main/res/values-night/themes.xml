@@ -1,7 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme for dark mode -->
     <style name="Base.Theme.GoldenCarrot" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Explicitly set the background color to gray, remove background image -->
+        <item name="android:background">#D1CFCF</item>
+
+        <!-- Set the font color to black for various text elements -->
+        <item name="android:textColorPrimary">#000000</item> <!-- Black font color for primary text -->
+        <item name="android:textColorSecondary">#000000</item> <!-- Black font color for secondary text -->
+        <item name="android:textColorTertiary">#000000</item> <!-- Black font color for tertiary text -->
+        <item name="android:textColorHint">#000000</item> <!-- Black font color for hints -->
+        <item name="android:textColorLink">#000000</item> <!-- Black font color for links -->
+
+        <!-- Use the same button style as day theme -->
+        <item name="materialButtonStyle">@style/CustomButtonStyle</item>
+
+        <!-- Set the font family -->
+        <item name="android:fontFamily">@font/font_family</item>
+
+        <!-- No need to add or modify backgroundTintMode -->
+        <!-- If backgroundTintMode="add" was set previously, it's removed here -->
     </style>
 </resources>

@@ -23,6 +23,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="150dp"
             android:text="Name:"
+            android:textColor="#000000FF"
             android:textSize="25dp" />
 
         <EditText
@@ -43,6 +44,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="50dp"
             android:text="Email:"
+            android:textColor="#000000FF"
             android:textSize="25sp" />
 
         <EditText
@@ -63,6 +65,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="50dp"
             android:text="Phone Number:"
+            android:textColor="#000000FF"
             android:textAlignment="center"
             android:textSize="25sp" />
 
@@ -78,7 +81,6 @@
 
         <Button
             android:id="@+id/sign_up_create_account_button"
-            android:backgroundTint="@color/orange"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"

@@ -19,7 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:text="Back"
-        android:backgroundTint="@color/orange"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:textSize="24sp" />

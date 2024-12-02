@@ -2,5 +2,5 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="orange">#F1600E</color>
+    <color name="dark_mode_background">#9B9898</color>
 </resources>

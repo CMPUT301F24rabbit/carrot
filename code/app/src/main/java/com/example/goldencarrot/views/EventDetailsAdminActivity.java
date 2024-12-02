@@ -9,12 +9,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.event.Event;
@@ -25,6 +27,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.squareup.picasso.Picasso;
 
 /**
  * Activity that displays the details of an event for the admin user.
@@ -42,6 +45,8 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
     private ImageView eventPosterView;
     private Button backButton, deleteEventButton;
     private String waitlistId;
+    private String deviceID;
+    private String eventId;
     private Button generateQRCodeButton;
     private ImageView qrCodeImageView;
     private Button deleteQRCodeButton;
@@ -54,6 +59,11 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         eventRepository = new EventRepository();
         waitListRepository = new WaitListRepository();
+
+        // Apply RNG Background
+        RelativeLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
+
 
         // Initialize Views
         eventPosterView = findViewById(R.id.eventPosterImageView);
@@ -189,16 +199,25 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
                 String eventDetails = snapshot.getString("eventDetails");
                 String location = snapshot.getString("location");
                 String date = snapshot.getString("date");
-                String time = snapshot.getString("time");
+                String posterUrl = snapshot.getString("posterUrl"); // Retrieve the poster URL
+
 
                 getFacilityInfo(snapshot.getString("organizerId"));
                 // Display event details on the UI
                 eventNameTitleView.setText(eventName);
                 eventDateView.setText("Date: " + date);
                 eventLocationView.setText("Location: " + location);
-                eventTimeView.setText("Time: " + time);
                 eventDetailsView.setText(eventDetails);
-                // Optionally, load an image for the event poster if available
+                if (posterUrl != null && !posterUrl.isEmpty()) {
+                    Picasso.get()
+                            .load(posterUrl)
+                            .placeholder(R.drawable.poster_placeholder) // Default placeholder image
+                            .error(R.drawable.poster_error) // Error placeholder
+                            .into(eventPosterView);
+                } else {
+                    eventPosterView.setImageResource(R.drawable.poster_placeholder);
+                }
+
             } else {
                 Log.e("EventDetailsAdminActivity", "Event not found");
             }

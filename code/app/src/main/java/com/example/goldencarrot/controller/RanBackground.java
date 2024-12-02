@@ -1,7 +1,9 @@
 package com.example.goldencarrot.controller;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.R;
 
@@ -24,9 +26,17 @@ public class RanBackground {
             R.drawable.bg13,
     };
 
+    // Get random background, or gray if in night mode
     public static Drawable getRandomBackground(Context context) {
-        Random random = new Random();
-        int randomIndex = random.nextInt(BACKGROUND_RESOURCES.length);
-        return context.getDrawable(BACKGROUND_RESOURCES[randomIndex]);
+        int currentNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            return ContextCompat.getDrawable(context, R.color.dark_mode_background); // Create a color resource for gray background
+        } else {
+            // Return a random background for light mode
+            Random random = new Random();
+            int randomIndex = random.nextInt(BACKGROUND_RESOURCES.length);
+            return context.getDrawable(BACKGROUND_RESOURCES[randomIndex]);
+        }
     }
 }
