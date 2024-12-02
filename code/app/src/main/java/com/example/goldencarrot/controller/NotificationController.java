@@ -137,7 +137,7 @@ public class NotificationController{
         String channelId = context.getString(R.string.notification_channel_id);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(context, channelId)
-                        .setSmallIcon(R.drawable.ic_notifications)
+                        .setSmallIcon(R.mipmap.app_icon)
                         .setContentTitle(messageTitle)
                         .setContentText(messageBody)
                         .setAutoCancel(true)

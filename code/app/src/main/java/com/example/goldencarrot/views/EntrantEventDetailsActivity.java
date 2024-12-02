@@ -107,7 +107,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         // Set up back button to finish the activity
         Button backButton = findViewById(R.id.entrant_backButton);
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantEventDetailsActivity.this,
+                    EntrantHomeView.class);
+            startActivity(intent);
+        });
 
         // Set up join waitlist button
         Button joinWaitListButton = findViewById(R.id.entrant_join_waitlist_button);

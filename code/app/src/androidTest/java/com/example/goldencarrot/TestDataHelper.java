@@ -87,10 +87,11 @@ public class TestDataHelper {
                 1234
         );
         eventTest.setGeolocationEnabled(isGeoLocationEnabled);
+        eventTest.setOrganizerId("777");
 
         Log.d(TAG, "Creating Event");
         // Add event to Firestore
-        eventRepository.addEvent(eventTest, Uri.parse("wallpaper.jpg"), 9999, new EventRepository.EventCallback() {
+        eventRepository.addEvent(eventTest, Uri.parse("null_poster.jpg"), 9999, new EventRepository.EventCallback() {
             @Override
             public void onSuccess(Event updatedEvent) {
                 eventTest = updatedEvent; // Update eventTest with the correct eventId

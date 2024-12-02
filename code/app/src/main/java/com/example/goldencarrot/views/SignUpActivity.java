@@ -17,6 +17,8 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -44,11 +46,28 @@ public class SignUpActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private String userType;
 
-
     // Repository for managing user data in Firestore
 
     private UserRepository userDb;
-
+    private final ActivityResultLauncher<String[]> locationPermissionRequest =
+    registerForActivityResult(new ActivityResultContracts
+        .RequestMultiplePermissions(), result -> {
+            Boolean fineLocationGranted = result.getOrDefault(
+                    Manifest.permission.ACCESS_FINE_LOCATION, false);
+            Boolean coarseLocationGranted = result.getOrDefault(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,false);
+            if (fineLocationGranted != null && fineLocationGranted) {
+                Log.i(TAG, "location exact on");
+                // Precise location access granted.
+            } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                // Only approximate location access granted.
+                Log.i(TAG, "location approximate on");
+            } else {
+                // No location access granted.
+                Log.i(TAG, "location not granted");
+            }
+        }
+    );
     /**
      * Called when the activity is created. Sets up the UI elements, and the button listeners for the sign-up process.
      * Initializes necessary services and handles input verification and user account creation.
@@ -64,6 +83,12 @@ public class SignUpActivity extends AppCompatActivity {
 
         // Default user type is "Participant"
         userType = UserUtils.PARTICIPANT_TYPE;
+
+        // request geolocation permissions
+        locationPermissionRequest.launch(new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        });
 
         findViewById(R.id.sign_up_create_account_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,10 +177,12 @@ public class SignUpActivity extends AppCompatActivity {
     private void getLocation(OnLocationFetchedListener listener) {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        Log.i(TAG, "location not granted");
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            return;
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
 
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
