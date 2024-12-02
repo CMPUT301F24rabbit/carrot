@@ -104,12 +104,21 @@
         <!-- Generate QR Code Button -->
         <Button
             android:id="@+id/generateQRCodeButton"
-            android:layout_width="wrap_content"
+            android:layout_width="106dp"
             android:layout_height="wrap_content"
-            android:text="Generate QR Code"
-            android:backgroundTint="@color/orange"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="QR Code" />
+
+        <Button
+            android:id="@+id/UploadEventPoster"
+            android:layout_width="106dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="Upload Poster" />
 
         <Button
             android:id="@+id/deleteQRCodeButton"
@@ -124,12 +133,12 @@
         <!-- Select Lottery Users Button -->
         <Button
             android:id="@+id/button_SelectLotteryUsers"
-            android:layout_width="wrap_content"
+            android:layout_width="106dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
-            android:text="Select Users for Lottery"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/orange"
+            android:text="Lottery" />
 
     </LinearLayout>
 
