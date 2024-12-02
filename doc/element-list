@@ -1,0 +1,8 @@
+com.example.goldencarrot
+com.example.goldencarrot.controller
+com.example.goldencarrot.data.db
+com.example.goldencarrot.data.model.event
+com.example.goldencarrot.data.model.notification
+com.example.goldencarrot.data.model.user
+com.example.goldencarrot.data.model.waitlist
+com.example.goldencarrot.views
