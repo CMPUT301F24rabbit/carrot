@@ -1,6 +1,6 @@
 package com.example.goldencarrot.views;
 
-import static android.content.ContentValues.TAG;
+import static com.google.firebase.appcheck.internal.util.Logger.TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +23,8 @@ import com.squareup.picasso.Picasso;
 import java.util.Optional;
 
 /**
- * Displays admin view of user profile
+ * Activity that displays an admin view of a user's profile.
+ * The admin can view user details, delete the profile, or view the facility profile if applicable.
  */
 public class AdminProfileView extends AppCompatActivity {
     private String userId;
@@ -33,6 +34,12 @@ public class AdminProfileView extends AppCompatActivity {
     private TextView nameText, emailText, userTypeText, phoneNumberText;
     private UserRepository userRepository;
 
+    /**
+     * Called when the activity is created. Initializes the UI components, loads the user's profile data,
+     * and sets up button click listeners for back, delete, and facility profile actions.
+     *
+     * @param savedInstanceState the saved state of the activity
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,37 +47,38 @@ public class AdminProfileView extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         userRepository = new UserRepository();
-        // extract user id
+        // Extract user ID from the intent extras
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userId = extras.getString("currentUserId");
         }
+
         nameText = findViewById(R.id.profileNameText);
         emailText = findViewById(R.id.profileEmailText);
         userTypeText = findViewById(R.id.profileUserTypeText);
         phoneNumberText = findViewById(R.id.profilePhoneNumber);
         profileImageView = findViewById(R.id.adminProfileImageView);
-
         facilityProfileBtn = findViewById(R.id.viewFacilityProfileBtn);
 
-        // use id to find user on firestore
+        // Load the user profile data
         loadProfileData();
 
-        // back button
+        // Back button listener
         backBtn = findViewById(R.id.adminViewProfileBackBtn);
         backBtn.setOnClickListener(view -> {
             Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
             startActivity(intent);
         });
 
-        //delete button
+        // Delete button listener
         deleteBtn = findViewById(R.id.deleteProfileBtn);
         deleteBtn.setOnClickListener(view -> {
             userRepository.deleteUser(userId);
             Intent intent = new Intent(AdminProfileView.this, AdminAllProfilesView.class);
             startActivity(intent);
         });
-        // facility profile button
+
+        // Facility profile button listener
         facilityProfileBtn.setOnClickListener(view -> {
             Intent intent = new Intent(AdminProfileView.this, AdminFacilityProfileView.class);
             intent.putExtra("userId", userId);
@@ -78,6 +86,10 @@ public class AdminProfileView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the user profile data from Firestore and updates the UI accordingly.
+     * If the user has a facility profile, the facility profile button is shown.
+     */
     private void loadProfileData() {
         db.collection("users")
                 .document(userId)
@@ -85,10 +97,11 @@ public class AdminProfileView extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         try {
-                            Log.i(TAG, "clicked on user: " + documentSnapshot.getString("name"));
+                            Log.i(TAG, "Clicked on user: " + documentSnapshot.getString("name"));
                             User currentUser = new UserImpl(documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
-                                    documentSnapshot.getString("name"), Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
+                                    documentSnapshot.getString("name"),
+                                    Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
                                     documentSnapshot.getBoolean("administratorNotification"),
                                     documentSnapshot.getBoolean("organizerNotification"),
                                     documentSnapshot.getString("profileImage")
@@ -99,7 +112,7 @@ public class AdminProfileView extends AppCompatActivity {
                             phoneNumberText.setText(currentUser.getPhoneNumber().get());
                             loadProfileImage(currentUser.getProfileImage());
 
-                            // hide facility buttons if not organizer, or organizer with no facility profile
+                            // Hide facility buttons for non-organizer users or users without a facility profile
                             if (documentSnapshot.getString("userType").equals("PARTICIPANT") ||
                                     documentSnapshot.getString("userType").equals("ADMIN") ||
                                     documentSnapshot.getString("facilityName") == null) {
@@ -107,16 +120,22 @@ public class AdminProfileView extends AppCompatActivity {
                             }
 
                         } catch (Exception e) {
-
+                            Log.e(TAG, "Error loading user profile", e);
                         }
                     } else {
-                        Log.e(TAG,"error getting current user");
+                        Log.e(TAG, "Error getting current user");
                     }
                 });
     }
-    private void loadProfileImage(String imageUrl){
+
+    /**
+     * Loads the profile image from the provided URL and sets it in the ImageView.
+     *
+     * @param imageUrl the URL of the profile image
+     */
+    private void loadProfileImage(String imageUrl) {
         Picasso.get().load(imageUrl)
-                .into(profileImageView, new com.squareup.picasso.Callback(){
+                .into(profileImageView, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
                         Log.d(TAG, "Profile image loaded successfully.");

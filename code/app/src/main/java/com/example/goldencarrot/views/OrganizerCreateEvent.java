@@ -31,6 +31,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+/**
+ * This activity allows an organizer to create an event by entering event details such as name,
+ * location, description, and date. It also allows the organizer to upload a poster image for the event.
+ * The organizer can enable or disable geolocation for the event and set a waitlist limit.
+ * The event details are saved to Firestore, and the poster is uploaded to Firebase Storage.
+ */
 public class OrganizerCreateEvent extends AppCompatActivity {
     private static final String TAG = "OrganizerCreateEvent";
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -48,6 +55,12 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     private EventRepository eventRepository;
     private UserRepository userRepository;
 
+
+    /**
+     * Initializes the activity, sets up UI components, and configures listeners for user interaction.
+     *
+     * @param savedInstanceState Bundle containing activity state.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +93,11 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         setupEventDetailsListener();
     }
 
+
+    /**
+     * Sets up a listener for real-time changes to event details in Firestore.
+     * It listens for changes to the event and updates the UI accordingly.
+     */
     private void setupEventDetailsListener() {
         // Replace with actual event ID
         eventId = "example_event_id"; // Set eventId from intent or logic
@@ -100,6 +118,12 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         });
     }
 
+
+    /**
+     * Updates the UI with the event details fetched from Firestore.
+     *
+     * @param snapshot The document snapshot containing the event data.
+     */
     private void updateUIWithEventDetails(DocumentSnapshot snapshot) {
         String eventName = snapshot.getString("eventName");
         String location = snapshot.getString("location");
@@ -125,6 +149,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches the facility location for the organizer from Firestore and updates the event location field.
+     */
     private void getFacilityLocation() {
         organizerId = getDeviceId(this);
         db.collection("users").document(organizerId)
@@ -138,16 +165,32 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to fetch facility location", e));
     }
 
+    /**
+     * Retrieves the device ID of the organizer to fetch the associated location.
+     *
+     * @param context The application context.
+     * @return The device ID.
+     */
     private String getDeviceId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * Initiates the selection of a poster image for the event.
+     */
     private void selectPosterImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Handles the result from the image picker activity and updates the poster image view.
+     *
+     * @param requestCode The request code identifying the activity result.
+     * @param resultCode  The result code of the activity.
+     * @param data        The intent containing the result data.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -157,6 +200,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates the event by saving the event details to Firestore and uploading the poster if selected.
+     */
     private void createEvent() {
         String eventName = eventNameEditText.getText().toString().trim();
         String location = eventLocationEditText.getText().toString().trim();
@@ -219,6 +265,12 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Poster upload failed.", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Saves the event details to Firestore, including the waitlist limit and the event poster URL.
+     *
+     * @param event         The event object containing the event data.
+     * @param waitlistLimit The maximum number of entrants allowed on the waitlist.
+     */
     private void saveEventToFirestore(Event event, Integer waitlistLimit) {
         eventRepository.addEvent(event, posterUri, waitlistLimit, new EventRepository.EventCallback() {
             @Override
@@ -234,6 +286,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         });
     }
 
+    /**
+     * Navigates back to the organizer's home view.
+     */
     private void goOrganizerHomeView() {
         Intent intent = new Intent();
         setResult(RESULT_OK, intent);

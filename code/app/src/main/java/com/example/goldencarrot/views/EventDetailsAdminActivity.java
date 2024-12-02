@@ -244,6 +244,11 @@ public class EventDetailsAdminActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+    /**
+     * Gets information of the facility that organized the event.
+     * @param organizerId to associate id with facility
+     */
     private void getFacilityInfo(String organizerId) {
         firestore.collection("users").document(organizerId)
                 .get()
