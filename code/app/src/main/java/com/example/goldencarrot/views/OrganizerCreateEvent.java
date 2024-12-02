@@ -290,8 +290,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
      * Navigates back to the organizer's home view.
      */
     private void goOrganizerHomeView() {
-        Intent intent = new Intent();
-        setResult(RESULT_OK, intent);
-        finish();
+        Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
+        startActivity(intent);
     }
 }
