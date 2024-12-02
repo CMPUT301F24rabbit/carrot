@@ -9,6 +9,10 @@ import com.example.goldencarrot.R;
 
 import java.util.Random;
 
+/**
+ * Controller for managing Background
+ * Randomly assigns one view to the background of the app.
+ */
 public class RanBackground {
     private static final int[] BACKGROUND_RESOURCES = {
             R.drawable.bg1,
