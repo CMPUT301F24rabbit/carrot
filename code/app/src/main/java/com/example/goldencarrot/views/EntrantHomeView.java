@@ -65,6 +65,9 @@ import java.util.Set;
  */
 public class EntrantHomeView extends AppCompatActivity {
     // UI elements
+    /**
+     * Diplays information useful to the Entrant
+     */
     private TextView usernameTextView;
     private TextView waitlistedEventsTitle;
     private ImageView profileImageView;
@@ -88,6 +91,7 @@ public class EntrantHomeView extends AppCompatActivity {
     /**
      * Called when the activity is first created. Initializes the UI components,
      * loads user data, and sets up event listeners.
+     * @param savedInstanceState The saved instance state of the activity.
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -201,9 +205,25 @@ public class EntrantHomeView extends AppCompatActivity {
                 });
 
     }
+
+    /**
+     * Starts a QR Scanner activity for scanning event-related QR codes.
+     */
     private void startQrScanner() {
         new IntentIntegrator(this).initiateScan();  // This will launch the QR scanner
     }
+
+    /**
+     * Processes the result of the QR scanner activity
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -246,7 +266,7 @@ public class EntrantHomeView extends AppCompatActivity {
     }
 
     /**
-     * Loads user data from Firestore and updates the UI.
+     * Loads user data from firestore and updates the UI.
      */
     private void loadUserData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
@@ -311,7 +331,7 @@ public class EntrantHomeView extends AppCompatActivity {
     }
 
     /**
-     * Loads waitlisted events data from Firestore and updates the UI.
+     * Loads event data from Firestore, including the waitlisted and upcoming events for the user.
      */
     private void loadEventData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
@@ -341,6 +361,12 @@ public class EntrantHomeView extends AppCompatActivity {
         });
     }
 
+    /**
+     * Process a Firestore document to get the waitlisted data for the current user
+     * @param waitlistDoc The firestore document representing a waitlisted event.
+     * @param deviceId The device ID of the current user.
+     * @param processedEventIds A set to track processed event IDs and prevent duplicates
+     */
     private void processWaitlistDocument(QueryDocumentSnapshot waitlistDoc, String deviceId, Set<String> processedEventIds) {
         // Check if device id is in the user map with waiting status
         Map<String, Object> usersMap = (Map<String, Object>) waitlistDoc.get("users");
@@ -362,6 +388,12 @@ public class EntrantHomeView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Process a Firestore document to extract upcoming event data for a user
+     * @param upcomingDoc The firestore document representing an upcoming event
+     * @param deviceId The device Id of the current user.
+     * @param processedEventIds A set to track processed event IDs and prevent duplicates
+     */
     private void processUpcomingDocument(QueryDocumentSnapshot upcomingDoc, String deviceId, Set<String> processedEventIds) {
         // Check if device id is in the user map with waiting status
         Map<String, Object> usersMap = (Map<String, Object>) upcomingDoc.get("users");
@@ -383,6 +415,11 @@ public class EntrantHomeView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches detailed information about an event from Firestore
+     * @param eventId The ID of the event we are fetching
+     * @param docType The type of document: "waitlist" or "upcoming".
+     */
     private void fetchEventDetails(String eventId, String docType) {
         // GET DEM EVENT DETAILS!!!!!
         firestore.collection("events").document(eventId).get()
@@ -408,6 +445,12 @@ public class EntrantHomeView extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("fetchEventDetaisl", "Error fetching event detils", e));
     }
 
+    /**
+     * Determines if an event is already in the list
+     * @param event The event we are checking to see if it is a duplicate
+     * @param docType The type  of document: "waitlist" or "upcoming"
+     * @return True if the event is a duplicate, false otherwise.
+     */
     private boolean isEventDuplicate(Event event, String docType) {
         // Check if event already exists in the list
         if (docType.equals("waitlist")) {
@@ -426,7 +469,11 @@ public class EntrantHomeView extends AppCompatActivity {
         return false;
     }
 
-
+    /**
+     * Extracts event details from a Firestore document and createes an Event object
+     * @param eventDoc The Firestore document containing the event data.
+     * @return An Event object, or null if the data could not be extracted
+     */
     private Event getEventDetailsFromDoc(DocumentSnapshot eventDoc) {
         try {
             String eventName = eventDoc.getString("eventName");
@@ -452,6 +499,11 @@ public class EntrantHomeView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Converts a raw date into a Date object
+     * @param rawDate The data from firestore
+     * @return A Date object, or null if it didn't work.
+     */
     private Date datesMakeMeCry(Object rawDate) {
 
         if (rawDate instanceof com.google.firebase.Timestamp) {
@@ -521,6 +573,10 @@ public class EntrantHomeView extends AppCompatActivity {
         }
     }
 
+    /**
+     * Load the profile image for the entrant from an URL.
+     * @param imageUrl TheURLofthe profile image.
+     */
     private void loadProfileImage(String imageUrl){
         Picasso.get().load(imageUrl)
                 .into(profileImageView, new com.squareup.picasso.Callback(){
