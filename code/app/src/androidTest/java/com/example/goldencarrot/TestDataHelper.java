@@ -9,6 +9,7 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.notification.Notification;
+import com.example.goldencarrot.data.model.notification.NotificationUtils;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
@@ -33,6 +34,7 @@ public class TestDataHelper {
     Event eventTest;
     WaitList waitListTest;
     Notification notificationTest;
+    String deviceId;
 
     public TestDataHelper(final boolean isGeoLocationEnabled) throws Exception {
 
@@ -146,6 +148,30 @@ public class TestDataHelper {
                 Log.d(TAG, "Could create test notification");
             }
         });
+    }
+
+    public void createSingleUserNotification(final String userId, final String message) {
+        Notification notification = new Notification(
+                userId,
+                null,
+                null,
+                "1234",
+                message,
+                NotificationUtils.SINGLE_USER
+        );
+
+        notificationRepository.addNotification(notification, new
+                NotificationRepository.NotificationCallback<Notification>() {
+                    @Override
+                    public void onSuccess(Notification result) {
+                        notificationTest = result;
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d(TAG, "Could create test notification");
+                    }
+                });
     }
 
     public void deleteData(){
