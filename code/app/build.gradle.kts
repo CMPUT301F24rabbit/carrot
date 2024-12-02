@@ -55,6 +55,7 @@ dependencies {
     testImplementation(libs.ext.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    testImplementation("org.mockito:mockito-core:4.0.0")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
 
 

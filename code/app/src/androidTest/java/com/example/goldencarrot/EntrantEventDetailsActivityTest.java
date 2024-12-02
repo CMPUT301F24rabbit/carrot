@@ -46,31 +46,13 @@ public class EntrantEventDetailsActivityTest {
         Intents.release();
     }
 
-
-    @Test
-    public void testEventDetailsDisplayed() throws InterruptedException {
-        // Create an Intent with extras and launch EntrantEventDetailsActivity
-        Intent intent = new Intent();
-        intent.putExtra("eventId", "ZVhLfmiNmmYtyqsQJHhn");  // Set up sample event ID
-        ActivityScenario<EntrantEventDetailsActivity> scenario =
-                ActivityScenario.launch(intent.setClass(getApplicationContext(), EntrantEventDetailsActivity.class));
-
-        // Wait for Firestore data to load
-        Thread.sleep(5000);
-
-        // Check if the event details TextView is displayed
-        /**
-         * Todo change this to verify that all the Event details match
-         */
-        onView(withId(R.id.entrant_eventDetailsTextView)).check(matches(isDisplayed()));
-    }
-
     /**
      * Test that clicking the "Join Waitlist" button warns user about navigation enabled
      */
     @Test
     public void TestJoinEventWithGeoLocationEnabled_WarnsUser() throws Exception {
         testDataHelper = new TestDataHelper(true);
+
         Thread.sleep(5000); // Allow Firestore to populate test data
 
         String eventId = testDataHelper.getEventId();
@@ -131,20 +113,28 @@ public class EntrantEventDetailsActivityTest {
      * Test that the back button finishes the activity.
      */
     @Test
-    public void testBackButtonFunctionality() throws InterruptedException {
-        // Create an Intent with extras and launch EntrantEventDetailsActivity
+    public void testBackButtonFunctionality() throws Exception {
+        testDataHelper = new TestDataHelper(false);
+        Thread.sleep(5000); // Allow Firestore to populate test data
+
+        String eventId = testDataHelper.getEventId();
+
         Intent intent = new Intent();
-        intent.putExtra("eventId", "ZVhLfmiNmmYtyqsQJHhn");
+        intent.putExtra("eventId", eventId); // add the test event id
         ActivityScenario<EntrantEventDetailsActivity> scenario =
                 ActivityScenario.launch(intent.setClass(getApplicationContext(), EntrantEventDetailsActivity.class));
-
-        // Wait for Firestore data to load
-        Thread.sleep(1000);
 
         // Click the back button
         onView(withId(R.id.entrant_backButton)).perform(click());
 
-        // Verify that the activity is finished
-        scenario.close();
+        Thread.sleep(5000);
+
+        // Check that user is back at the EntrantHomeVIew
+        intended(hasComponent(EntrantHomeView.class.getName()));
+
+        // Cleanup data
+        testDataHelper.deleteData();
+        Thread.sleep(5000);
+
     }
 }

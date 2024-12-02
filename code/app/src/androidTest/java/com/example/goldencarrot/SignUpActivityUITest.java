@@ -17,6 +17,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+
+import com.example.goldencarrot.views.BrowseEventsActivity;
 import com.example.goldencarrot.views.EntrantHomeView;
 import com.example.goldencarrot.views.SignUpActivity;
 
@@ -91,5 +93,6 @@ public class SignUpActivityUITest {
         intended(hasComponent(EntrantHomeView.class.getName()));
 
         Intents.release();
+
     }
 }
