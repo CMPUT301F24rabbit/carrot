@@ -5,6 +5,8 @@ import static android.content.ContentValues.TAG;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -27,6 +29,10 @@ import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The {@code EntrantEventDetailsActivity} displays detailed information about a specific event
@@ -272,6 +278,72 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * @param user The user attempting to join the waitlist.
      */
     private void checkAndJoinWaitList(User user) {
+        // Fetch the event details again to ensure we have the latest organizer and geolocation data
+        eventRepository.getBasicEventById(eventWaitList.getEventId(), new EventRepository.EventCallback() {
+            @Override
+            public void onSuccess(Event event) {
+                // If geolocation is enabled, validate entrant's location
+                if (event.getGeolocationEnabled()) {
+                    validateEntrantLocation(user, event.getOrganizerId());
+                } else {
+                    proceedToJoinWaitList(user);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToast("Error fetching event details");
+            }
+        });
+    }
+
+    private void validateEntrantLocation(User user, String organizerId) {
+        userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
+            @Override
+            public void onSuccess(UserImpl organizer) {
+                String facilityCity = getCityFromCoordinates(organizer.getLatitude(), organizer.getLongitude());
+                Log.d(TAG, "Organizer's facility city: " + facilityCity);
+
+                userRepository.getSingleUser(user.getUserId(), new UserRepository.FirestoreCallbackSingleUser() {
+                    @Override
+                    public void onSuccess(UserImpl entrant) {
+                        if (entrant.getLatitude() == null || entrant.getLongitude() == null) {
+                            showToast("Entrant location not available. Cannot join waitlist.");
+                            Log.e(TAG, "Entrant's latitude or longitude is null.");
+                            return;
+                        }
+
+                        String entrantCity = getCityFromCoordinates(entrant.getLatitude(), entrant.getLongitude());
+                        Log.d(TAG, "Entrant's city: " + entrantCity);
+
+                        if (entrantCity != null && entrantCity.equalsIgnoreCase(facilityCity)) {
+                            Log.d(TAG, "Entrant is in the same city as the facility.");
+                            proceedToJoinWaitList(user);
+                        } else {
+                            showToast("Cannot join the waitlist since you are not located in the same city.");
+                            Log.w(TAG, "Entrant is in a different city. Restriction applied.");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        showToast("Error fetching entrant data");
+                        Log.e(TAG, "Error fetching entrant document: " + e.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToast("Error fetching organizer data");
+                Log.e(TAG, "Error fetching organizer document: " + e.getMessage());
+            }
+        });
+    }
+
+
+
+    private void proceedToJoinWaitList(User user) {
         waitListRepository.isUserInWaitList(eventWaitList.getWaitListId(), user, new WaitListRepository.FirestoreCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -289,6 +361,27 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Helper function to get city from coordinates
+    private String getCityFromCoordinates(Double latitude, Double longitude) {
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+            if (addresses != null && !addresses.isEmpty()) {
+                String city = addresses.get(0).getLocality();
+                Log.d(TAG, "Fetched city from coordinates: " + city);
+                return city;
+            } else {
+                Log.w(TAG, "No addresses found for coordinates: " + latitude + ", " + longitude);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Geocoder error: " + e.getMessage());
+        }
+        return null;
+    }
+
+
 
     /**
      * Adds the user to the waitlist for the event.
