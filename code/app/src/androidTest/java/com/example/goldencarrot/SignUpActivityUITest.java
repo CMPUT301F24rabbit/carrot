@@ -4,14 +4,19 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.goldencarrot.views.BrowseEventsActivity;
+import com.example.goldencarrot.views.EntrantHomeView;
 import com.example.goldencarrot.views.SignUpActivity;
 
 import org.junit.Rule;
@@ -75,11 +80,13 @@ public class SignUpActivityUITest {
      */
     @Test
     public void testValidInput() {
+        Intents.init();
+
         onView(withId(R.id.sign_up_email_input)).perform(replaceText("valid@example.com"));
         onView(withId(R.id.sign_up_phone_number)).perform(replaceText("1234567890"));
         onView(withId(R.id.sign_up_name)).perform(replaceText("John Doe"));
         onView(withId(R.id.sign_up_create_account_button)).perform(click());
 
-        onView(withText("Waitlisted Events")).check(matches(isDisplayed()));
+        intended(hasComponent(EntrantHomeView.class.getName()));
     }
 }
