@@ -75,16 +75,17 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         initializeRepositories();
-        setupUI();
+
         // Extract eventId from the intent or QR code URL
         String eventId = getEventIdFromIntent(getIntent());
-
         if (eventId != null) {
+            setupUI(eventId);
             loadEventDetails(eventId);  // Load event details using the eventId
             loadWaitList(eventId);      // Load waitlist using the eventId
         } else {
             showToast("No event ID provided");
         }
+
     }
 
     /**
@@ -100,7 +101,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Sets up the UI components, including the back button and the join waitlist button.
      */
-    private void setupUI() {
+    private void setupUI(String eventId) {
         // Initialize TextView for displaying event details
         eventDetailsTextView = findViewById(R.id.entrant_eventDetailsTextView);
         eventPosterImageView = findViewById(R.id.eventPosterView);
@@ -115,7 +116,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         // Set up join waitlist button
         Button joinWaitListButton = findViewById(R.id.entrant_join_waitlist_button);
-        joinWaitListButton.setOnClickListener(view -> handleJoinWaitList());
+        joinWaitListButton.setOnClickListener(view -> handleJoinWaitList(eventId));
     }
 
     /**
@@ -269,8 +270,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      *
      * @throws IllegalArgumentException If the event ID or user ID is null.
      */
-    private void handleJoinWaitList() {
-        String eventId = getIntent().getStringExtra("eventId");
+    private void handleJoinWaitList(String eventId) {
         String uid = getDeviceId(this);
         User user = new UserImpl();
         user.setUserId(uid);
