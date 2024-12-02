@@ -227,21 +227,35 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        String newPosterPath = "posters/" + eventId + "_updated_poster.jpg";
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference(newPosterPath);
+        // Define paths
+        String oldPosterPath = "posters/" + eventId + "_poster.jpg"; // Old poster path
+        String newPosterPath = "posters/" + eventId + "_updated_poster.jpg"; // New poster path
 
-        storageRef.putFile(newPosterUri)
-                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference oldPosterRef = storageRef.child(oldPosterPath);
+        StorageReference newPosterRef = storageRef.child(newPosterPath);
+
+        // Delete old poster
+        oldPosterRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("PosterUpdate", "Old poster deleted successfully.");
+        }).addOnFailureListener(e -> {
+            Log.w("PosterUpdate", "Old poster not found or couldn't be deleted.", e);
+        });
+
+        // Upload new poster
+        newPosterRef.putFile(newPosterUri)
+                .addOnSuccessListener(taskSnapshot -> newPosterRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String updatedPosterUrl = uri.toString();
 
-                    // Update the Firestore document
+                    // Update Firestore document with new poster URL
                     firestore.collection("events").document(eventId)
                             .update("posterUrl", updatedPosterUrl)
                             .addOnSuccessListener(aVoid -> Toast.makeText(this, "Poster updated successfully!", Toast.LENGTH_SHORT).show())
                             .addOnFailureListener(e -> Toast.makeText(this, "Failed to update poster in Firestore.", Toast.LENGTH_SHORT).show());
                 }))
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to upload poster.", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to upload new poster.", Toast.LENGTH_SHORT).show());
     }
+
 
 
 
@@ -278,7 +292,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                         Glide.with(this)
                                 .load(posterUrl)
                                 .placeholder(R.drawable.poster_placeholder) // Default placeholder image
-                                .error(R.drawable.poster_placeholder) // Error placeholder
+                                .error(R.drawable.poster_error) // Error placeholder
                                 .into(eventPosterView);
                     } else {
                         eventPosterView.setImageResource(R.drawable.poster_placeholder);

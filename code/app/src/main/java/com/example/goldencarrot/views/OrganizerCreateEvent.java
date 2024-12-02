@@ -15,11 +15,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -28,7 +31,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 public class OrganizerCreateEvent extends AppCompatActivity {
     private static final String TAG = "OrganizerCreateEvent";
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -41,11 +43,10 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
     private Uri posterUri;
     private boolean geolocationIsEnabled;
-    private String organizerId, location;
+    private String organizerId, eventId, location;
     private FirebaseFirestore db;
     private EventRepository eventRepository;
     private UserRepository userRepository;
-    private String eventId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +75,54 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         selectPosterButton.setOnClickListener(view -> selectPosterImage());
         createEventButton.setOnClickListener(view -> createEvent());
         backButton.setOnClickListener(view -> goOrganizerHomeView());
+
+        // Set up a real-time Firestore listener for event details
+        setupEventDetailsListener();
+    }
+
+    private void setupEventDetailsListener() {
+        // Replace with actual event ID
+        eventId = "example_event_id"; // Set eventId from intent or logic
+
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.addSnapshotListener((snapshot, error) -> {
+            if (error != null) {
+                Log.e(TAG, "Error listening to event changes", error);
+                Toast.makeText(this, "Failed to load event details.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                updateUIWithEventDetails(snapshot);
+            } else {
+                Toast.makeText(this, "Event does not exist.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateUIWithEventDetails(DocumentSnapshot snapshot) {
+        String eventName = snapshot.getString("eventName");
+        String location = snapshot.getString("location");
+        String details = snapshot.getString("eventDetails");
+        String date = snapshot.getString("date");
+        String posterUrl = snapshot.getString("posterUrl");
+
+        // Update UI elements
+        eventNameEditText.setText(eventName);
+        eventLocationEditText.setText(location);
+        eventDetailsEditText.setText(details);
+        eventDateEditText.setText(date);
+
+        // Load poster image using Glide
+        if (posterUrl != null && !posterUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(posterUrl)
+                    .placeholder(R.drawable.poster_placeholder) // Replace with your placeholder
+                    .error(R.drawable.poster_placeholder) // Replace with your error image
+                    .into(eventPosterImageView);
+        } else {
+            eventPosterImageView.setImageResource(R.drawable.poster_placeholder);
+        }
     }
 
     private void getFacilityLocation() {
@@ -139,10 +188,10 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 event.setOrganizerId(organizerId);
                 event.setGeolocationEnabled(geolocationIsEnabled);
 
-                // If waiList limit left as blank, sets the limit to MAX INT VALUE
+                // If waitlist limit left as blank, sets the limit to MAX INT VALUE
                 Integer waitlistLimit = limitString.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(limitString);
 
-                if (posterUri == null){
+                if (posterUri == null) {
                     // Poster is null, create event with no poster
                     saveEventToFirestore(event, waitlistLimit);
                 } else {
@@ -185,8 +234,9 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         });
     }
 
-    private void goOrganizerHomeView(){
-        Intent intent = new Intent(OrganizerCreateEvent.this, OrganizerHomeView.class);
-        startActivity(intent);
+    private void goOrganizerHomeView() {
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
