@@ -10,10 +10,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
@@ -24,9 +27,14 @@ import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
+import com.example.goldencarrot.controller.RanBackground;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.squareup.picasso.Picasso;
+
+
 
 /**
  * The {@code EntrantEventDetailsActivity} displays detailed information about a specific event
@@ -37,6 +45,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     private ListenerRegistration listenerRegistration;
+    private ImageView eventPosterImageView;
     private TextView eventDetailsTextView;
     private EventRepository eventRepository;
     private UserRepository userRepository;
@@ -54,6 +63,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_event_details_view);
+
+        // Apply RNG Background
+        RelativeLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         initializeRepositories();
         setupUI();
@@ -84,6 +97,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void setupUI() {
         // Initialize TextView for displaying event details
         eventDetailsTextView = findViewById(R.id.entrant_eventDetailsTextView);
+        eventPosterImageView = findViewById(R.id.eventPosterView);
 
         // Set up back button to finish the activity
         Button backButton = findViewById(R.id.entrant_backButton);
@@ -93,6 +107,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         Button joinWaitListButton = findViewById(R.id.entrant_join_waitlist_button);
         joinWaitListButton.setOnClickListener(view -> handleJoinWaitList());
     }
+
     /**
      * Extracts the eventId from the intent's data (QR code URL).
      *
@@ -154,6 +169,14 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 String eventDetails = snapshot.getString("eventDetails");
                 String location = snapshot.getString("location");
                 String date = snapshot.getString("date");
+                String posterUrl = snapshot.getString("posterUrl");
+
+                Log.d(TAG, "Fetched event details: " +
+                        "\nEvent Name: " + eventName +
+                        "\nEvent Details: " + eventDetails +
+                        "\nLocation: " + location +
+                        "\nDate: " + date +
+                        "\nPoster URL: " + posterUrl);
 
 
                 // get facility profile details
@@ -161,6 +184,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
                             if (documentSnapshot.exists()) {
+                                Log.d(TAG, "Fetched organizer details");
                                 String facilityName = documentSnapshot.getString("facilityName");
                                 String contactInfo = documentSnapshot.getString("contactInfo");
 
@@ -174,8 +198,32 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                                         date,
                                         contactInfo
                                 ));
+                            } else{
+                                Log.e(TAG, "No organizer details found in Firestore");
                             }
-                        });
+                        })
+                        .addOnFailureListener(e1 -> Log.e(TAG, "Erorror fetching organizer details", e1));
+
+                if(posterUrl != null && !posterUrl.isEmpty()) {
+                    Log.d(TAG, "Loading postere image from URL: " + posterUrl);
+                    Picasso.get()
+                            .load(posterUrl)
+                            .placeholder(R.drawable.poster_placeholder)
+                            .error(R.drawable.profilepic1)
+                            .into(eventPosterImageView, new com.squareup.picasso.Callback(){
+                                @Override
+                                public void onSuccess() {
+                                    Log.d(TAG, "Poster image loaded successfully");
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Log.e(TAG, "Error loading poster image", e);
+                                }
+                            });
+                } else {
+                    Log.w(TAG, "Poster URL is null or empty, skipping image loading");
+                }
 
                 // Optionally, load an image for the event poster if available
             } else {

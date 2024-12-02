@@ -12,10 +12,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
+import com.example.goldencarrot.controller.RanBackground;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -56,6 +59,10 @@ public class BrowseEventsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_events);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         // Initialize Firestore, Collections, and user repo
         firestore = FirebaseFirestore.getInstance();

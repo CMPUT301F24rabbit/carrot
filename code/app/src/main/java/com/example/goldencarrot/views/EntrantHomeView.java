@@ -22,15 +22,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.event.EventArrayAdapter;
-
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.model.notification.Notification;
 import com.example.goldencarrot.data.model.notification.NotificationPermissionRequester;
 import com.example.goldencarrot.data.model.user.UserImpl;
@@ -42,6 +44,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,6 +88,10 @@ public class EntrantHomeView extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_home_view);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), isGranted -> {

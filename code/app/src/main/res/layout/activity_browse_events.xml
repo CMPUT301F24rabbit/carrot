@@ -1,43 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".views.BrowseEventsActivity">
 
-    <!-- Title of Browse Events -->
-    <TextView
-        android:id="@+id/browse_events_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Browse Events"
-        android:textSize="24sp"
+    <!-- Readability Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/browse_events_section"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="#CCFFFFFF"
+        android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/browseEventsBackBtn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Events ListView -->
-    <ListView
-        android:id="@+id/eventsListView"
-        android:layout_width="395dp"
-        android:layout_height="577dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/browse_events_title" />
+        <!-- Title -->
+        <TextView
+            android:id="@+id/browse_events_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Browse Events"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Events ListView -->
+        <ListView
+            android:id="@+id/eventsListView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/browse_events_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Back Button -->
     <Button
         android:id="@+id/browseEventsBackBtn"
-        android:layout_width="96dp"
-        android:layout_height="39dp"
-        android:text="Back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="@color/orange"
-        app:layout_constraintBottom_toBottomOf="@+id/browse_events_title"
-        app:layout_constraintEnd_toStartOf="@+id/browse_events_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
