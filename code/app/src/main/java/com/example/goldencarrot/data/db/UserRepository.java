@@ -9,12 +9,12 @@ import com.example.goldencarrot.data.model.user.UserImpl;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +22,12 @@ import java.util.Optional;
 
 /**
  * Provides necessary methods to update, delete, and write User model objects into
- * firebase User table. The User Id will be the same as the device ID
+ * Firebase User table. The User Id will be the same as the device ID.
  *
- * Please see firebase for more detatils on the document structure
+ * Please see Firebase for more details on the document structure.
  */
 public class UserRepository {
-    private static final String TAG = "DB" ;
+    private static final String TAG = "DB";
     private FirebaseFirestore db;
     private CollectionReference userCollection;
     private List<DocumentSnapshot> listOfUsers;
@@ -41,8 +41,8 @@ public class UserRepository {
     }
 
     /**
-     * Adds a new User to firebase users table.
-     * Provides on success and on failure listenings to handle the result of the operation.
+     * Adds a new User to Firebase users table.
+     * Provides onSuccess and onFailure listeners to handle the result of the operation.
      * @param user model object to add.
      */
     public void addUser(final User user, final String androidId) {
@@ -69,16 +69,13 @@ public class UserRepository {
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
                     // Successfully added the user
-                    // set user's firebase id
+                    // set user's Firebase ID
                     user.setUserId(androidId);
-                    System.out.println("User added to Firestore");
-
+                    Log.d(TAG, "User added to Firestore");
                 })
                 .addOnFailureListener(e -> {
                     // Handle the error
-                    System.err.println("Error adding user to Firestore: " + e.getMessage());
-                    Log.e(TAG, "Error adding user to Firestore", e);
-
+                    Log.e(TAG, "Error adding user to Firestore: " + e.getMessage());
                 });
     }
 
@@ -105,7 +102,7 @@ public class UserRepository {
                 .addOnFailureListener(e -> {
                     // Fatal Error
                     callback.onResult(false, null);
-                    Log.e(TAG, "Error checking if user exists: " + e.getMessage(), e);
+                    Log.e(TAG, "Error checking if user exists: " + e.getMessage());
                 });
     }
 
@@ -140,19 +137,31 @@ public class UserRepository {
                 .addOnSuccessListener(aVoid -> {
                     // Successfully updated the user
                     Log.d(TAG, "User updated successfully");
-                    System.out.println("User updated successfully");
                 })
                 .addOnFailureListener(e -> {
                     // Handle error
-                    Log.e(TAG, "Error updating user: " + e.getMessage(), e);
-                    System.err.println("Error updating user: " + e.getMessage());
+                    Log.e(TAG, "Error updating user: " + e.getMessage());
                 });
+    }
+
+    /**
+     * Updates additional fields for a user in Firestore using the Android ID as the document ID.
+     *
+     * @param androidId The Android ID used as the document ID.
+     * @param additionalData The additional data to update.
+     */
+    public void updateUserWithAdditionalData(String androidId, Map<String, Object> additionalData) {
+        DocumentReference userRef = db.collection("users").document(androidId);
+
+        userRef.update(additionalData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Additional user data updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update additional user data: " + e.getMessage()));
     }
 
     /**
      * Deletes a user from Firestore using the Android ID as the document ID.
      *
-     * @param androidId The Android device ID used as the document ID to delete
+     * @param androidId The Android device ID used as the document ID to delete.
      */
     public void deleteUser(final String androidId) {
         // Reference to the user document
@@ -172,8 +181,9 @@ public class UserRepository {
     }
 
     /**
-     * Retrieves all users from the Firestore user collection
-     * @param callback handles the result of the query
+     * Retrieves all users from the Firestore user collection.
+     *
+     * @param callback handles the result of the query.
      */
     public void getAllUsersFromFirestore(FirestoreCallbackAllUsers callback) {
         userCollection = db.collection("users");
@@ -190,14 +200,14 @@ public class UserRepository {
                             callback.onFailure(new Exception("No users found"));
                         }
                     }
-                });
+                    });
     }
 
     /**
      * Queries a user from Firestore by their Android ID.
      *
-     * @param androidId the device Id of the user, assumed to be unique
-     * @param callback handles the result of the query
+     * @param androidId the device ID of the user, assumed to be unique.
+     * @param callback handles the result of the query.
      */
     public void getSingleUser(String androidId, FirestoreCallbackSingleUser callback) {
         DocumentReference userRef = db.collection("users").document(androidId);
@@ -205,7 +215,9 @@ public class UserRepository {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         try {
-                            UserImpl user = new UserImpl(documentSnapshot.getString("email"),
+                            // Parse user fields explicitly, including latitude and longitude
+                            UserImpl user = new UserImpl(
+                                    documentSnapshot.getString("email"),
                                     documentSnapshot.getString("userType"),
                                     documentSnapshot.getString("name"),
                                     Optional.ofNullable(documentSnapshot.getString("phoneNumber")),
@@ -213,19 +225,30 @@ public class UserRepository {
                                     documentSnapshot.getBoolean("organizerNotification"),
                                     documentSnapshot.getString("profileImage")
                             );
-                            callback.onSuccess(user); // Pass the user object to the callback
-                        } catch (Exception e) {
 
+                            // Set latitude and longitude
+                            Double latitude = documentSnapshot.getDouble("latitude");
+                            Double longitude = documentSnapshot.getDouble("longitude");
+                            user.setLatitude(latitude);
+                            user.setLongitude(longitude);
+
+                            Log.d(TAG, "Fetched user: " + user.getName() + ", Latitude: " + latitude + ", Longitude: " + longitude);
+                            callback.onSuccess(user);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing user document", e);
+                            callback.onFailure(e);
                         }
                     } else {
+                        Log.e(TAG, "User document not found");
                         callback.onFailure(new Exception("User not found"));
                     }
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching user: " + e.getMessage());
                     callback.onFailure(e);
-                    Log.e(TAG, "Error fetching user: " + e.getMessage(), e);
                 });
     }
+
 
     /**
      * Callback interface for querying for a single user.
@@ -236,16 +259,30 @@ public class UserRepository {
     }
 
     /**
-     * Callback interface to handle Firestore query results for users collection
+     * Callback interface to handle Firestore query results for users collection.
      */
     public interface FirestoreCallbackAllUsers {
         void onSuccess(List<DocumentSnapshot> listOfUsers);
         void onFailure(Exception e);
     }
+
     /**
      * Callback interface to handle the result of the existence check and userType retrieval.
      */
     public interface UserTypeCallback {
         void onResult(boolean exists, String userType);
     }
+
+    public void addUserWithLocation(Map<String, Object> userData, String androidId, Runnable onSuccess) {
+        db.collection("users").document(androidId)
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User added to Firestore with location.");
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding user to Firestore: " + e.getMessage());
+                });
+    }
+
 }

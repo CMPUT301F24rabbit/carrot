@@ -2,7 +2,13 @@ package com.example.goldencarrot.views;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -11,7 +17,9 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
@@ -22,17 +30,23 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+
 /**
  * This activity handles the user sign-up process. It allows the user to input their details (email, phone number, and name),
  * verify the input values, and create an account in Firebase. The user type is set to "Participant" by default, but this can
  * be adjusted in other parts of the application. On successful sign-up, the user is directed to the Entrant home view.
  */
+
 public class SignUpActivity extends AppCompatActivity {
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private String userType;
 
+
     // Repository for managing user data in Firestore
+
     private UserRepository userDb;
 
     /**
@@ -51,7 +65,6 @@ public class SignUpActivity extends AppCompatActivity {
         // Default user type is "Participant"
         userType = UserUtils.PARTICIPANT_TYPE;
 
-        // Set click listener for the sign-up button
         findViewById(R.id.sign_up_create_account_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +108,6 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
-
     /**
      * Adds the new user to Firestore after validation.
      *
@@ -109,26 +121,61 @@ public class SignUpActivity extends AppCompatActivity {
      */
     private void addUserToFirestore(String deviceId, String name, String email, Optional<String> phoneNumber, Boolean nAdmin, Boolean nOrg, String defaultProfileUrl) {
         try {
+            getLocation(location -> {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
 
-            // Create a new user object
-            User newUser = new UserImpl(email, userType, name, phoneNumber, nAdmin, nOrg, defaultProfileUrl);
-            // Add the user to Firestore database
-            userDb.addUser(newUser, deviceId);
-            Log.d(TAG, "User added to Firestore: " + email);
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("email", email);
+                userData.put("userType", userType);
+                userData.put("name", name);
+                phoneNumber.ifPresent(phone -> userData.put("phoneNumber", phone));
+                userData.put("organizerNotification", nOrg);
+                userData.put("adminNotification", nAdmin);
+                userData.put("profileImage", defaultProfileUrl);
+                userData.put("latitude", latitude);
+                userData.put("longitude", longitude);
+
+                userDb.addUserWithLocation(userData, deviceId, () -> {
+                    Log.d(TAG, "User added to Firestore with location: " + userData);
+                    Intent intent = new Intent(SignUpActivity.this, EntrantHomeView.class);
+                    startActivity(intent);
+                });
+
+            });
         } catch (Exception e) {
-            Log.e(TAG, "Error adding user to FIrestore: " + e.getMessage());
-            // Show validation error dialog if adding user fails
-            ValidationErrorDialog.show(SignUpActivity.this, "Error", "Invalid user type");
+            Log.e(TAG, "Error adding user to Firestore: " + e.getMessage());
+            ValidationErrorDialog.show(SignUpActivity.this, "Error", "Failed to add user.");
+        }
+    }
+
+    private void getLocation(OnLocationFetchedListener listener) {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location != null) {
+            listener.onLocationFetched(location);
+        } else {
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                @Override
+                public void onLocationChanged(@NonNull Location location) {
+                    listener.onLocationFetched(location);
+                }
+            }, null);
         }
     }
 
     /**
-     * Verifies the user input (email, phone number, and name) before proceeding with the sign-up process.
+     * Validates the email format using Android's built-in pattern matcher.
      *
-     * @param email The user's email address.
-     * @param phoneNumber The user's phone number.
-     * @param name The user's name.
-     * @throws Exception If any of the input fields are invalid.
+     * @param email The email address to validate.
+     * @return true if the email format is valid, false otherwise.
      */
     private void verifyInputs(final String email, final String phoneNumber, final String name) throws Exception {
         if (TextUtils.isEmpty(email) || !isValidEmail(email)) {
@@ -144,15 +191,10 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Validates the email format using Android's built-in pattern matcher.
-     *
-     * @param email The email address to validate.
-     * @return true if the email format is valid, false otherwise.
-     */
     private boolean isValidEmail(String email) {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
+
 
     private void fetchDefaultProfilePictureUrl(String name, OnProfilePictureFetched callback) {
         // Ensure name isn't empty/null
@@ -190,5 +232,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     private interface OnProfilePictureFetched {
         void onSuccess(String url);
+    }
+    private interface OnLocationFetchedListener {
+        void onLocationFetched(Location location);
     }
 }

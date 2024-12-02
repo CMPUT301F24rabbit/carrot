@@ -70,6 +70,7 @@
         <activity android:name=".views.EntrantNotificationsActivity"/>
         <activity android:name=".views.QrCodeScannerActivity"/>
         <activity android:name=".views.FacilityProfileActivity" />
+        <activity android:name=".views.MapViewActivity" />
         <activity android:name=".views.AdminPosterGalleryActivity" />
         <activity android:name=".views.FullScreenImageActivity" />
         <activity android:name=".views.PosterAdapter" />

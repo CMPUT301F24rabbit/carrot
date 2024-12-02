@@ -55,6 +55,8 @@ dependencies {
     testImplementation(libs.ext.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
+
 
     // junit 5
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
@@ -79,6 +81,9 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.71828")
     implementation("com.github.yalantis:ucrop:2.2.9")
 
+    // GEOLOCATION
+    implementation ("org.osmdroid:osmdroid-android:6.1.14")
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.14")
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
