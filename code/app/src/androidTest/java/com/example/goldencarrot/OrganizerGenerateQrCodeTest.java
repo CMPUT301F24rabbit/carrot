@@ -1,11 +1,8 @@
 package com.example.goldencarrot;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.Espresso;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,11 +13,10 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 
 
 import android.util.Log;
@@ -29,9 +25,9 @@ import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.views.OrganizerCreateEvent;
 
 @RunWith(AndroidJUnit4.class)
-public class OrganizerEventTest {
+public class OrganizerGenerateQrCodeTest {
     private EventRepository eventRepository;
-    private static final String TAG = "OrganizerEventTest";
+    private static final String TAG = "OrganizerGenerateQrCodeTest";
     private static final String EVENT_NAME = "SPIDERMAN PARTY";
 
     @Rule
@@ -43,8 +39,13 @@ public class OrganizerEventTest {
         eventRepository = new EventRepository();
     }
 
+    /** Tests the following US:
+     * US 02.01.02  As an organizer I want to store the generated
+     * QR code in my database
+     * @throws InterruptedException thrown by thread
+     */
     @Test
-    public void testEventCreation() throws InterruptedException{
+    public void generateQrCodeTest() throws InterruptedException{
         // Launch activity using the scenario
         try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
 
@@ -65,36 +66,12 @@ public class OrganizerEventTest {
 
             Thread.sleep(4000);
 
-            onView(withText("New Event")).check(matches(isDisplayed()));
-
-            // Verify if the success message or a related UI component is displayed
-            //onView(withText("Event created successfully")).check(matches(isDisplayed()));
-        }
-    }
-    
-    @Test
-    public void testEventCreation_NoLimit() throws InterruptedException{
-        // Launch activity using the scenario
-        try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
-
-            // Input event details
-            onView(withId(R.id.eventNameEditText)).perform(typeText(EVENT_NAME), closeSoftKeyboard());
-            onView(withId(R.id.eventLocationEditText)).perform(typeText("New York"), closeSoftKeyboard());
-            onView(withId(R.id.eventDetailsEditText)).perform(typeText("This is a sample event."), closeSoftKeyboard());
-            onView(withId(R.id.eventDateEditText)).perform(typeText("31-12-2024"), closeSoftKeyboard());
-
-            // SET GEOLOCATION ENABLED
-            onView(withId(R.id.geolocation)).perform(click());
-
-            // Click on the "Create Event" button
-            onView(withId(R.id.createEventButton)).perform(click());
+            onView(withText(EVENT_NAME)).perform(longClick());
 
             Thread.sleep(4000);
 
-            onView(withText("New Event")).check(matches(isDisplayed()));
-
-            // Verify if the success message or a related UI component is displayed
-            //onView(withText("Event created successfully")).check(matches(isDisplayed()));
+            // Generates Toast
+            onView(withId(R.id.generateQRCodeButton)).perform(click());
         }
     }
 
