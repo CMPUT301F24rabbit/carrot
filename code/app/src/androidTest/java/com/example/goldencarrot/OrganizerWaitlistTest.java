@@ -64,7 +64,7 @@ public class OrganizerWaitlistTest {
 
             Thread.sleep(4000);
 
-            onView(withText("Welcome Back "));
+            onView(withText("Welcome back "));
 
         }
     }

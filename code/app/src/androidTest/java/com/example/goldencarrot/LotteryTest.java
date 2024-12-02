@@ -4,9 +4,14 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
+import static androidx.test.espresso.action.ViewActions.repeatedlyUntil;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -35,8 +40,20 @@ public class LotteryTest {
     @Rule
     public ActivityScenarioRule<OrganizerHomeView> activityRule =
             new ActivityScenarioRule<>(OrganizerHomeView.class);
-    @Test
+    @Before
     public void testEventCreation() throws InterruptedException {
+        EventRepository eventRepository = new EventRepository();
+        eventRepository.deleteEventByName(EVENT_NAME, new EventRepository.DeleteCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Log.d(TAG, "message");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG, "clean up failed, event was not deleted successfully");
+            }
+        });
         // Launch activity using the scenario
         try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
 
@@ -60,8 +77,28 @@ public class LotteryTest {
             // Verify if the success message or a related UI component is displayed
             //onView(withText("Event created successfully")).check(matches(isDisplayed()));
         }
-
     }
+    @Test
+    public void drawFromLotteryTest() throws InterruptedException {
+        try (ActivityScenario<OrganizerHomeView> scenario = ActivityScenario.launch(OrganizerHomeView.class)) {
+            Thread.sleep(3000);
+            // scroll to sample event and view details
+            onView(withId(R.id.recycler_view_events)).perform(
+                    repeatedlyUntil(swipeUp(), hasDescendant(withText(EVENT_NAME)),
+                            10)
+            );
+            onView(withText(EVENT_NAME)).perform(longClick());
+            onView(withText(EVENT_NAME)).check(matches(isDisplayed()));
+
+            onView(withId(R.id.button_SelectLotteryUsers)).perform(click());
+            onView(withHint("(e.g type '1' to draw 1 winner!)")).perform(typeText("1"));
+            onView(withText("OK")).perform(click());
+
+            // check it it navigates back to organizer home
+            onView(withText("Welcome back ")).check(matches(isDisplayed()));
+        }
+    }
+
     @After
     public void cleanUpEvents() {
         EventRepository eventRepository = new EventRepository();
