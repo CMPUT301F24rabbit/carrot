@@ -40,7 +40,6 @@ public class FacilityProfileActivity extends AppCompatActivity {
     private EditText nameEditText, locationEditText, descriptionEditText, contactInfoEditText;
     private WebView mapWebView;
     private Button saveButton, backButton;
-    private Switch geolocationSwitch;
 
     private FirebaseFirestore firestore;
     private String userId;
@@ -68,7 +67,6 @@ public class FacilityProfileActivity extends AppCompatActivity {
         mapWebView = findViewById(R.id.mapWebView);
         backButton = findViewById(R.id.facilityProfileBackBtn);
         saveButton = findViewById(R.id.saveFacilityButton);
-        geolocationSwitch = findViewById(R.id.geolocationSwitch);
 
         // Get userId from Intent
         userId = getIntent().getStringExtra("userId");
@@ -112,7 +110,6 @@ public class FacilityProfileActivity extends AppCompatActivity {
                         locationEditText.setText(location != null ? location : "");
                         contactInfoEditText.setText(contactInfo != null ? contactInfo : "");
                         descriptionEditText.setText(description != null ? description : "");
-                        geolocationSwitch.setChecked(isGeolocationEnabled != null && isGeolocationEnabled);
 
                         if (location != null && !location.isEmpty()) {
                             updateMapWithLocation(location);
@@ -137,14 +134,34 @@ public class FacilityProfileActivity extends AppCompatActivity {
         String location = locationEditText.getText().toString().trim();
         String contactInfo = contactInfoEditText.getText().toString().trim();
         String description = descriptionEditText.getText().toString().trim();
-        boolean isGeolocationEnabled = geolocationSwitch.isChecked();
 
+        // Input validation
+        if (facilityName.isEmpty()) {
+            Toast.makeText(this, "Facility name cannot be blank.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (location.isEmpty()) {
+            Toast.makeText(this, "Location cannot be blank.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (description.isEmpty()) {
+            Toast.makeText(this, "Description cannot be blank.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (contactInfo.isEmpty() || !contactInfo.contains("@")) {
+            Toast.makeText(this, "Contact info must contain '@' and cannot be blank.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Prepare data for Firestore
         Map<String, Object> facilityData = new HashMap<>();
         facilityData.put("facilityName", facilityName);
         facilityData.put("location", location);
         facilityData.put("contactInfo", contactInfo);
         facilityData.put("description", description);
-        facilityData.put("isGeolocationEnabled", isGeolocationEnabled);
 
         // Save to Firestore
         firestore.collection("users").document(userId)
@@ -165,6 +182,7 @@ public class FacilityProfileActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     /**
      * Updates the map WebView with the facility location by using the location's latitude and longitude.

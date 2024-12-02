@@ -25,8 +25,6 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.UserRepository;
-import com.example.goldencarrot.data.model.user.User;
-import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;

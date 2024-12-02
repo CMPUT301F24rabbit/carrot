@@ -94,8 +94,7 @@ public class EventArrayAdapter extends android.widget.ArrayAdapter<Event> {
                 Log.d("EventArrayAdapter", "Loading poster for event: " + event.getEventName() + " | URL: " + eventPosterUrl);
                 Picasso.get()
                         .load(eventPosterUrl)
-                        .placeholder(R.drawable.poster_placeholder) // Placeholder while loading
-                        .error(R.drawable.poster_error) // Error image if loading fails
+                        .error(R.drawable.poster_placeholder) // Error image if loading fails
                         .into(eventImage, new com.squareup.picasso.Callback(){
                             @Override
                             public void onSuccess() {
@@ -110,7 +109,7 @@ public class EventArrayAdapter extends android.widget.ArrayAdapter<Event> {
             } else {
                 // Log missing poster URL
                 Log.e("EventArrayAdapter", "Poster URL is missing or empty for event: " + event.getEventName());
-                eventImage.setImageResource(R.drawable.movie);
+                eventImage.setImageResource(R.drawable.poster_placeholder);
             }
         } else {
             Log.e("EventArrayAdapter", "Event is null at position: " + position);
