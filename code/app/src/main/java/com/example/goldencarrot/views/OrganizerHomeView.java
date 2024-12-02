@@ -6,21 +6,25 @@ import static com.example.goldencarrot.data.model.user.UserUtils.PARTICIPANT_TYP
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.NotificationController;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.NotificationRepository;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
@@ -78,6 +82,12 @@ public class OrganizerHomeView extends AppCompatActivity {
         userRepository = new UserRepository();
         notifRepo = new NotificationRepository(firestore);
 
+        // Apply RNG Background
+        LinearLayout rootLayout = findViewById(R.id.root_layout);
+        Drawable randomBackground = RanBackground.getRandomBackground(this);
+        if (randomBackground != null) {
+            rootLayout.setBackground(randomBackground);
+        }
 
         // Initialize the views from layout file
         manageProfileButton = findViewById(R.id.manageFacilityProfileBtn);
