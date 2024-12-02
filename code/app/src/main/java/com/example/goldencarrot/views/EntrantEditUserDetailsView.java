@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.MainActivity;
 import com.example.goldencarrot.R;
@@ -29,7 +30,7 @@ import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
 import com.example.goldencarrot.data.model.user.UserUtils;
-import com.example.goldencarrot.views.EntrantHomeView;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.views.ValidationErrorDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,6 +77,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrant_edit_user_details);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         // Validate User and deviceID
         String deviceId = getDeviceId(this);

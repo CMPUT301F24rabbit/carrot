@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/auth_sign_up"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".views.EntrantEditUserDetailsView">
@@ -16,101 +16,122 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Profile Image -->
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/profilepic1" />
+            android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/edit_user_details_username_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="150dp"
-            android:text="Name:"
-            android:textSize="25dp" />
-
-        <EditText
-            android:id="@+id/edit_user_details_name"
+        <!-- Background for readability -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="145dp"
-            android:layout_marginTop="-40dp"
-            android:layout_marginEnd="16dp"
-            android:ems="10"
-            android:inputType="text"
-            android:text="" />
+            android:layout_margin="16dp"
+            android:background="#CCFFFFFF"
+            android:elevation="4dp"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/edit_user_details_email_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="50dp"
-            android:text="Email:"
-            android:textSize="20sp" />
-
-        <EditText
-            android:id="@+id/edit_user_details_email_input"
+        <!-- Name, Email Phone fields -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="90dp"
-            android:layout_marginTop="-40dp"
-            android:layout_marginEnd="20dp"
-            android:ems="10"
-            android:inputType="textEmailAddress"
-            android:textSize="20sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/edit_user_details_phone_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="50dp"
-            android:text="Phone Number:"
-            android:textSize="20sp" />
+            <!-- Name -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/edit_user_details_username_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Name:"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="8dp" />
+                <EditText
+                    android:id="@+id/edit_user_details_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="text"
+                    android:hint="Enter your name" />
+            </LinearLayout>
 
-        <EditText
-            android:id="@+id/edit_user_details_phone_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="165dp"
-            android:layout_marginTop="-40dp"
-            android:layout_marginEnd="16dp"
-            android:ems="10"
-            android:inputType="number" />
+            <!-- Email -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:id="@+id/edit_user_details_email_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email:"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="8dp" />
+                <EditText
+                    android:id="@+id/edit_user_details_email_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="textEmailAddress"
+                    android:hint="Enter your email" />
+            </LinearLayout>
 
-        <!-- Toggles for notifications -->
-        <Switch
-            android:id="@+id/switch_organizer_notifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Organizer Notifications"
-            android:textSize="20sp" />
+            <!-- Phone -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:id="@+id/edit_user_details_phone_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone:"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="8dp" />
+                <EditText
+                    android:id="@+id/edit_user_details_phone_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="number"
+                    android:hint="Enter your phone number" />
+            </LinearLayout>
 
-        <Switch
-            android:id="@+id/switch_admin_notifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Administrator Notifications"
-            android:textSize="20sp" />
+            <!-- Notification  -->
+            <Switch
+                android:id="@+id/switch_organizer_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Organizer Notifications"
+                android:textSize="18sp" />
+            <Switch
+                android:id="@+id/switch_admin_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Administrator Notifications"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </FrameLayout>
 
-        <Button
-            android:id="@+id/edit_user_details_save_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:backgroundTint="@color/orange"
-            android:text="Save" />
-
-        <Button
-            android:id="@+id/back_button_notifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
-            android:text="Back" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Save and Back Buttons -->
+    <Button
+        android:id="@+id/edit_user_details_save_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/orange"
+        android:text="Save" />
+    <Button
+        android:id="@+id/back_button_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/orange"
+        android:text="Back" />
+</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
