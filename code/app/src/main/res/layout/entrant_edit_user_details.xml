@@ -20,7 +20,8 @@
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"/>
 
         <!-- Background for readability -->
         <FrameLayout

@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.CircleTransform;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserImpl;
@@ -33,6 +34,7 @@ import com.example.goldencarrot.controller.RanBackground;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -174,9 +176,16 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
                 originalProfileImage = userProfileImage;
 
-                Picasso.get().load(userProfileImage)
-                        .error(R.drawable.profilepic1)
-                        .into(profileImage);
+                if(!isGenericImage(userProfileImage)) {
+                    Picasso.get().load(userProfileImage)
+                            .transform(new CircleTransform())
+                            .error(R.drawable.profilepic1)
+                            .into(profileImage);
+                } else {
+                    Picasso.get().load(userProfileImage)
+                            .error(R.drawable.profilepic1)
+                            .into(profileImage);
+                }
             }
 
             @Override
@@ -249,6 +258,10 @@ public class EntrantEditUserDetailsView extends AppCompatActivity {
 
             if(croppedImageUri != null) {
                 // Set to the Image View and upload to FB
+                Picasso.get()
+                                .load(croppedImageUri)
+                                .transform(new CircleTransform())
+                                .into(profileImage);
                 Log.d("UCROP", "Cropped Image  URI: " + croppedImageUri.toString());
                 profileImage.setImageURI(croppedImageUri);
                 sendImagetoFB(croppedImageUri);

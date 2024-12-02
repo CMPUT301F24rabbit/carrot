@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.CircleTransform;
 import com.example.goldencarrot.controller.NotificationController;
 import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.NotificationRepository;
@@ -578,17 +579,31 @@ public class EntrantHomeView extends AppCompatActivity {
      * @param imageUrl TheURLofthe profile image.
      */
     private void loadProfileImage(String imageUrl){
-        Picasso.get().load(imageUrl)
-                .into(profileImageView, new com.squareup.picasso.Callback(){
-                    @Override
-                    public void onSuccess() {
-                        Log.d(TAG, "Profile image loaded successfully.");
-                    }
+        if(!isGenericImage(imageUrl)) {
+            Picasso.get().load(imageUrl)
+                    .transform(new CircleTransform())
+                    .error(R.drawable.profilepic1)
+                    .into(profileImageView);
+        } else {
+            Picasso.get().load(imageUrl)
+                    .error(R.drawable.profilepic1)
+                    .into(profileImageView);
+        }
+    }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e(TAG, "Failed to load profile image", e);
-                    }
-                });
+    /**
+     * Checks whether the current profile image is determanistically generated
+     * @param imageUrl The URL of the profile image
+     * @return True if the image is generic, false otherwise
+     */
+    private boolean isGenericImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) return false;
+
+        // Use Uri.decode() for decoding URL to handle encoded characters like `%2F`
+        String decodedUrl = Uri.decode(imageUrl);
+        Log.d(TAG, "Decoded URL: " + decodedUrl);
+
+        // Check if the decoded URL contains the "profile/generic/" path
+        return decodedUrl.contains("/profile/generic/");
     }
 }
