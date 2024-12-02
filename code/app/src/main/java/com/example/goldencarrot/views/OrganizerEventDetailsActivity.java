@@ -24,14 +24,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.WaitListRepository;
@@ -94,6 +97,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventRepository = new EventRepository();
         waitListRepository = new WaitListRepository();
         List<User> usersWithStatus = new ArrayList<>();
+
+        // Apply RNG Background
+        RelativeLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
+
 
         // Get eventID from Intent
         eventId = getIntent().getStringExtra("eventId");

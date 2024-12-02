@@ -14,8 +14,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
 import com.example.goldencarrot.data.model.user.User;
@@ -58,6 +60,10 @@ public class AdminHomeActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_home);
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         viewAllEventsButton = findViewById(R.id.adminAllEventsButton);
         viewAllUsersButton = findViewById(R.id.adminAllUsersButton);

@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.user.User;
 import com.example.goldencarrot.data.model.user.UserArrayAdapter;
@@ -42,6 +44,10 @@ public class AdminAllProfilesView extends AppCompatActivity {
         setContentView(R.layout.activity_admin_all_users);
         dataUserList = new ArrayList<>();
         userRepository = new UserRepository();
+
+        // Apply RNG Background
+        ConstraintLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         // retrieve all users from firestore
         userList = findViewById(R.id.allUsersList);

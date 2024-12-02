@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide; // Glide for image loading
+import com.squareup.picasso.Picasso;
 import com.example.goldencarrot.R;
 
 import java.text.SimpleDateFormat;
@@ -68,10 +68,10 @@ public class EventRecyclerArrayAdapter extends RecyclerView.Adapter<EventRecycle
         // Load event poster using Glide
         String posterUrl = event.getPosterUrl(); // New method to fetch poster URL
         if (posterUrl != null && !posterUrl.isEmpty()) {
-            Glide.with(context)
+            Picasso.get()
                     .load(posterUrl)
                     .placeholder(R.drawable.poster_placeholder) // Default placeholder
-                    .error(R.drawable.poster_error) // Error image
+                    .error(R.drawable.poster_placeholder) // Error image
                     .into(holder.eventImageView);
         } else {
             // Fallback to a default image if no URL is available

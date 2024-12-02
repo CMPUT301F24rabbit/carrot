@@ -2,13 +2,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#B3FFFFFF">
 
         <!-- Facility Name -->
         <TextView
@@ -89,6 +90,28 @@
             android:layout_marginBottom="16dp"
             tools:ignore="WebViewLayout" />
 
+        <!-- Geolocation Toggle -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#B3FFFFFF"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable Geolocation"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/geolocationSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
 
         <!-- Save Button -->
         <Button
@@ -97,25 +120,16 @@
             android:layout_height="wrap_content"
             android:text="Save and Update Map"
             android:layout_marginTop="16dp"
-             />
+            android:backgroundTint="@color/orange" />
 
         <!-- Back Button -->
-
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/facilityProfileBackBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="Back"
-            android:textColor="#000000"
-            android:backgroundTint="#FCC4AA"
-            app:cornerRadius="16dp"
-            app:strokeWidth="2dp"
-            app:strokeColor="#808080"
-            android:padding="12dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/orange" />
 
     </LinearLayout>
 

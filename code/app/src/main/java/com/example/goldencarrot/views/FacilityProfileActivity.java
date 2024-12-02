@@ -11,14 +11,17 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -58,6 +61,11 @@ public class FacilityProfileActivity extends AppCompatActivity {
 
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
+
+        // Apply RNG Background
+        ScrollView rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
+
 
         // Initialize views
         nameEditText = findViewById(R.id.nameEditText);
