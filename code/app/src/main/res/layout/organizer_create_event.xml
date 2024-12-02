@@ -3,59 +3,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/root_layout"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/eventNameEditText"
+    <!-- Container for the block with semi-transparent background -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Name"/>
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#B3FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:elevation="4dp">
 
-    <EditText
-        android:id="@+id/eventLocationEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Location"/>
+        <EditText
+            android:id="@+id/eventNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Event Name"/>
 
-    <EditText
-        android:id="@+id/eventDetailsEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:hint="Event Details" />
+        <EditText
+            android:id="@+id/eventLocationEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Location"/>
 
-    <EditText
-        android:id="@+id/eventDateEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Event Date (dd-MM-yyyy)"/>
+        <EditText
+            android:id="@+id/eventDetailsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:hint="Event Details" />
 
-    <EditText
-        android:id="@+id/waitlistLimitEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Waitlist Limit (Optional)"/>
+        <EditText
+            android:id="@+id/eventDateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Event Date (dd-MM-yyyy)"/>
 
-    <Switch
-        android:id="@+id/geolocation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Enable: Geo Location" />
-    <Button
-        android:id="@+id/selectPosterButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/orange"
-        android:text="Select Poster" />
+        <EditText
+            android:id="@+id/waitlistLimitEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Waitlist Limit (Optional)"/>
 
-    <ImageView
-        android:id="@+id/eventPosterImageView"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="16dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/poster_placeholder" />
+        <Switch
+            android:id="@+id/geolocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable: Geo Location" />
+        <Button
+            android:id="@+id/selectPosterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/orange"
+            android:text="Select Poster" />
 
+        <ImageView
+            android:id="@+id/eventPosterImageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/poster_placeholder" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/createEventButton"

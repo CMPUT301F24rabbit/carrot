@@ -2,6 +2,7 @@ package com.example.goldencarrot.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -9,14 +10,15 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.controller.RanBackground;
 import com.example.goldencarrot.data.db.EventRepository;
 import com.example.goldencarrot.data.db.UserRepository;
 import com.example.goldencarrot.data.model.event.Event;
@@ -26,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,6 +68,10 @@ public class OrganizerCreateEvent extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.organizer_create_event);
+
+        // Apply RNG Background
+        LinearLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout.setBackground(RanBackground.getRandomBackground(this));
 
         eventRepository = new EventRepository();
         userRepository = new UserRepository();
@@ -139,7 +146,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
         // Load poster image using Glide
         if (posterUrl != null && !posterUrl.isEmpty()) {
-            Glide.with(this)
+            Picasso.get()
                     .load(posterUrl)
                     .placeholder(R.drawable.poster_placeholder) // Replace with your placeholder
                     .error(R.drawable.poster_placeholder) // Replace with your error image
