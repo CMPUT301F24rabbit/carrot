@@ -7,13 +7,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.content.Intent;
+
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.example.goldencarrot.views.AdminHomeActivity;
+import com.example.goldencarrot.views.EntrantNotificationsActivity;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +55,7 @@ public class AdminUiTest {
     }
 
     @Test
-    public void testViewProfile() throws Exception {
+    public void testViewAndDeleteProfile() throws Exception {
         testDataHelper = new TestDataHelper();
 
         Thread.sleep(5000);
@@ -61,6 +66,11 @@ public class AdminUiTest {
         onView(withText(TestDataHelper.TEST_USER_NAME)).perform(click());
         // check if delete button is displayed on screen
         onView(withId(R.id.deleteProfileBtn)).check(matches(isDisplayed()));
+
+        // delete profile
+        onView(withId(R.id.deleteProfileBtn)).perform(click());
+
+        onView(withText("Profiles")).check(matches(isDisplayed()));
     }
 
     @Test
@@ -89,36 +99,43 @@ public class AdminUiTest {
         onView(withText("Browse Events")).check(matches(isDisplayed()));
     }
 
-//    @Test
-//    public void testViewSpecificEvent() throws Exception {
-//        // initialize test data Factory method
-//        testDataHelper = new TestDataHelper();
-//
-//        Thread.sleep(5000);
-//
-//        // Click on Events button
-//        onView(withId(R.id.adminAllEventsButton)).perform(click());
-//        onView(withText("Browse Events")).check(matches(isDisplayed()));
-//        // Click on event Sample Event to view event details
-//        onView(withText(TestDataHelper.EVENT_NAME)).perform(click());
-//        // check if "delete event" button is displayed
-//        onView(withId(R.id.delete_DetailEventBtn)).check(matches(isDisplayed()));
-//    }
-//
-//    @Test
-//    public void testBackButtonFromEvent() throws Exception {
-//        // initialize test data Factory method
-//        testDataHelper = new TestDataHelper();
-//
-//        // Click on Events button
-//        onView(withId(R.id.adminAllEventsButton)).perform(click());
-//        onView(withText("Browse Events")).check(matches(isDisplayed()));
-//        // Click on event Sample Event to view event details
-//        onView(withText(TestDataHelper.EVENT_NAME)).perform(click());
-//        // click on back button from event page, and browse events page
-//        onView(withId(R.id.back_DetailButton)).perform(click());
-//        onView(withId(R.id.browseEventsBackBtn)).perform(click());
-//        // check if back at admin home
-//        onView(withText("Admin Home")).check(matches(isDisplayed()));
-//    }
+/*
+    @Test
+    public void testViewSpecificEvent() throws Exception {
+        // initialize test data Factory method
+        testDataHelper = new TestDataHelper();
+
+        Thread.sleep(5000);
+
+        // open event details
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), EntrantNotificationsActivity.class);
+       // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        onView(withText("Browse Events")).check(matches(isDisplayed()));
+
+        // Click on event Sample Event to view event details
+        onView(withText(TestDataHelper.EVENT_NAME)).check(matches(isDisplayed()));
+        onView(withText(TestDataHelper.EVENT_NAME)).perform(click());
+        // check if "delete event" button is displayed
+        onView(withId(R.id.delete_DetailEventBtn)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testBackButtonFromEvent() throws Exception {
+        // initialize test data Factory method
+       testDataHelper = new TestDataHelper();
+
+        // Click on Events button
+        onView(withId(R.id.adminAllEventsButton)).perform(click());
+        onView(withText("Browse Events")).check(matches(isDisplayed()));
+        // Click on event Sample Event to view event details
+        onView(withText(TestDataHelper.EVENT_NAME)).perform(click());
+        // click on back button from event page, and browse events page
+        onView(withId(R.id.back_DetailButton)).perform(click());
+        onView(withId(R.id.browseEventsBackBtn)).perform(click());
+        // check if back at admin home
+        onView(withText("Admin Home")).check(matches(isDisplayed()));
+    }
+
+ */
 }

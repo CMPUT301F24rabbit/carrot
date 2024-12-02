@@ -25,6 +25,7 @@ import com.example.goldencarrot.views.EventDetailsAdminActivity;
 
 @RunWith(AndroidJUnit4.class)
 public class EventDetailsAdminActivityTest {
+    private TestDataHelper testDataHelper;
 
     @Rule
     public ActivityTestRule<EventDetailsAdminActivity> activityRule =
@@ -44,10 +45,12 @@ public class EventDetailsAdminActivityTest {
      * Test that event details are displayed correctly.
      */
     @Test
-    public void testEventDetailsDisplayed() {
+    public void testEventDetailsDisplayed() throws Exception {
         // Launch activity with an event ID as an intent extra
+        testDataHelper = new TestDataHelper();
+
         Intent intent = new Intent();
-        intent.putExtra("eventId", "testEventId");
+        intent.putExtra("eventId", testDataHelper.getEventId());
         activityRule.launchActivity(intent);
 
         // Verify that the event details are displayed
