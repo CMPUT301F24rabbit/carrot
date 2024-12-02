@@ -36,12 +36,12 @@ public class WaitListControllerTest {
         waitListController.selectRandomWinnersAndUpdateStatus(numberOfWinners);
 
         // Count the number of users with "accepted" status
-        long acceptedCount = waitList.getUserMap().values().stream()
-                .filter(status -> "accepted".equals(status))
+        long chosenCount = waitList.getUserMap().values().stream()
+                .filter(status -> "chosen".equals(status))
                 .count();
 
         // Assert the number of "accepted" users is as expected
-        assertEquals(3, acceptedCount, "There should be 3 accepted users in total after selecting 2 winners.");
+        assertEquals(2, chosenCount, "There should be 2 chosen users in total after selecting 2 winners.");
     }
 
     @Test

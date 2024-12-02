@@ -31,7 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.controller.WaitListController;
 import com.example.goldencarrot.data.db.EventRepository;
@@ -47,6 +46,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.squareup.picasso.Picasso;
 
 /**
  * Activity that displays details of an event organized by the user.
@@ -322,7 +322,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
                     // Load the poster image from Firebase Storage using Glide
                     if (posterUrl != null && !posterUrl.isEmpty()) {
-                        Glide.with(this)
+                        Picasso.get()
                                 .load(posterUrl)
                                 .placeholder(R.drawable.poster_placeholder) // Default placeholder image
                                 .error(R.drawable.poster_error) // Error placeholder

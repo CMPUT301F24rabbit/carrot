@@ -165,6 +165,8 @@ public class WaitlistActivity extends AppCompatActivity {
                                         startActivity(intent);
                                     })
                                     .addOnFailureListener(e -> Log.e("WaitlistActivity", "Error removing event", e));
+                            Long currentSize = document.getLong("size");
+                            document.getReference().update("size", currentSize-1);
                         }
                     } else {
                         Log.e("WaitlistActivity", "Error finding event to remove", task.getException());
