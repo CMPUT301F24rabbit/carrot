@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
     <LinearLayout
@@ -96,16 +97,25 @@
             android:layout_height="wrap_content"
             android:text="Save and Update Map"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+             />
 
         <!-- Back Button -->
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/facilityProfileBackBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Back"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/orange" />
+            android:text="Back"
+            android:textColor="#000000"
+            android:backgroundTint="#FCC4AA"
+            app:cornerRadius="16dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="#808080"
+            android:padding="12dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+
 
     </LinearLayout>
 

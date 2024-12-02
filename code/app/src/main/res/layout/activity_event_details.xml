@@ -109,7 +109,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/orange"
             android:text="QR Code" />
 
         <Button
@@ -118,7 +117,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/orange"
             android:text="Upload Poster" />
 
         <Button
@@ -127,7 +125,6 @@
             android:layout_height="wrap_content"
             android:text="Delete QR Code"
             android:visibility="gone"
-            android:backgroundTint="@color/orange"
             android:layout_marginTop="16dp"
             android:layout_gravity="center_horizontal" />
 
@@ -138,7 +135,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/orange"
             android:text="Lottery" />
 
     </LinearLayout>
@@ -158,7 +154,6 @@
             android:id="@+id/back_DetailButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
             android:text="Back"
             android:layout_margin="8dp"/>
 
@@ -167,7 +162,6 @@
             android:id="@+id/delete_DetailEventBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/orange"
             android:layout_marginBottom="8dp"
             android:text="Delete Event" />
 
@@ -177,7 +171,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lists"
-            android:backgroundTint="@color/orange"
             android:layout_margin="8dp"/>
 
     </LinearLayout>
