@@ -6,6 +6,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.repeatedlyUntil;
@@ -50,6 +51,7 @@ public class OrganizerWaitlistTest {
         try (ActivityScenario<OrganizerCreateEvent> scenario = ActivityScenario.launch(OrganizerCreateEvent.class)) {
             // Input event details
             onView(withId(R.id.eventNameEditText)).perform(typeText(EVENT_NAME));
+            onView(withId(R.id.eventLocationEditText)).perform(clearText());
             onView(withId(R.id.eventLocationEditText)).perform(typeText("New York"));
             onView(withId(R.id.eventDetailsEditText)).perform(typeText("This is a sample event for testing waitlists."));
             onView(withId(R.id.eventDateEditText)).perform(typeText("31-12-2024"));
