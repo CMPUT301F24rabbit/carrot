@@ -1,6 +1,7 @@
 package com.example.goldencarrot.data.model.notification;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.goldencarrot.R;
+import com.example.goldencarrot.data.db.EventRepository;
+import com.example.goldencarrot.data.model.event.Event;
 
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
 
     private final Context context;
     private final List<Notification> notifications;
+    private EventRepository eventRepository;
 
     /**
      * Constructor of the NotificationAdapter for lists
@@ -42,6 +46,8 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        eventRepository = new EventRepository();
+
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.notification_list, parent, false);
         }
@@ -54,7 +60,25 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
         TextView eventIdView = convertView.findViewById(R.id.notification_event_id);
         messageView.setText(notification.getMessage());
         statusView.setText(notification.getStatus());
-        eventIdView.setText("Event ID: " + notification.getEventId());
+
+        // get event name
+        if (notification.getEventId() != null) {
+            eventRepository.getBasicEventById(notification.getEventId(), new EventRepository.EventCallback() {
+                @Override
+                public void onSuccess(Event event) {
+                    eventIdView.setText(event.getEventName());
+                    Log.d("NotificationAdapter.java", "Event found");
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("NotificationAdapter.java", "Event Not found" + e);
+                    eventIdView.setText("Event Name not found");
+                }
+            });
+        } else {
+            eventIdView.setText("Join My Event!");
+        }
 
         // Return the completed view for this list item.
         return convertView;

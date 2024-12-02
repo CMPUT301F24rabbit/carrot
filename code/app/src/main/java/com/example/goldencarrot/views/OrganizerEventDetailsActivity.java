@@ -190,6 +190,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Create an EditText for number input
                 EditText numberInput = new EditText(view.getContext());
+                numberInput.setHint("(e.g type '1' to draw 1 winner!)");
                 numberInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); // Ensures only numbers can be entered
 
                 // Create the dialog
