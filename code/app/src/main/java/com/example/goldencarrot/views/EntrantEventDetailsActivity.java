@@ -16,9 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.goldencarrot.R;
 import com.example.goldencarrot.data.db.EventRepository;
@@ -99,7 +97,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets up the UI components, including the back button and the join waitlist button.
+     * Configures the UI components
+     * @param eventId The event ID used to fetch event details and waitlist data.
      */
     private void setupUI(String eventId) {
         // Initialize TextView for displaying event details
@@ -244,7 +243,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the waitlist data for the event based on the event ID passed in the intent.
+     * Loads the waitlist data for a given event
+     * @param eventId The event ID to get the waitlist for.
      */
     private void loadWaitList(String eventId) {
         if (eventId != null) {
@@ -268,6 +268,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Handles the action of joining the event waitlist. If geolocation is enabled, a confirmation
      * dialog is shown before adding the user to the waitlist.
      *
+     * @param eventId The ID of the event tojoin
      * @throws IllegalArgumentException If the event ID or user ID is null.
      */
     private void handleJoinWaitList(String eventId) {
@@ -349,6 +350,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Validstes the user's location to ensure their eligibility to join the events waitlist
+     * @param user
+     * @param organizerId
+     */
     private void validateEntrantLocation(User user, String organizerId) {
         userRepository.getSingleUser(organizerId, new UserRepository.FirestoreCallbackSingleUser() {
             @Override
@@ -394,7 +400,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Adds user to the waitlist after validation passes
+     * @param user The user being added to the waitlist
+     */
     private void proceedToJoinWaitList(User user) {
         waitListRepository.isUserInWaitList(eventWaitList.getWaitListId(), user, new WaitListRepository.FirestoreCallback() {
             @Override

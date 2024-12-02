@@ -11,8 +11,11 @@ import com.example.goldencarrot.data.model.user.UserUtils;
 import com.example.goldencarrot.data.model.waitlist.WaitList;
 import com.example.goldencarrot.data.model.waitlist.WaitListConfigurator;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,20 +89,34 @@ public class WaitListRepository implements WaitListDb {
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating WaitList", e));
     }
 
+    /**
+     * Adds the user to waitlist, and checks that the limit is bigger than the number of users
+     * currently waiting + 1
+     * @param docId the document ID of the waitlist
+     * @param user the user to be added to the waitlist
+     * @param callback a callback that handles the result (true if added, false if the waitlist full)
+     */
     @Override
     public void addUserToWaitList(String docId, User user, FirestoreCallback callback) {
         waitListRef.document(docId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Long currentSize = documentSnapshot.getLong("size");
+                        // Extract the "users" map from the document
+                        Map<String, String> userMap = (Map<String, String>) documentSnapshot.get("users");
+
+                        // Filter users with "waiting" status and count them
+                        int currentSize = userMap == null ? 0 :
+                                (int) userMap.values().stream()
+                                        .filter(status -> UserUtils.WAITING_STATUS.equals(status))
+                                        .count();
+
                         Long limit = documentSnapshot.getLong("limit");
 
-                        if (currentSize != null && limit != null && currentSize < limit) {
+                        if (limit != null && currentSize < limit) {
                             Map<String, Object> updateData = new HashMap<>();
-                            updateData.put("size", currentSize + 1);
 
                             // Check if the "users" field exists
-                            if (!documentSnapshot.contains("users")) {
+                            if (userMap == null) {
                                 // Initialize the "users" map if it doesn't exist
                                 Map<String, String> usersMap = new HashMap<>();
                                 usersMap.put(user.getUserId(), UserUtils.WAITING_STATUS);
@@ -124,7 +141,6 @@ public class WaitListRepository implements WaitListDb {
                             Log.d(TAG, "Waitlist is full");
                             callback.onSuccess(false);
                             Toast.makeText(getApplicationContext(), "The waitlist is full.", Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 })
@@ -134,12 +150,13 @@ public class WaitListRepository implements WaitListDb {
                 });
     }
 
+
     /**
-     * Updates the status of a user in the waitlist document in Firestore.
+     * Updates the status of a user in the waitlist document in Firestore and decrements the size field if needed.
      *
      * @param docId   the document ID of the waitlist
      * @param user    the user to update
-     * @param status  the new status of the user (e.g., "accepted", "rejected", etc.)
+     * @param status  the new status of the user (e.g., "accepted", "rejected", "cancelled", "chosen")
      */
     @Override
     public void updateUserStatusInWaitList(String docId, UserImpl user, String status) {

@@ -53,7 +53,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
     private Uri posterUri;
     private boolean geolocationIsEnabled;
-    private String organizerId, eventId, location;
+    private String organizerId, eventId;
     private FirebaseFirestore db;
     private EventRepository eventRepository;
     private UserRepository userRepository;
@@ -89,7 +89,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
         selectPosterButton = findViewById(R.id.selectPosterButton);
         backButton = findViewById(R.id.backButtonFromCreateEvent);
 
-        // Load facility location and setup listeners
+        // setup listeners
         getFacilityLocation();
         geolocationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> geolocationIsEnabled = isChecked);
         selectPosterButton.setOnClickListener(view -> selectPosterImage());
@@ -164,7 +164,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        location = documentSnapshot.getString("facilityLocation");
+                        String location = documentSnapshot.getString("location");
                         eventLocationEditText.setText(location);
                     }
                 })

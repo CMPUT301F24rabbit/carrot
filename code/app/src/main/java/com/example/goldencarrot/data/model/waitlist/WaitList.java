@@ -1,6 +1,7 @@
 package com.example.goldencarrot.data.model.waitlist;
 
 import com.example.goldencarrot.data.model.user.UserImpl;
+import com.example.goldencarrot.data.model.user.UserUtils;
 
 import java.util.Map;
 
@@ -127,13 +128,23 @@ public class WaitList implements WaitListConfigurator {
     }
 
     /**
-     * Checks if the waitlist has reached its limit.
+     * Checks if the waitlist has surpassed the limit
      *
-     * @return {@code true} if the waitlist is full, {@code false} otherwise.
+     * @return {@code true} if the number of users with status "waiting" has reached the limit, {@code false} otherwise.
      */
     @Override
     public boolean isFull() {
-        return this.userMap.size() == this.limitNumber;
+        if (userMap == null || limitNumber <= 0) {
+            // No users or no limit set, waitlist cannot be full
+            return false;
+        }
+
+        // Count users with "waiting" status
+        long waitingCount = userMap.values().stream()
+                .filter(UserUtils.WAITING_STATUS::equals)
+                .count();
+
+        return waitingCount >= limitNumber;
     }
 
     /**
