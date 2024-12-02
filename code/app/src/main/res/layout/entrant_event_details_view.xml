@@ -36,7 +36,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:text="Join Waitinglist"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:padding="10dp" />
 
     <!-- Back Button -->
@@ -49,7 +49,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="Back"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:padding="10dp" />
 
 </RelativeLayout>
