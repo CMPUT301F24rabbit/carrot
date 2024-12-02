@@ -263,8 +263,9 @@ public class EntrantHomeView extends AppCompatActivity {
                                 ? Optional.of(phoneNumber)
                                 : Optional.empty();
 
+                        UserImpl user = null;
                         try {
-                            UserImpl user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, userProfileImage);
+                            user = new UserImpl(email, userType, name, optionalPhoneNumber, notificationAdministrator, notificationOrganizer, userProfileImage);
                             if (user.getName() != null) {
                                 usernameTextView.setText(user.getName());
                                 Log.d(TAG, "Username loaded: " + user.getName());
@@ -310,69 +311,42 @@ public class EntrantHomeView extends AppCompatActivity {
     private void loadEventData() {
         String deviceId = getDeviceId(EntrantHomeView.this);
         Log.d("EntrantHomeView", "DeviceID: " + deviceId);
-
         // Load the first 4 waitlisted events from Firestore
         CollectionReference waitlistRef = firestore.collection("waitlist");
-
         waitlistRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 waitlistedEventsList.clear(); // Clears the existing list
-
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     // Check if device id is in the user map with waiting status
                     Map<String, Object> usersMap = (Map<String, Object>) document.get("users");
-
                     if (usersMap != null && usersMap.containsKey(deviceId)) {
                         String status = (String) usersMap.get(deviceId);
-
-                        if (UserUtils.WAITING_STATUS.equals(status) || UserUtils.ACCEPTED_STATUS.equals(status) || UserUtils.CHOSEN_STATUS.equals(status)) {
+                        if (UserUtils.WAITING_STATUS.equals(status)) {
                             // Get event details and add it to the list
                             String eventName = document.getString("eventName");
                             String location = document.getString("location");
                             String details = document.getString("details");
                             Date eventDate = document.getDate("date");
-
+                            String posterUrl = document.getString("posterUrl");
                             if (eventName != null) {
                                 Log.d("EntrantHomeView", "Adding event: " + eventName);
-
                                 // Create event object and add it to the list
                                 Event event = new Event(new UserImpl());
                                 event.setEventName(eventName);
                                 event.setLocation(location);
                                 event.setEventDetails(details);
                                 event.setDate(eventDate);
+                                event.setPosterUrl(posterUrl);
+
+                                Log.d("loadEventData", "Poster URL for event " + eventName + ": " + posterUrl);
+
 
                                 waitlistedEventsList.add(event);
-
-                                String eventPosterUrl = document.getString("posterUrl");
-
-                                if (eventPosterUrl != null && !eventPosterUrl.isEmpty()) {
-                                    // Load the poster image using Picasso into the ImageView
-                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);
-                                    eventPosterImageView.setVisibility(View.VISIBLE);  // Make the poster image visible
-                                    Picasso.get().load(eventPosterUrl).into(eventPosterImageView, new com.squareup.picasso.Callback() {
-                                        @Override
-                                        public void onSuccess() {
-                                            Log.d(TAG, "Event poster loaded successfully.");
-                                        }
-
-                                        @Override
-                                        public void onError(Exception e) {
-                                            Log.e(TAG, "Failed to load event poster", e);
-                                        }
-                                    });
-                                } else {
-                                    // If no poster URL is available, hide the ImageView
-                                    ImageView eventPosterImageView = findViewById(R.id.entrant_home_view_image_view);  // Same here
-                                    eventPosterImageView.setVisibility(View.GONE);
-                                }
                             }
                         }
                     }
                 }
-
                 Log.d("EntrantHomeView", "Total waitlisted events for user: " + waitlistedEventsList.size());
-
                 // Notify data has changed
                 waitlistedEventsAdapter.notifyDataSetChanged();
             } else {

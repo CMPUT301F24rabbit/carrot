@@ -46,7 +46,6 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth_sign_up);
 
-
         userDb = new UserRepository();
 
         // Default user type is "Participant"
