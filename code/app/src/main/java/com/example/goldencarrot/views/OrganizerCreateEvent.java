@@ -112,8 +112,7 @@ public class OrganizerCreateEvent extends AppCompatActivity {
 
             if (snapshot != null && snapshot.exists()) {
                 updateUIWithEventDetails(snapshot);
-            } else {
-                Toast.makeText(this, "Event does not exist.", Toast.LENGTH_SHORT).show();
+
             }
         });
     }
