@@ -438,12 +438,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                         String qrContent = task.getResult().getDocuments().get(0).getString("qrContent");
                         if (qrContent != null) {
                             displayQRCode(qrContent);
-                            Toast.makeText(this, "QR Code loaded successfully.", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(this, "No QR Code data found.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(this, "No existing QR Code. You can generate one.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Generate QR Code.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
